@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, TrendingUp, Target, Trophy, Gift, Shield, DollarSign } from 'lucide-react';
 
@@ -208,9 +208,16 @@ function DashboardMockup() {
 // ─── Main Landing Page ────────────────────────────────────────────
 export default function Landing() {
   const [scrollY, setScrollY] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [hoveredNav, setHoveredNav] = useState(null);
 
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrollY(y);
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docH > 0 ? Math.min((y / docH) * 100, 100) : 0);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -228,57 +235,200 @@ export default function Landing() {
         justifyContent: 'space-between',
         padding: '0 48px',
         height: 68,
-        background: scrollY > 40 ? 'rgba(10,11,16,0.96)' : 'transparent',
-        backdropFilter: scrollY > 40 ? 'blur(20px)' : 'none',
-        borderBottom: scrollY > 40 ? '1px solid var(--border)' : '1px solid transparent',
-        transition: 'all 0.4s ease',
+        background: scrollY > 40 ? 'rgba(10,11,16,0.94)' : 'transparent',
+        backdropFilter: scrollY > 40 ? 'blur(24px) saturate(1.4)' : 'none',
+        borderBottom: scrollY > 40 ? '1px solid rgba(42,51,82,0.8)' : '1px solid transparent',
+        transition: 'background 0.5s ease, backdrop-filter 0.5s ease, border-color 0.5s ease',
       }}>
-        {/* Logo */}
-        <GlitchText
-          as="div"
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 24,
-            letterSpacing: '0.22em',
-            color: 'var(--text)',
+
+        {/* Top accent line — siempre visible */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0,
+          height: 2,
+          background: 'linear-gradient(90deg, var(--violet) 0%, var(--cyan) 45%, transparent 80%)',
+          pointerEvents: 'none',
+        }} />
+
+        {/* Barra de progreso de scroll */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0, left: 0,
+          height: 1,
+          width: `${scrollProgress}%`,
+          background: 'linear-gradient(90deg, var(--violet), var(--cyan))',
+          transition: 'width 0.1s linear',
+          pointerEvents: 'none',
+          opacity: scrollProgress > 1 ? 1 : 0,
+        }} />
+
+        {/* ── Logo ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <GlitchText as="div" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {/* Emblema: diamante con chevron ascendente */}
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon
+                  points="14,2 26,14 14,26 2,14"
+                  stroke="url(#nLG)"
+                  strokeWidth="1.5"
+                  fill="rgba(124,92,255,0.08)"
+                />
+                <polyline
+                  points="9,17 14,10 19,17"
+                  stroke="url(#nLG2)"
+                  strokeWidth="2"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <line x1="14" y1="10" x2="14" y2="20" stroke="url(#nLG2)" strokeWidth="1.5" strokeLinecap="round" />
+                <defs>
+                  <linearGradient id="nLG" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#7C5CFF" />
+                    <stop offset="100%" stopColor="#33D1FF" />
+                  </linearGradient>
+                  <linearGradient id="nLG2" x1="9" y1="10" x2="19" y2="20" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#33D1FF" />
+                    <stop offset="100%" stopColor="#7C5CFF" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 22,
+                letterSpacing: '0.28em',
+                color: 'var(--text)',
+              }}>
+                ASCEND
+              </span>
+            </span>
+          </GlitchText>
+          <span style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 9,
+            color: 'var(--text-muted)',
+            letterSpacing: '0.1em',
+            opacity: 0.5,
+            marginTop: 3,
+          }}>v1.0</span>
+        </div>
+
+        {/* ── Derecha: status + links + CTA ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+
+          {/* Status "EN LÍNEA" */}
+          <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{
-              display: 'inline-flex',
-              width: 5,
-              height: 22,
-              background: 'linear-gradient(180deg, var(--violet), var(--cyan))',
-              borderRadius: 2,
+            gap: 6,
+            padding: '4px 10px',
+            background: 'rgba(51,230,161,0.06)',
+            border: '1px solid rgba(51,230,161,0.18)',
+            borderRadius: 3,
+            marginRight: 18,
+          }}>
+            <div style={{
+              width: 5, height: 5,
+              borderRadius: '50%',
+              background: 'var(--green)',
+              boxShadow: '0 0 6px var(--green)',
+              animation: 'pulse-glow 2s ease-in-out infinite',
               flexShrink: 0,
             }} />
-            ASCEND
-          </span>
-        </GlitchText>
+            <span style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 9,
+              letterSpacing: '0.15em',
+              color: 'var(--green)',
+            }}>EN LÍNEA</span>
+          </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          {['CARACTERÍSTICAS', 'RANKING'].map((label, i) => (
+          {/* Nav links con efecto bracket */}
+          {[
+            { label: 'CARACTERÍSTICAS', href: '#features' },
+            { label: 'RANKING', href: '#ranking-preview' },
+          ].map(({ label, href }) => (
             <a
               key={label}
-              href={i === 0 ? '#features' : '#ranking-preview'}
+              href={href}
               style={{
+                position: 'relative',
                 fontFamily: 'var(--font-ui)',
                 fontWeight: 700,
                 fontSize: 12,
                 letterSpacing: '0.1em',
-                color: 'var(--text-muted)',
+                color: hoveredNav === label ? 'var(--text)' : 'var(--text-muted)',
                 transition: 'color 0.2s',
+                padding: '6px 14px',
+                display: 'inline-flex',
+                alignItems: 'center',
               }}
-              onMouseEnter={e => e.target.style.color = 'var(--text)'}
-              onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}
+              onMouseEnter={() => setHoveredNav(label)}
+              onMouseLeave={() => setHoveredNav(null)}
             >
+              <span style={{
+                position: 'absolute',
+                left: 2,
+                fontFamily: 'var(--font-mono)',
+                fontSize: 14,
+                color: 'var(--violet)',
+                opacity: hoveredNav === label ? 1 : 0,
+                transform: hoveredNav === label ? 'translateX(0)' : 'translateX(5px)',
+                transition: 'opacity 0.15s ease, transform 0.15s ease',
+              }}>[</span>
               {label}
+              <span style={{
+                position: 'absolute',
+                right: 2,
+                fontFamily: 'var(--font-mono)',
+                fontSize: 14,
+                color: 'var(--violet)',
+                opacity: hoveredNav === label ? 1 : 0,
+                transform: hoveredNav === label ? 'translateX(0)' : 'translateX(-5px)',
+                transition: 'opacity 0.15s ease, transform 0.15s ease',
+              }}>]</span>
             </a>
           ))}
-          <Link to="/dashboard" className="btn btn-primary btn-sm">
+
+          {/* Separador vertical */}
+          <div style={{
+            width: 1,
+            height: 20,
+            background: 'var(--border)',
+            margin: '0 10px',
+            opacity: 0.7,
+          }} />
+
+          {/* CTA con esquina angular */}
+          <Link
+            to="/dashboard"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              padding: '9px 22px',
+              background: 'var(--violet)',
+              color: 'white',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              fontSize: 13,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
+              boxShadow: '0 4px 24px var(--violet-glow)',
+              transition: 'box-shadow 0.2s, background 0.2s',
+              textDecoration: 'none',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#8B6FFF';
+              e.currentTarget.style.boxShadow = '0 6px 32px rgba(124,92,255,0.5)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'var(--violet)';
+              e.currentTarget.style.boxShadow = '0 4px 24px var(--violet-glow)';
+            }}
+          >
             Ingresar <ArrowRight size={13} />
           </Link>
         </div>
@@ -624,7 +774,6 @@ export default function Landing() {
                 wide: true,
               },
             ].map((f, i, arr) => {
-              const isEven = i % 2 === 0;
               return (
                 <div
                   key={f.num}
