@@ -136,6 +136,12 @@ a {
   text-decoration: none;
 }
 
+input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.55;
+  font-family: var(--font-ui);
+}
+
 button {
   cursor: pointer;
   border: none;
@@ -594,6 +600,9 @@ img {
   }
   .app-content {
     margin-left: 0;
+  }
+  .auth-left-panel {
+    display: none !important;
   }
 }
 

@@ -400,9 +400,40 @@ export default function Landing() {
             opacity: 0.7,
           }} />
 
-          {/* CTA con esquina angular */}
+          {/* Iniciar sesión — ghost */}
           <Link
-            to="/dashboard"
+            to="/login"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 18px',
+              background: 'transparent',
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              fontSize: 12,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              border: '1px solid var(--border-bright)',
+              textDecoration: 'none',
+              transition: 'border-color 0.2s, color 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'var(--violet)';
+              e.currentTarget.style.color = 'var(--violet)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'var(--border-bright)';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+            }}
+          >
+            Iniciar sesión
+          </Link>
+
+          {/* Crear cuenta — sólido angular */}
+          <Link
+            to="/register"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -412,7 +443,7 @@ export default function Landing() {
               color: 'white',
               fontFamily: 'var(--font-ui)',
               fontWeight: 700,
-              fontSize: 13,
+              fontSize: 12,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
@@ -429,7 +460,7 @@ export default function Landing() {
               e.currentTarget.style.boxShadow = '0 4px 24px var(--violet-glow)';
             }}
           >
-            Ingresar <ArrowRight size={13} />
+            Crear cuenta <ArrowRight size={13} />
           </Link>
         </div>
       </nav>

@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Missions from './pages/Missions';
 import Profile from './pages/Profile';
@@ -34,6 +37,11 @@ export default function App() {
       <Routes>
         {/* Landing page — full screen, no sidebar */}
         <Route path="/" element={<Landing />} />
+
+        {/* Auth pages — no sidebar */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* App pages — wrapped with sidebar layout */}
         <Route element={<AppLayout />}>
