@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Zap, TrendingUp, Target, Trophy, Gift, Shield, DollarSign } from 'lucide-react';
+import { ArrowRight, Zap, TrendingUp, Target, Trophy, Gift, Shield, DollarSign, Menu, X } from 'lucide-react';
 
 // ─── Chromatic aberration / glitch wrapper ───────────────────────
 function GlitchText({ children, style, as: Tag = 'span' }) {
@@ -205,11 +205,26 @@ function DashboardMockup() {
   );
 }
 
+// ─── Responsive breakpoint hook ──────────────────────────────────
+function useBreakpoint(bp = 768) {
+  const [below, setBelow] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth <= bp
+  );
+  useEffect(() => {
+    const fn = () => setBelow(window.innerWidth <= bp);
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, [bp]);
+  return below;
+}
+
 // ─── Main Landing Page ────────────────────────────────────────────
 export default function Landing() {
   const [scrollY, setScrollY] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [hoveredNav, setHoveredNav] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useBreakpoint(768);
 
   useEffect(() => {
     const onScroll = () => {
@@ -233,7 +248,7 @@ export default function Landing() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 48px',
+        padding: isMobile ? '0 20px' : '0 48px',
         height: 68,
         background: scrollY > 40 ? 'rgba(10,11,16,0.94)' : 'transparent',
         backdropFilter: scrollY > 40 ? 'blur(24px) saturate(1.4)' : 'none',
@@ -314,162 +329,166 @@ export default function Landing() {
           }}>v1.0</span>
         </div>
 
-        {/* ── Derecha: status + links + CTA ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-
-          {/* Status "EN LÍNEA" */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '4px 10px',
-            background: 'rgba(51,230,161,0.06)',
-            border: '1px solid rgba(51,230,161,0.18)',
-            borderRadius: 3,
-            marginRight: 18,
-          }}>
+        {/* ── Desktop: status + links + CTAs ── */}
+        {!isMobile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{
-              width: 5, height: 5,
-              borderRadius: '50%',
-              background: 'var(--green)',
-              boxShadow: '0 0 6px var(--green)',
-              animation: 'pulse-glow 2s ease-in-out infinite',
-              flexShrink: 0,
-            }} />
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 9,
-              letterSpacing: '0.15em',
-              color: 'var(--green)',
-            }}>EN LÍNEA</span>
-          </div>
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '4px 10px',
+              background: 'rgba(51,230,161,0.06)',
+              border: '1px solid rgba(51,230,161,0.18)',
+              borderRadius: 3, marginRight: 18,
+            }}>
+              <div style={{
+                width: 5, height: 5, borderRadius: '50%',
+                background: 'var(--green)', boxShadow: '0 0 6px var(--green)',
+                animation: 'pulse-glow 2s ease-in-out infinite', flexShrink: 0,
+              }} />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.15em', color: 'var(--green)' }}>EN LÍNEA</span>
+            </div>
 
-          {/* Nav links con efecto bracket */}
-          {[
-            { label: 'CARACTERÍSTICAS', href: '#features' },
-            { label: 'RANKING', href: '#ranking-preview' },
-          ].map(({ label, href }) => (
-            <a
-              key={label}
-              href={href}
+            {[
+              { label: 'CARACTERÍSTICAS', href: '#features' },
+              { label: 'RANKING', href: '#ranking-preview' },
+            ].map(({ label, href }) => (
+              <a key={label} href={href}
+                style={{
+                  position: 'relative', fontFamily: 'var(--font-ui)', fontWeight: 700,
+                  fontSize: 12, letterSpacing: '0.1em',
+                  color: hoveredNav === label ? 'var(--text)' : 'var(--text-muted)',
+                  transition: 'color 0.2s', padding: '6px 14px',
+                  display: 'inline-flex', alignItems: 'center',
+                }}
+                onMouseEnter={() => setHoveredNav(label)}
+                onMouseLeave={() => setHoveredNav(null)}
+              >
+                <span style={{
+                  position: 'absolute', left: 2, fontFamily: 'var(--font-mono)', fontSize: 14,
+                  color: 'var(--violet)', opacity: hoveredNav === label ? 1 : 0,
+                  transform: hoveredNav === label ? 'translateX(0)' : 'translateX(5px)',
+                  transition: 'opacity 0.15s ease, transform 0.15s ease',
+                }}>[</span>
+                {label}
+                <span style={{
+                  position: 'absolute', right: 2, fontFamily: 'var(--font-mono)', fontSize: 14,
+                  color: 'var(--violet)', opacity: hoveredNav === label ? 1 : 0,
+                  transform: hoveredNav === label ? 'translateX(0)' : 'translateX(-5px)',
+                  transition: 'opacity 0.15s ease, transform 0.15s ease',
+                }}>]</span>
+              </a>
+            ))}
+
+            <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 10px', opacity: 0.7 }} />
+
+            <Link to="/login"
               style={{
-                position: 'relative',
-                fontFamily: 'var(--font-ui)',
-                fontWeight: 700,
-                fontSize: 12,
-                letterSpacing: '0.1em',
-                color: hoveredNav === label ? 'var(--text)' : 'var(--text-muted)',
-                transition: 'color 0.2s',
-                padding: '6px 14px',
-                display: 'inline-flex',
-                alignItems: 'center',
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '8px 18px', background: 'transparent', color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                border: '1px solid var(--border-bright)', textDecoration: 'none',
+                transition: 'border-color 0.2s, color 0.2s',
               }}
-              onMouseEnter={() => setHoveredNav(label)}
-              onMouseLeave={() => setHoveredNav(null)}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--violet)'; e.currentTarget.style.color = 'var(--violet)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-bright)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
             >
-              <span style={{
-                position: 'absolute',
-                left: 2,
-                fontFamily: 'var(--font-mono)',
-                fontSize: 14,
-                color: 'var(--violet)',
-                opacity: hoveredNav === label ? 1 : 0,
-                transform: hoveredNav === label ? 'translateX(0)' : 'translateX(5px)',
-                transition: 'opacity 0.15s ease, transform 0.15s ease',
-              }}>[</span>
-              {label}
-              <span style={{
-                position: 'absolute',
-                right: 2,
-                fontFamily: 'var(--font-mono)',
-                fontSize: 14,
-                color: 'var(--violet)',
-                opacity: hoveredNav === label ? 1 : 0,
-                transform: hoveredNav === label ? 'translateX(0)' : 'translateX(-5px)',
-                transition: 'opacity 0.15s ease, transform 0.15s ease',
-              }}>]</span>
+              Iniciar sesión
+            </Link>
+
+            <Link to="/register"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7,
+                padding: '9px 22px', background: 'var(--violet)', color: 'white',
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
+                boxShadow: '0 4px 24px var(--violet-glow)',
+                transition: 'box-shadow 0.2s, background 0.2s', textDecoration: 'none',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#8B6FFF'; e.currentTarget.style.boxShadow = '0 6px 32px rgba(124,92,255,0.5)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 4px 24px var(--violet-glow)'; }}
+            >
+              Crear cuenta <ArrowRight size={13} />
+            </Link>
+          </div>
+        )}
+
+        {/* ── Mobile: hamburger ── */}
+        {isMobile && (
+          <button onClick={() => setMenuOpen(o => !o)} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--text)', display: 'flex', alignItems: 'center', padding: 6,
+          }}>
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        )}
+      </nav>
+
+      {/* ── Mobile menu drawer ── */}
+      {isMobile && menuOpen && (
+        <div style={{
+          position: 'fixed', top: 68, left: 0, right: 0, zIndex: 190,
+          background: 'rgba(10,11,16,0.97)',
+          backdropFilter: 'blur(24px) saturate(1.4)',
+          borderBottom: '1px solid var(--border)',
+          padding: '20px 28px 28px',
+        }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, var(--violet), var(--cyan), transparent)' }} />
+          {[
+            { label: 'Características', href: '#features' },
+            { label: 'Ranking', href: '#ranking-preview' },
+          ].map(({ label, href }) => (
+            <a key={label} href={href} onClick={() => setMenuOpen(false)}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 16,
+                letterSpacing: '0.05em', color: 'var(--text-secondary)',
+                textDecoration: 'none', padding: '14px 0',
+                borderBottom: '1px solid var(--border)',
+              }}
+            >
+              {label} <ArrowRight size={14} color="var(--text-muted)" />
             </a>
           ))}
-
-          {/* Separador vertical */}
-          <div style={{
-            width: 1,
-            height: 20,
-            background: 'var(--border)',
-            margin: '0 10px',
-            opacity: 0.7,
-          }} />
-
-          {/* Iniciar sesión — ghost */}
-          <Link
-            to="/login"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 18px',
-              background: 'transparent',
-              color: 'var(--text-secondary)',
-              fontFamily: 'var(--font-ui)',
-              fontWeight: 700,
-              fontSize: 12,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              border: '1px solid var(--border-bright)',
-              textDecoration: 'none',
-              transition: 'border-color 0.2s, color 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'var(--violet)';
-              e.currentTarget.style.color = 'var(--violet)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'var(--border-bright)';
-              e.currentTarget.style.color = 'var(--text-secondary)';
-            }}
-          >
-            Iniciar sesión
-          </Link>
-
-          {/* Crear cuenta — sólido angular */}
-          <Link
-            to="/register"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 7,
-              padding: '9px 22px',
-              background: 'var(--violet)',
-              color: 'white',
-              fontFamily: 'var(--font-ui)',
-              fontWeight: 700,
-              fontSize: 12,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
-              boxShadow: '0 4px 24px var(--violet-glow)',
-              transition: 'box-shadow 0.2s, background 0.2s',
-              textDecoration: 'none',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = '#8B6FFF';
-              e.currentTarget.style.boxShadow = '0 6px 32px rgba(124,92,255,0.5)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'var(--violet)';
-              e.currentTarget.style.boxShadow = '0 4px 24px var(--violet-glow)';
-            }}
-          >
-            Crear cuenta <ArrowRight size={13} />
-          </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+            <Link to="/login" onClick={() => setMenuOpen(false)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '13px 20px', background: 'transparent',
+                border: '1px solid var(--border-bright)', color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
+                letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none',
+              }}
+            >
+              Iniciar sesión
+            </Link>
+            <Link to="/register" onClick={() => setMenuOpen(false)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                padding: '13px 20px', background: 'var(--violet)', color: 'white',
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
+                letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none',
+                clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
+                boxShadow: '0 4px 20px var(--violet-glow)',
+              }}
+            >
+              Crear cuenta <ArrowRight size={13} />
+            </Link>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 6px var(--green)', animation: 'pulse-glow 2s ease-in-out infinite' }} />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.15em', color: 'var(--green)' }}>EN LÍNEA — 2,400+ AGENTES ACTIVOS</span>
+          </div>
         </div>
-      </nav>
+      )}
 
       {/* ═══ HERO ════════════════════════════════════════════════ */}
       <section style={{
         position: 'relative',
-        height: '100vh',
-        minHeight: 720,
+        height: isMobile ? 'auto' : '100vh',
+        minHeight: isMobile ? 'auto' : 720,
+        paddingTop: isMobile ? 100 : 0,
+        paddingBottom: isMobile ? 64 : 0,
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',
@@ -511,25 +530,27 @@ export default function Landing() {
           position: 'relative',
           zIndex: 10,
           width: '100%',
-          padding: '0 60px',
+          padding: isMobile ? '0 24px' : '0 60px',
           display: 'grid',
-          gridTemplateColumns: '1fr 420px',
-          gap: 40,
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 420px',
+          gap: isMobile ? 0 : 40,
           alignItems: 'center',
-          transform: `translateY(${scrollY * 0.07}px)`,
+          transform: isMobile ? 'none' : `translateY(${scrollY * 0.07}px)`,
         }}>
 
           {/* Left: Text */}
           <div style={{ position: 'relative' }}>
-            {/* Vertical side label */}
-            <div className="side-label" style={{
-              position: 'absolute',
-              left: -40,
-              top: '50%',
-              transform: 'translateY(-50%) rotate(180deg)',
-            }}>
-              ASCEND SYSTEM v1.0 // MODO ACTIVO
-            </div>
+            {/* Vertical side label — desktop only */}
+            {!isMobile && (
+              <div className="side-label" style={{
+                position: 'absolute',
+                left: -40,
+                top: '50%',
+                transform: 'translateY(-50%) rotate(180deg)',
+              }}>
+                ASCEND SYSTEM v1.0 // MODO ACTIVO
+              </div>
+            )}
 
             {/* System badge */}
             <div style={{
@@ -618,6 +639,7 @@ export default function Landing() {
             {/* CTAs */}
             <div style={{
               display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
               gap: 14,
               marginBottom: 40,
               animation: 'entry-up 0.8s ease forwards',
@@ -671,8 +693,8 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Right: Dashboard mockup with depth */}
-          <div style={{
+          {/* Right: Dashboard mockup — desktop only */}
+          {!isMobile && <div style={{
             display: 'flex',
             justifyContent: 'center',
             transform: `translateY(${-scrollY * 0.05}px)`,
@@ -701,7 +723,7 @@ export default function Landing() {
               pointerEvents: 'none',
             }} />
             <DashboardMockup />
-          </div>
+          </div>}
         </div>
 
         {/* Scroll nudge */}
@@ -726,11 +748,11 @@ export default function Landing() {
       <DataTicker />
 
       {/* ═══ FEATURES — editorial numbered layout ════════════════ */}
-      <section id="features" style={{ padding: '120px 60px' }}>
+      <section id="features" style={{ padding: isMobile ? '72px 24px' : '120px 60px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
           {/* Section header */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 72 }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: isMobile ? 16 : 0, marginBottom: isMobile ? 48 : 72 }}>
             <div>
               <div style={{
                 fontFamily: 'var(--font-mono)',
@@ -810,9 +832,9 @@ export default function Landing() {
                   key={f.num}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: i % 2 === 0 ? '200px 1fr' : '200px 1fr',
-                    gap: 0,
-                    padding: '36px 0',
+                    gridTemplateColumns: isMobile ? '60px 1fr' : '160px 1fr',
+                    gap: isMobile ? 12 : 0,
+                    padding: isMobile ? '28px 0' : '36px 0',
                     borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
                     alignItems: 'center',
                     transition: 'background 0.2s',
@@ -831,18 +853,18 @@ export default function Landing() {
                   {/* Massive outlined number */}
                   <div style={{
                     fontFamily: 'var(--font-display)',
-                    fontSize: 96,
+                    fontSize: isMobile ? 48 : 96,
                     lineHeight: 1,
                     color: 'transparent',
                     WebkitTextStroke: `1px ${f.color}55`,
                     userSelect: 'none',
-                    paddingRight: 24,
+                    paddingRight: isMobile ? 0 : 24,
                   }}>
                     {f.num}
                   </div>
 
                   {/* Feature content */}
-                  <div style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: isMobile ? 14 : 28, alignItems: 'center' }}>
                     <div style={{
                       width: 52,
                       height: 52,
@@ -887,7 +909,7 @@ export default function Landing() {
 
       {/* ═══ ATTRIBUTES SPLIT SECTION ═══════════════════════════ */}
       <section style={{
-        padding: '96px 60px',
+        padding: isMobile ? '64px 24px' : '96px 60px',
         background: 'var(--panel)',
         borderTop: '1px solid var(--border)',
         borderBottom: '1px solid var(--border)',
@@ -904,7 +926,7 @@ export default function Landing() {
           pointerEvents: 'none',
         }} />
 
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 72, alignItems: 'center' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 48 : 72, alignItems: 'center' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.3em', color: 'var(--cyan)', marginBottom: 16 }}>
               TUS ATRIBUTOS
@@ -987,7 +1009,7 @@ export default function Landing() {
       </section>
 
       {/* ═══ RANKING PREVIEW ════════════════════════════════════ */}
-      <section id="ranking-preview" style={{ padding: '120px 60px' }}>
+      <section id="ranking-preview" style={{ padding: isMobile ? '72px 24px' : '120px 60px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.3em', color: 'var(--gold)', marginBottom: 16 }}>
             COMPETENCIA REAL
@@ -1065,7 +1087,7 @@ export default function Landing() {
 
       {/* ═══ PRE-FOOTER CTA ═════════════════════════════════════ */}
       <section style={{
-        padding: '110px 60px',
+        padding: isMobile ? '72px 24px' : '110px 60px',
         background: 'var(--panel)',
         borderTop: '1px solid var(--border)',
         position: 'relative',
@@ -1145,14 +1167,14 @@ export default function Landing() {
 
         {/* Main columns */}
         <div style={{
-          padding: '64px 60px 52px',
+          padding: isMobile ? '48px 24px 36px' : '64px 60px 52px',
           display: 'grid',
-          gridTemplateColumns: '1.6fr 1fr 1fr 1.4fr',
-          gap: 52,
+          gridTemplateColumns: isMobile ? '1fr 1fr' : '1.6fr 1fr 1fr 1.4fr',
+          gap: isMobile ? 36 : 52,
         }}>
 
           {/* ── Col 1: Brand ── */}
-          <div>
+          <div style={{ gridColumn: isMobile ? '1 / -1' : 'auto' }}>
             <div style={{ marginBottom: 18 }}>
               <GlitchText as="div" style={{
                 fontFamily: 'var(--font-display)', fontSize: 26,
@@ -1327,8 +1349,13 @@ export default function Landing() {
         {/* Bottom bar */}
         <div style={{
           borderTop: '1px solid var(--border)',
-          padding: '18px 60px',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: isMobile ? '16px 24px' : '18px 60px',
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: isMobile ? 8 : 0,
+          textAlign: isMobile ? 'center' : 'left',
         }}>
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--text-muted)' }}>
             © 2026 ASCEND. Todos los derechos reservados.
