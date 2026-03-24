@@ -41,42 +41,66 @@ function GlitchText({ children, style, as: Tag = 'span' }) {
   );
 }
 
-// ─── Floating geometric particles ────────────────────────────────
-const PARTICLES = Array.from({ length: 22 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 100,
-  y: Math.random() * 100,
-  size: Math.random() * 4 + 2,
-  duration: Math.random() * 6 + 4,
-  delay: Math.random() * 5,
-  opacity: Math.random() * 0.35 + 0.08,
-  type: i % 4,
-}));
+// ─── Pixel-art floating particles ────────────────────────────────
+const PARTICLES = [
+  { id:0,  x:5,   y:14,  size:2, duration:7,   delay:0,   color:'#7C5CFF', type:0, opacity:0.35 },
+  { id:1,  x:18,  y:72,  size:1, duration:5.5, delay:1.5, color:'#33D1FF', type:1, opacity:0.28 },
+  { id:2,  x:28,  y:38,  size:3, duration:8,   delay:0.8, color:'#F5C451', type:2, opacity:0.3  },
+  { id:3,  x:42,  y:85,  size:1, duration:6,   delay:2,   color:'#33E6A1', type:0, opacity:0.25 },
+  { id:4,  x:55,  y:20,  size:2, duration:9,   delay:0.3, color:'#7C5CFF', type:2, opacity:0.32 },
+  { id:5,  x:67,  y:60,  size:2, duration:6.5, delay:3,   color:'#33D1FF', type:1, opacity:0.22 },
+  { id:6,  x:73,  y:88,  size:1, duration:7.5, delay:1,   color:'#F5C451', type:0, opacity:0.28 },
+  { id:7,  x:82,  y:33,  size:3, duration:5,   delay:2.5, color:'#7C5CFF', type:2, opacity:0.25 },
+  { id:8,  x:91,  y:70,  size:1, duration:8.5, delay:0.7, color:'#33E6A1', type:1, opacity:0.2  },
+  { id:9,  x:12,  y:52,  size:2, duration:6,   delay:4,   color:'#33D1FF', type:0, opacity:0.3  },
+  { id:10, x:35,  y:10,  size:1, duration:7,   delay:1.2, color:'#F5C451', type:2, opacity:0.26 },
+  { id:11, x:48,  y:45,  size:2, duration:9,   delay:3.5, color:'#7C5CFF', type:1, opacity:0.2  },
+  { id:12, x:60,  y:78,  size:3, duration:5.5, delay:0.5, color:'#33D1FF', type:0, opacity:0.22 },
+  { id:13, x:78,  y:18,  size:1, duration:8,   delay:2.2, color:'#33E6A1', type:2, opacity:0.3  },
+  { id:14, x:88,  y:50,  size:2, duration:6.5, delay:4.5, color:'#F5C451', type:1, opacity:0.25 },
+  { id:15, x:22,  y:92,  size:1, duration:7.5, delay:1.8, color:'#7C5CFF', type:0, opacity:0.2  },
+  { id:16, x:96,  y:28,  size:2, duration:5,   delay:3.2, color:'#33D1FF', type:2, opacity:0.28 },
+  { id:17, x:3,   y:66,  size:3, duration:9,   delay:0.2, color:'#F5C451', type:1, opacity:0.18 },
+  { id:18, x:52,  y:96,  size:1, duration:6,   delay:5,   color:'#33E6A1', type:0, opacity:0.22 },
+  { id:19, x:38,  y:58,  size:2, duration:8,   delay:2.8, color:'#7C5CFF', type:2, opacity:0.2  },
+  { id:20, x:70,  y:5,   size:1, duration:7,   delay:1.6, color:'#33D1FF', type:0, opacity:0.3  },
+  { id:21, x:15,  y:30,  size:2, duration:6.5, delay:0.9, color:'#F5C451', type:1, opacity:0.25 },
+];
 
 function Particle({ p }) {
-  const shapes = [
-    <div key={p.id} style={{ width: p.size * 2, height: p.size * 2, background: 'var(--violet)', transform: 'rotate(45deg)', opacity: p.opacity }} />,
-    <div key={p.id} style={{ width: p.size * 2, height: p.size * 2, borderRadius: '50%', border: `1px solid var(--cyan)`, opacity: p.opacity }} />,
-    <div key={p.id} style={{ width: p.size * 5, height: 1, background: 'var(--gold)', opacity: p.opacity * 0.7 }} />,
-    <div key={p.id} style={{ width: p.size * 2, height: p.size * 2, border: `1px solid var(--green)`, opacity: p.opacity * 0.6 }} />,
-  ];
+  const s = p.size * 3;
+  // type 0: pixel cross (+)
+  if (p.type === 0) return (
+    <div style={{ position:'absolute', left:`${p.x}%`, top:`${p.y}%`, animation:`float ${p.duration}s ease-in-out infinite`, animationDelay:`${p.delay}s`, pointerEvents:'none' }}>
+      <svg width={s*2+1} height={s*2+1} viewBox="0 0 5 5" shapeRendering="crispEdges" style={{ imageRendering:'pixelated', opacity:p.opacity }}>
+        <rect x="2" y="0" width="1" height="5" fill={p.color} />
+        <rect x="0" y="2" width="5" height="1" fill={p.color} />
+      </svg>
+    </div>
+  );
+  // type 1: pixel square (2×2)
+  if (p.type === 1) return (
+    <div style={{ position:'absolute', left:`${p.x}%`, top:`${p.y}%`, animation:`float ${p.duration}s ease-in-out infinite`, animationDelay:`${p.delay}s`, pointerEvents:'none' }}>
+      <div style={{ width:p.size*4, height:p.size*4, background:p.color, opacity:p.opacity }} />
+    </div>
+  );
+  // type 2: pixel diamond (◆)
   return (
-    <div style={{
-      position: 'absolute',
-      left: `${p.x}%`,
-      top: `${p.y}%`,
-      animation: `float-rotate ${p.duration}s ease-in-out infinite`,
-      animationDelay: `${p.delay}s`,
-      pointerEvents: 'none',
-    }}>
-      {shapes[p.type]}
+    <div style={{ position:'absolute', left:`${p.x}%`, top:`${p.y}%`, animation:`float ${p.duration}s ease-in-out infinite`, animationDelay:`${p.delay}s`, pointerEvents:'none' }}>
+      <svg width={s} height={s} viewBox="0 0 5 5" shapeRendering="crispEdges" style={{ imageRendering:'pixelated', opacity:p.opacity }}>
+        <rect x="2" y="0" width="1" height="1" fill={p.color} />
+        <rect x="1" y="1" width="3" height="1" fill={p.color} />
+        <rect x="0" y="2" width="5" height="1" fill={p.color} />
+        <rect x="1" y="3" width="3" height="1" fill={p.color} />
+        <rect x="2" y="4" width="1" height="1" fill={p.color} />
+      </svg>
     </div>
   );
 }
 
 // ─── Scrolling data ticker ────────────────────────────────────────
 const TICKER_TEXT =
-  '// SISTEMA ACTIVO // JUGADORES ONLINE: 2,400+ // XP MÁXIMO REGISTRADO: 78,400 // RACHA RÉCORD: 62 DÍAS // MISIONES ACTIVAS: 6 // POSICIÓN #5 GLOBAL // PRÓXIMO EVENTO: 48H // SALUD: 78 // DINERO: 62 // DISCIPLINA: 91 // NIVEL GLOBAL: 24 // XP: 48,230 //   ';
+  'DARKSTAR completa Entrenamiento de Fuerza · +150 XP · · RYUU_ALPHA sube al nivel 29 · · NOVA_PRIME supera los 58K de XP · · RACHA RÉCORD: 62 días sin fallo · · 2,400+ jugadores ya compitiendo · · Tu próxima misión te espera · · SALUD · DINERO · DISCIPLINA · · ÉLITE_X cierra el mes en el top 3 · · Misión legendaria completada: Mes sin azúcar · +800 XP · · ';
 
 function DataTicker() {
   return (
@@ -85,6 +109,82 @@ function DataTicker() {
         {TICKER_TEXT.repeat(4)}
       </div>
     </div>
+  );
+}
+
+// ─── Pixel Terrain Divider ───────────────────────────────────────
+function PixelTerrain({ fillColor, flip = false }) {
+  const ups = [40,32,40,24,16,8,16,0,8,16,8,0,8,16,8,0,8,16,32,40];
+  const heights = flip ? ups.map(y => 48 - y) : ups;
+  let d;
+  if (!flip) {
+    d = `M 0 48 L 0 ${heights[0]}`;
+    heights.forEach((y, i) => {
+      if (i > 0) d += ` L ${i * 8} ${y}`;
+      d += ` L ${(i + 1) * 8} ${y}`;
+    });
+    d += ` L 160 48 Z`;
+  } else {
+    d = `M 0 0 L 160 0 L 160 ${heights[19]}`;
+    for (let i = 19; i >= 0; i--) {
+      d += ` L ${i * 8} ${heights[i]}`;
+      if (i > 0) d += ` L ${i * 8} ${heights[i - 1]}`;
+    }
+    d += ` Z`;
+  }
+  return (
+    <div style={{ lineHeight: 0, pointerEvents: 'none', display: 'block', overflow: 'hidden' }}>
+      <svg viewBox="0 0 160 48" preserveAspectRatio="none"
+           style={{ width: '100%', height: 48, display: 'block' }}
+           shapeRendering="crispEdges">
+        <path d={d} fill={fillColor} />
+      </svg>
+    </div>
+  );
+}
+
+// ─── Pixel Gem ───────────────────────────────────────────────────
+function PixelGem({ color = '#7C5CFF', scale = 4, opacity = 0.7, style = {} }) {
+  return (
+    <svg width={7 * scale} height={9 * scale} viewBox="0 0 7 9"
+         shapeRendering="crispEdges"
+         style={{ imageRendering: 'pixelated', opacity, display: 'block', ...style }}>
+      <rect x="2" y="0" width="3" height="1" fill={color} />
+      <rect x="1" y="1" width="5" height="1" fill={color} />
+      <rect x="0" y="2" width="7" height="4" fill={color} opacity="0.85" />
+      <rect x="1" y="6" width="5" height="1" fill={color} opacity="0.65" />
+      <rect x="2" y="7" width="3" height="1" fill={color} opacity="0.45" />
+      <rect x="3" y="8" width="1" height="1" fill={color} opacity="0.3" />
+      <rect x="1" y="2" width="2" height="1" fill="white" opacity="0.35" />
+      <rect x="1" y="3" width="1" height="1" fill="white" opacity="0.2" />
+    </svg>
+  );
+}
+
+// ─── Pixel Warrior ───────────────────────────────────────────────
+function PixelWarrior({ scale = 5, style = {} }) {
+  const C = { h:'#7C5CFF', s:'#E8B89A', e:'#1a0a30', b:'#33D1FF', a:'#F5C451', l:'#1A88BB', f:'#0A0B10' };
+  const px = [
+    [1,0,C.h],[2,0,C.h],[3,0,C.h],[4,0,C.h],
+    [0,1,C.h],[1,1,C.h],[2,1,C.h],[3,1,C.h],[4,1,C.h],[5,1,C.h],
+    [0,2,C.h],[1,2,C.s],[2,2,C.s],[3,2,C.s],[4,2,C.s],[5,2,C.h],
+    [0,3,C.h],[1,3,C.e],[2,3,C.s],[3,3,C.s],[4,3,C.e],[5,3,C.h],
+    [0,4,C.a],[1,4,C.b],[2,4,C.b],[3,4,C.b],[4,4,C.b],[5,4,C.a],
+    [1,5,C.b],[2,5,C.b],[3,5,C.b],[4,5,C.b],
+    [0,6,C.b],[1,6,C.b],[2,6,C.a],[3,6,C.a],[4,6,C.b],[5,6,C.b],
+    [1,7,C.b],[2,7,C.b],[3,7,C.b],[4,7,C.b],
+    [1,8,C.l],[4,8,C.l],
+    [1,9,C.l],[4,9,C.l],
+    [0,10,C.f],[1,10,C.f],[4,10,C.f],[5,10,C.f],
+  ];
+  return (
+    <svg width={6 * scale} height={11 * scale} viewBox="0 0 6 11"
+         shapeRendering="crispEdges"
+         style={{ imageRendering: 'pixelated', display: 'block', ...style }}>
+      {px.map(([x, y, color], i) => (
+        <rect key={i} x={x} y={y} width="1" height="1" fill={color} />
+      ))}
+    </svg>
   );
 }
 
@@ -138,9 +238,9 @@ function DashboardMockup() {
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 2 }}>NIVEL GLOBAL</div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 52, color: 'var(--text)', lineHeight: 1, textShadow: '0 0 30px rgba(124,92,255,0.5)' }}>24</div>
         </div>
-        <div style={{ background: 'rgba(245,196,81,0.1)', border: '1px solid rgba(245,196,81,0.3)', borderRadius: 8, padding: '8px 14px', textAlign: 'center' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--gold)', marginBottom: 3, letterSpacing: '0.15em' }}>RACHA</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--gold)', lineHeight: 1 }}>🔥14</div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--gold)', letterSpacing: '0.15em', marginBottom: 3 }}>RACHA</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--gold)', lineHeight: 1, textShadow: '0 0 18px rgba(245,196,81,0.55)' }}>🔥14</div>
         </div>
       </div>
 
@@ -333,11 +433,9 @@ export default function Landing() {
         {!isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '4px 10px',
-              background: 'rgba(51,230,161,0.06)',
-              border: '1px solid rgba(51,230,161,0.18)',
-              borderRadius: 3, marginRight: 18,
+              display: 'flex', alignItems: 'center', gap: 7,
+              marginRight: 22, paddingRight: 22,
+              borderRight: '1px solid var(--border)',
             }}>
               <div style={{
                 width: 5, height: 5, borderRadius: '50%',
@@ -477,7 +575,7 @@ export default function Landing() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
             <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 6px var(--green)', animation: 'pulse-glow 2s ease-in-out infinite' }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.15em', color: 'var(--green)' }}>EN LÍNEA — 2,400+ AGENTES ACTIVOS</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.15em', color: 'var(--green)' }}>EN LÍNEA — 2,400+ JUGADORES ACTIVOS</span>
           </div>
         </div>
       )}
@@ -525,6 +623,33 @@ export default function Landing() {
           pointerEvents: 'none',
         }} />
 
+        {/* ── Pixel RPG decorations ── */}
+        {!isMobile && (
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3 }}>
+            {/* Warrior — bottom-right corner */}
+            <div style={{
+              position: 'absolute', bottom: 72, right: 56,
+              animation: 'float 4.5s ease-in-out infinite',
+              opacity: 0.7,
+            }}>
+              <PixelWarrior scale={6} />
+            </div>
+            {/* Gems */}
+            <div style={{ position:'absolute', top:'17%', left:'44%', animation:'float 5s ease-in-out infinite', animationDelay:'0.4s' }}>
+              <PixelGem color="#7C5CFF" scale={3} opacity={0.45} />
+            </div>
+            <div style={{ position:'absolute', top:'62%', left:'37%', animation:'float 6.5s ease-in-out infinite', animationDelay:'1.2s' }}>
+              <PixelGem color="#33D1FF" scale={2} opacity={0.35} />
+            </div>
+            <div style={{ position:'absolute', top:'28%', right:'22%', animation:'float 5.5s ease-in-out infinite', animationDelay:'2.5s' }}>
+              <PixelGem color="#F5C451" scale={2} opacity={0.4} />
+            </div>
+            <div style={{ position:'absolute', bottom:'25%', left:'48%', animation:'float 7s ease-in-out infinite', animationDelay:'3s' }}>
+              <PixelGem color="#33E6A1" scale={2} opacity={0.3} />
+            </div>
+          </div>
+        )}
+
         {/* Content */}
         <div style={{
           position: 'relative',
@@ -548,28 +673,27 @@ export default function Landing() {
                 top: '50%',
                 transform: 'translateY(-50%) rotate(180deg)',
               }}>
-                ASCEND SYSTEM v1.0 // MODO ACTIVO
+                TU VIDA · TU PARTIDA · SIN EXCUSAS
               </div>
             )}
 
-            {/* System badge */}
+            {/* Hero badge */}
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 8,
-              background: 'rgba(51,209,255,0.08)',
-              border: '1px solid rgba(51,209,255,0.25)',
-              borderRadius: 3,
-              padding: '5px 14px',
+              gap: 14,
               marginBottom: 30,
               animation: 'entry-left 0.7s ease forwards',
             }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 8px var(--green)', animation: 'pulse-glow 2s ease-in-out infinite' }} />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.2em', color: 'var(--cyan)' }}>
-                SISTEMA ACTIVO
-              </span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)' }}>
-                // v1.0.0
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', boxShadow: '0 0 10px var(--green)', animation: 'pulse-glow 2s ease-in-out infinite', flexShrink: 0 }} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.22em', color: 'var(--green)' }}>
+                  BETA GRATUITA
+                </span>
+              </div>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text-muted)', opacity: 0.35, lineHeight: 1 }}>╱</span>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)', letterSpacing: '0.01em' }}>
+                2,400+ jugando ahora
               </span>
             </div>
 
@@ -665,9 +789,9 @@ export default function Landing() {
               animationFillMode: 'forwards',
             }}>
               {[
-                { val: '2,400+', label: 'Jugadores', color: 'var(--cyan)' },
-                { val: '48K', label: 'XP máximo', color: 'var(--gold)' },
-                { val: '#5', label: 'Tu ranking potencial', color: 'var(--violet)' },
+                { val: '2,400+', label: 'Ya compitiendo', color: 'var(--cyan)' },
+                { val: '48K', label: 'XP récord global', color: 'var(--gold)' },
+                { val: '62d', label: 'Racha más larga', color: 'var(--violet)' },
               ].map(stat => (
                 <div key={stat.label}>
                   <div style={{
@@ -761,7 +885,7 @@ export default function Landing() {
                 color: 'var(--violet)',
                 marginBottom: 12,
               }}>
-                ¿CÓMO FUNCIONA?
+                ¿CÓMO SE JUEGA?
               </div>
               <h2 style={{
                 fontFamily: 'var(--font-display)',
@@ -769,12 +893,12 @@ export default function Landing() {
                 color: 'var(--text)',
                 lineHeight: 0.95,
               }}>
-                EL SISTEMA<br />
+                LA MECÁNICA<br />
                 <span style={{
                   color: 'transparent',
                   WebkitTextStroke: '1px rgba(255,255,255,0.3)',
                 }}>
-                  DE ASCEND
+                  DEL ASCENSO
                 </span>
               </h2>
             </div>
@@ -786,8 +910,8 @@ export default function Landing() {
               textAlign: 'right',
               lineHeight: 2,
             }}>
-              CUATRO PILARES<br />
-              PROGRESO REAL
+              CUATRO FASES<br />
+              HACIA LA CIMA
             </div>
           </div>
 
@@ -799,7 +923,7 @@ export default function Landing() {
                 icon: TrendingUp,
                 color: 'var(--violet)',
                 title: 'SUBE DE NIVEL',
-                desc: 'Cada acción real suma XP. Entrenas → ganas. Ahorras → ganas. Cada día que cumples, el número sube. El nivel es implacable.',
+                desc: 'Cada acción real suma XP. Entrenas, ahorras, lees, madrugas — el contador sube. Faltas un día — el contador también lo sabe. Sin trampa. Sin excusa.',
                 wide: true,
               },
               {
@@ -807,7 +931,7 @@ export default function Landing() {
                 icon: Target,
                 color: 'var(--cyan)',
                 title: 'MISIONES',
-                desc: 'Desde comunes hasta legendarias. Cada misión tiene un valor claro. Cuanto más difícil, más XP. Así de simple.',
+                desc: 'Comunes, raras, épicas, legendarias. Cada una tiene un precio en esfuerzo y un premio en XP. Elige las que puedes. Ejecuta las que temes.',
                 wide: false,
               },
               {
@@ -815,7 +939,7 @@ export default function Landing() {
                 icon: Gift,
                 color: 'var(--gold)',
                 title: 'RECOMPENSAS',
-                desc: 'Títulos. Marcos. Insignias raras. Desbloqueas estatus que otros no tienen porque no pusieron el trabajo.',
+                desc: 'Títulos únicos. Marcos épicos. Insignias que nadie compra. Solo se consiguen poniendo el trabajo donde otros se rindieron.',
                 wide: false,
               },
               {
@@ -823,7 +947,7 @@ export default function Landing() {
                 icon: Trophy,
                 color: 'var(--green)',
                 title: 'RANKING GLOBAL',
-                desc: 'Tu posición refleja exactamente cuánto trabajas. No hay trampa. No hay atajos. Pura ejecución.',
+                desc: 'Una lista. Tu nombre. Tu posición actualizada en tiempo real. Cada misión completada mueve la aguja. Cada día perdido también.',
                 wide: true,
               },
             ].map((f, i, arr) => {
@@ -866,17 +990,15 @@ export default function Landing() {
                   {/* Feature content */}
                   <div style={{ display: 'flex', gap: isMobile ? 14 : 28, alignItems: 'center' }}>
                     <div style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 12,
-                      background: `${f.color}18`,
-                      border: `1px solid ${f.color}44`,
+                      position: 'relative',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
+                      gap: 6,
                       flexShrink: 0,
                     }}>
-                      <f.icon size={22} color={f.color} />
+                      <f.icon size={24} color={f.color} strokeWidth={1.5} />
+                      <div style={{ width: 20, height: 2, background: f.color, opacity: 0.5, borderRadius: 1 }} />
                     </div>
                     <div>
                       <div style={{
@@ -906,6 +1028,11 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Terrain: void → panel */}
+      <div style={{ background: 'var(--void)', lineHeight: 0, marginBottom: -1 }}>
+        <PixelTerrain fillColor="#131722" />
+      </div>
 
       {/* ═══ ATTRIBUTES SPLIT SECTION ═══════════════════════════ */}
       <section style={{
@@ -984,11 +1111,11 @@ export default function Landing() {
                 }}
               >
                 <div style={{
-                  width: 44, height: 44, borderRadius: 10,
-                  background: `${attr.color}1A`, border: `1px solid ${attr.color}44`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  gap: 5, flexShrink: 0, paddingRight: 4,
                 }}>
-                  <attr.icon size={20} color={attr.color} />
+                  <attr.icon size={22} color={attr.color} strokeWidth={1.5} />
+                  <div style={{ width: 22, height: 2, background: attr.color, opacity: 0.45 }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -1007,6 +1134,11 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Terrain: panel → void */}
+      <div style={{ background: 'var(--panel)', lineHeight: 0, marginBottom: -1 }}>
+        <PixelTerrain fillColor="#0A0B10" flip />
+      </div>
 
       {/* ═══ RANKING PREVIEW ════════════════════════════════════ */}
       <section id="ranking-preview" style={{ padding: isMobile ? '72px 24px' : '120px 60px' }}>
@@ -1085,6 +1217,11 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Terrain: void → panel */}
+      <div style={{ background: 'var(--void)', lineHeight: 0, marginBottom: -1 }}>
+        <PixelTerrain fillColor="#131722" />
+      </div>
+
       {/* ═══ PRE-FOOTER CTA ═════════════════════════════════════ */}
       <section style={{
         padding: isMobile ? '72px 24px' : '110px 60px',
@@ -1118,10 +1255,14 @@ export default function Landing() {
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{
-            fontFamily: 'var(--font-mono)', fontSize: 10,
-            letterSpacing: '0.35em', color: 'var(--violet)', marginBottom: 22,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14,
+            marginBottom: 28,
           }}>
-            // EL MOMENTO ES AHORA
+            <div style={{ width: 40, height: 1, background: 'linear-gradient(90deg, transparent, var(--violet))' }} />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.3em', color: 'var(--violet)' }}>
+              EL MOMENTO ES AHORA
+            </span>
+            <div style={{ width: 40, height: 1, background: 'linear-gradient(90deg, var(--cyan), transparent)' }} />
           </div>
           <div style={{
             fontFamily: 'var(--font-display)',
@@ -1298,48 +1439,34 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* ── Col 4: System status terminal ── */}
+          {/* ── Col 4: Manifiesto ── */}
           <div>
             <div style={{
               fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.3em',
-              color: 'var(--text-muted)', marginBottom: 12,
+              color: 'var(--text-muted)', marginBottom: 18,
               paddingBottom: 10, borderBottom: '1px solid var(--border)',
             }}>
-              SISTEMA STATUS
+              MANIFIESTO
             </div>
-            <div style={{
-              background: 'var(--panel)',
-              border: '1px solid var(--border)',
-              borderRadius: 8, padding: '16px 18px',
-              position: 'relative', overflow: 'hidden',
-            }}>
-              {/* Corner decorators */}
+            <div style={{ borderLeft: '2px solid var(--violet)', paddingLeft: 16, marginBottom: 24 }}>
+              <p style={{
+                fontFamily: 'var(--font-body)', fontSize: 13,
+                color: 'var(--text-secondary)', lineHeight: 1.9,
+                fontStyle: 'italic',
+              }}>
+                "La diferencia entre quien eres y quien quieres ser está en lo que haces cada día."
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { top: 5, left: 5, borderWidth: '1px 0 0 1px' },
-                { top: 5, right: 5, borderWidth: '1px 1px 0 0' },
-                { bottom: 5, left: 5, borderWidth: '0 0 1px 1px' },
-                { bottom: 5, right: 5, borderWidth: '0 1px 1px 0' },
-              ].map((pos, i) => (
-                <div key={i} style={{
-                  position: 'absolute', width: 7, height: 7,
-                  borderColor: 'var(--violet)', borderStyle: 'solid',
-                  opacity: 0.35, ...pos,
-                }} />
-              ))}
-              {[
-                { label: 'SERVIDOR', val: 'ONLINE', color: 'var(--green)' },
-                { label: 'JUGADORES', val: '2,400+', color: 'var(--cyan)' },
-                { label: 'UPTIME', val: '99.9%', color: 'var(--violet)' },
-                { label: 'VERSION', val: 'v1.0.0', color: 'var(--text-muted)' },
-                { label: 'BUILD', val: '2026.03', color: 'var(--text-muted)' },
-              ].map((row, i, arr) => (
-                <div key={row.label} style={{
-                  display: 'flex', justifyContent: 'space-between',
-                  fontFamily: 'var(--font-mono)', fontSize: 10, lineHeight: 2.1,
-                  borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                }}>
-                  <span style={{ color: 'var(--text-muted)', opacity: 0.55 }}>{row.label}</span>
-                  <span style={{ color: row.color }}>{row.val}</span>
+                { label: 'Salud', color: 'var(--green)', desc: 'Tu cuerpo es tu base' },
+                { label: 'Dinero', color: 'var(--gold)', desc: 'Tu libertad futura' },
+                { label: 'Disciplina', color: 'var(--violet)', desc: 'Tu ventaja real' },
+              ].map(attr => (
+                <div key={attr.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: attr.color, flexShrink: 0 }} />
+                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: attr.color }}>{attr.label}</span>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--text-muted)' }}>— {attr.desc}</span>
                 </div>
               ))}
             </div>
@@ -1371,7 +1498,7 @@ export default function Landing() {
             </span>
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', color: 'var(--text-muted)' }}>
-            ASCEND SYSTEM // v1.0.0
+            © 2026 Hecho para los que actúan.
           </div>
         </div>
       </footer>
