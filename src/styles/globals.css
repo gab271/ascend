@@ -816,3 +816,10 @@ img {
   0%, 100% { opacity: 0.6; }
   50%       { opacity: 1; }
 }
+
+@keyframes scroll-line-drop {
+  0%   { top: -55%; opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 0.8; }
+  100% { top: 110%; opacity: 0; }
+}

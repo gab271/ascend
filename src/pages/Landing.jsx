@@ -43,7 +43,7 @@ function useBreakpoint(bp = 768) {
   return below;
 }
 
-function Section({ id, children, style, delay = 0 }) {
+function useVisible(threshold = 0.07) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -51,20 +51,43 @@ function Section({ id, children, style, delay = 0 }) {
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) setVisible(true); },
-      { threshold: 0.06 }
+      { threshold }
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [threshold]);
+  return [ref, visible];
+}
+
+function Section({ id, children, style, delay = 0 }) {
+  const [ref, visible] = useVisible(0.06);
   return (
     <section id={id} ref={ref} style={{
       opacity: visible ? 1 : 0,
-      transform: visible ? 'none' : 'translateY(32px)',
-      transition: `opacity 0.75s ease ${delay}ms, transform 0.75s ease ${delay}ms`,
+      transform: visible ? 'translateY(0) scale(1)' : 'translateY(56px) scale(0.97)',
+      filter: visible ? 'blur(0px)' : 'blur(10px)',
+      transition: `opacity 1s cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform 1s cubic-bezier(0.22,1,0.36,1) ${delay}ms, filter 0.85s ease ${delay}ms`,
       ...style,
     }}>
       {children}
     </section>
+  );
+}
+
+function StaggerItem({ index = 0, children, style }) {
+  const [ref, visible] = useVisible(0.1);
+  const d = index * 90;
+  return (
+    <div ref={ref} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translateY(0) scale(1) rotateX(0deg)' : 'translateY(44px) scale(0.95) rotateX(8deg)',
+      filter: visible ? 'blur(0px)' : 'blur(6px)',
+      transition: `opacity 0.8s cubic-bezier(0.22,1,0.36,1) ${d}ms, transform 0.8s cubic-bezier(0.22,1,0.36,1) ${d}ms, filter 0.65s ease ${d}ms`,
+      transformOrigin: 'top center',
+      ...style,
+    }}>
+      {children}
+    </div>
   );
 }
 
@@ -110,43 +133,6 @@ function Divider({ accent }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   LIVE TICKER
-═══════════════════════════════════════════════════════════════ */
-const TICKER = [
-  'DARKSTAR completó Entrenamiento de Fuerza · +150 XP',
-  'RYUU_ALPHA sube al Nivel 29',
-  'NOVA_PRIME supera los 58K de XP acumulados',
-  'RACHA RÉCORD: 62 días consecutivos sin fallo',
-  '+2.400 operadores activos esta semana',
-  'Misión legendaria completada: Mes sin azúcar · +800 XP',
-  'ÉLITE_X termina el mes en el Top 3 Global',
-  'SALUD · DINERO · DISCIPLINA — El sistema que funciona',
-];
-
-function LiveTicker() {
-  const text = TICKER.map(t => `▸  ${t}`).join('     ');
-  return (
-    <div style={{
-      overflow: 'hidden', whiteSpace: 'nowrap',
-      background: '#0D0F1A',
-      borderTop: '1px solid rgba(255,255,255,0.04)',
-      borderBottom: '1px solid rgba(255,255,255,0.04)',
-      padding: '10px 0',
-    }}>
-      <div style={{
-        display: 'inline-block',
-        animation: 'ticker-scroll 44s linear infinite',
-        fontFamily: 'var(--font-mono)',
-        fontSize: 11,
-        letterSpacing: '0.09em',
-        color: 'rgba(160,174,203,0.45)',
-      }}>
-        {(text + '     ').repeat(5)}
-      </div>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════════════
    PRODUCT MOCKUP — Dashboard card
@@ -665,27 +651,31 @@ export default function Landing() {
         minHeight: 600,
         overflow: 'hidden',
       }}>
-        {/* GIF background — always visible */}
+        {/* GIF background — always visible, with parallax */}
         <img
           src="/heroAscend.gif"
           alt=""
           style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
+            position: 'absolute', left: 0, right: 0,
+            top: '-12%', width: '100%', height: '124%',
             objectFit: 'cover', zIndex: 0,
+            transform: `translateY(${scrollY * 0.32}px)`,
+            willChange: 'transform',
           }}
         />
 
-        {/* Video overlay — plays on top of gif when available, no overlays/filters */}
+        {/* Video overlay — parallax matching gif */}
         <video
           autoPlay
           loop
           muted
           playsInline
           style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
+            position: 'absolute', left: 0, right: 0,
+            top: '-12%', width: '100%', height: '124%',
             objectFit: 'cover', zIndex: 1,
+            transform: `translateY(${scrollY * 0.32}px)`,
+            willChange: 'transform',
           }}
         >
           <source
@@ -812,6 +802,7 @@ export default function Landing() {
           <div style={{
             display: 'flex', justifyContent: 'center',
             animation: 'hero-fade-up 0.7s ease 0.55s both',
+            paddingBottom: isMobile ? 0 : 8,
           }}>
             {[
               { n: '50K+', label: 'Aventureros' },
@@ -839,9 +830,34 @@ export default function Landing() {
             ))}
           </div>
         </div>
-      </section>
 
-      <LiveTicker />
+        {/* Scroll indicator */}
+        <div style={{
+          position: 'absolute', bottom: 28, left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+          opacity: Math.max(0, 1 - scrollY / 180),
+          transition: 'opacity 0.2s',
+          pointerEvents: 'none', zIndex: 4,
+        }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: 8,
+            letterSpacing: '0.35em', textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.38)',
+          }}>Scroll</span>
+          <div style={{
+            width: 1, height: 52, position: 'relative', overflow: 'hidden',
+            background: 'rgba(255,255,255,0.12)',
+          }}>
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0,
+              height: '50%',
+              background: 'linear-gradient(to bottom, rgba(255,255,255,0.0), rgba(255,255,255,0.7))',
+              animation: 'scroll-line-drop 1.7s cubic-bezier(0.4,0,0.6,1) infinite',
+            }} />
+          </div>
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════════════
           CARACTERÍSTICAS — ARSENAL DE HERRAMIENTAS
@@ -910,25 +926,26 @@ export default function Landing() {
               const borderRight = !isMobile && col < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none';
               const borderBottom = !isMobile && row === 0 ? '1px solid rgba(255,255,255,0.08)' : (isMobile && i < 5 ? '1px solid rgba(255,255,255,0.08)' : 'none');
               return (
-                <div key={title} style={{
-                  padding: isMobile ? '32px 24px' : '48px 40px',
-                  borderRight,
-                  borderBottom,
-                  transition: 'background 0.2s',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                >
-                  <div style={{ marginBottom: 20 }}>{icon}</div>
-                  <h3 style={{
-                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15,
-                    color: '#F5F7FB', letterSpacing: '0.02em', marginBottom: 10,
-                  }}>{title}</h3>
-                  <p style={{
-                    fontFamily: 'var(--font-body)', fontSize: 13,
-                    color: 'rgba(160,174,203,0.6)', lineHeight: 1.7,
-                  }}>{desc}</p>
-                </div>
+                <StaggerItem key={title} index={i} style={{ borderRight, borderBottom }}>
+                  <div style={{
+                    padding: isMobile ? '32px 24px' : '48px 40px',
+                    transition: 'background 0.2s',
+                    height: '100%',
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div style={{ marginBottom: 20 }}>{icon}</div>
+                    <h3 style={{
+                      fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15,
+                      color: '#F5F7FB', letterSpacing: '0.02em', marginBottom: 10,
+                    }}>{title}</h3>
+                    <p style={{
+                      fontFamily: 'var(--font-body)', fontSize: 13,
+                      color: 'rgba(160,174,203,0.6)', lineHeight: 1.7,
+                    }}>{desc}</p>
+                  </div>
+                </StaggerItem>
               );
             })}
           </div>
