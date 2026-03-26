@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { signOut } from '../lib/api/auth';
 import {
   ArrowRight, Zap, TrendingUp, Target, Trophy, Shield,
   DollarSign, Menu, X, CheckCircle2, Flame, Star,
@@ -337,11 +339,32 @@ function ProductMockup({ isMobile }) {
    MAIN LANDING
 ═══════════════════════════════════════════════════════════════ */
 export default function Landing() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [progress, setProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hovNav, setHovNav] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const isMobile = useBreakpoint(768);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [dropdownOpen]);
+
+  const handleSignOut = async () => {
+    setDropdownOpen(false);
+    await signOut();
+    navigate('/');
+  };
 
   useEffect(() => {
     const fn = () => {
@@ -451,23 +474,128 @@ export default function Landing() {
                 }} />
               </a>
             ))}
+            {user && (
+              <>
+                <div style={{ width: 1, height: 18, background: 'rgba(42,51,82,0.8)', margin: '0 8px' }} />
+                <Link to="/dashboard" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
+                  letterSpacing: '0.14em', textTransform: 'uppercase',
+                  color: '#7C5CFF', padding: '6px 12px',
+                  border: '1px solid rgba(124,92,255,0.35)',
+                  borderRadius: 4, textDecoration: 'none',
+                  background: 'rgba(124,92,255,0.07)',
+                  transition: 'all 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.18)'; e.currentTarget.style.borderColor = '#7C5CFF'; e.currentTarget.style.color = '#9370FF'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.35)'; e.currentTarget.style.color = '#7C5CFF'; }}
+                >
+                  <Zap size={11} />
+                  Dashboard
+                </Link>
+              </>
+            )}
             <div style={{ width: 1, height: 18, background: 'rgba(42,51,82,0.8)', margin: '0 8px' }} />
-            <Link to="/login" style={{
-              fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 12,
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-              color: 'rgba(160,174,203,0.8)', padding: '8px 16px',
-              border: '1px solid rgba(61,79,122,0.7)', borderRadius: 4,
-              textDecoration: 'none', transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#7C5CFF'; e.currentTarget.style.color = '#7C5CFF'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(61,79,122,0.7)'; e.currentTarget.style.color = 'rgba(160,174,203,0.8)'; }}
-            >Entrar</Link>
-            <Link to="/register" style={{
-              ...btnPrimary, fontSize: 12, padding: '9px 20px', marginLeft: 4,
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#9370FF'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(124,92,255,0.5)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(124,92,255,0.35)'; }}
-            >Empezar gratis <ArrowRight size={12} /></Link>
+            {user ? (
+              /* ── Profile avatar + dropdown ── */
+              <div ref={dropdownRef} style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setDropdownOpen(o => !o)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 7,
+                    background: dropdownOpen ? 'rgba(124,92,255,0.15)' : 'rgba(124,92,255,0.07)',
+                    border: `1px solid ${dropdownOpen ? '#7C5CFF' : 'rgba(124,92,255,0.35)'}`,
+                    borderRadius: 5, padding: '4px 10px 4px 5px',
+                    cursor: 'pointer', transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => { if (!dropdownOpen) { e.currentTarget.style.background = 'rgba(124,92,255,0.15)'; e.currentTarget.style.borderColor = '#7C5CFF'; } }}
+                  onMouseLeave={e => { if (!dropdownOpen) { e.currentTarget.style.background = 'rgba(124,92,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.35)'; } }}
+                >
+                  <div style={{
+                    width: 26, height: 26, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #7C5CFF, #33D1FF)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, color: '#fff',
+                  }}>
+                    {(user.email?.[0] ?? '?').toUpperCase()}
+                  </div>
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none"
+                    style={{ transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }}>
+                    <path d="M1 1L5 5L9 1" stroke="rgba(160,174,203,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+
+                {/* Dropdown */}
+                {dropdownOpen && (
+                  <div style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+                    width: 180, zIndex: 300,
+                    background: '#131722', border: '1px solid rgba(42,51,82,0.9)',
+                    borderRadius: 6, overflow: 'hidden',
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,92,255,0.1)',
+                  }}>
+                    {/* Email label */}
+                    <div style={{
+                      padding: '10px 14px 8px',
+                      borderBottom: '1px solid rgba(42,51,82,0.7)',
+                      fontFamily: 'var(--font-mono)', fontSize: 9,
+                      letterSpacing: '0.1em', color: 'rgba(100,115,150,0.8)',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {user.email}
+                    </div>
+                    {[
+                      { label: 'Perfil', to: '/profile' },
+                      { label: 'Configuración', to: '/settings' },
+                    ].map(({ label, to }) => (
+                      <Link key={to} to={to} onClick={() => setDropdownOpen(false)} style={{
+                        display: 'block', padding: '10px 14px',
+                        fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 13,
+                        letterSpacing: '0.04em', color: 'rgba(160,174,203,0.85)',
+                        textDecoration: 'none', transition: 'background 0.15s, color 0.15s',
+                      }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.12)'; e.currentTarget.style.color = '#F5F7FB'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(160,174,203,0.85)'; }}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                    <div style={{ height: 1, background: 'rgba(42,51,82,0.7)', margin: '4px 0' }} />
+                    <button onClick={handleSignOut} style={{
+                      display: 'block', width: '100%', textAlign: 'left',
+                      padding: '10px 14px', background: 'none', border: 'none',
+                      fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 13,
+                      letterSpacing: '0.04em', color: 'rgba(255,77,106,0.75)',
+                      cursor: 'pointer', transition: 'background 0.15s, color 0.15s',
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,77,106,0.1)'; e.currentTarget.style.color = '#FF4D6A'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,77,106,0.75)'; }}
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link to="/login" style={{
+                  fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 12,
+                  letterSpacing: '0.08em', textTransform: 'uppercase',
+                  color: 'rgba(160,174,203,0.8)', padding: '8px 16px',
+                  border: '1px solid rgba(61,79,122,0.7)', borderRadius: 4,
+                  textDecoration: 'none', transition: 'all 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#7C5CFF'; e.currentTarget.style.color = '#7C5CFF'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(61,79,122,0.7)'; e.currentTarget.style.color = 'rgba(160,174,203,0.8)'; }}
+                >Entrar</Link>
+                <Link to="/register" style={{
+                  ...btnPrimary, fontSize: 12, padding: '9px 20px', marginLeft: 4,
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#9370FF'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(124,92,255,0.5)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(124,92,255,0.35)'; }}
+                >Empezar gratis <ArrowRight size={12} /></Link>
+              </>
+            )}
           </div>
         )}
 
@@ -499,13 +627,55 @@ export default function Landing() {
               {label} <ChevronRight size={14} color="rgba(74,90,122,0.8)" />
             </a>
           ))}
-          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <Link to="/register" onClick={() => setMenuOpen(false)} style={{ ...btnPrimary, fontSize: 14, padding: '14px', width: '100%' }}>
-              Empezar gratis
-            </Link>
-            <Link to="/login" onClick={() => setMenuOpen(false)} style={{ ...btnGhost, fontSize: 13, padding: '13px', width: '100%' }}>
-              Ya tengo cuenta
-            </Link>
+          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {user ? (
+              <>
+                {/* User info row */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '12px 14px', borderRadius: 5,
+                  border: '1px solid rgba(42,51,82,0.7)',
+                  background: 'rgba(20,24,40,0.6)', marginBottom: 4,
+                }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #7C5CFF, #33D1FF)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 14,
+                    color: '#fff', flexShrink: 0,
+                  }}>
+                    {(user.email?.[0] ?? '?').toUpperCase()}
+                  </div>
+                  <span style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 10,
+                    letterSpacing: '0.08em', color: 'rgba(100,115,150,0.9)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>{user.email}</span>
+                </div>
+                <Link to="/dashboard" onClick={() => setMenuOpen(false)} style={{ ...btnPrimary, fontSize: 13, padding: '13px', width: '100%' }}>
+                  <Zap size={13} /> Dashboard
+                </Link>
+                <Link to="/profile" onClick={() => setMenuOpen(false)} style={{ ...btnGhost, fontSize: 13, padding: '12px', width: '100%' }}>
+                  Perfil
+                </Link>
+                <button onClick={() => { setMenuOpen(false); handleSignOut(); }} style={{
+                  ...btnGhost, fontSize: 13, padding: '12px', width: '100%',
+                  color: 'rgba(255,77,106,0.8)', borderColor: 'rgba(255,77,106,0.3)',
+                  cursor: 'pointer',
+                }}>
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/register" onClick={() => setMenuOpen(false)} style={{ ...btnPrimary, fontSize: 14, padding: '14px', width: '100%' }}>
+                  Empezar gratis
+                </Link>
+                <Link to="/login" onClick={() => setMenuOpen(false)} style={{ ...btnGhost, fontSize: 13, padding: '13px', width: '100%' }}>
+                  Ya tengo cuenta
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

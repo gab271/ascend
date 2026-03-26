@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap } from 'lucide-react';
 import { currentUser } from '../../data/mockData';
 
@@ -70,6 +70,7 @@ export default function Sidebar() {
         }} />
 
         {/* Glitch logo */}
+        <Link to="/" style={{ textDecoration: 'none' }}>
         <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
           <div style={{
             width: 6,
@@ -121,6 +122,7 @@ export default function Sidebar() {
             ASCEND
           </span>
         </div>
+        </Link>
 
         <div style={{
           fontFamily: 'var(--font-mono)',
