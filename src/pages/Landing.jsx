@@ -446,56 +446,51 @@ export default function Landing() {
 
         {/* Desktop links */}
         {!isMobile && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 20, paddingRight: 20, borderRight: '1px solid rgba(42,51,82,0.7)' }}>
-              <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#33E6A1', boxShadow: '0 0 5px #33E6A1', animation: 'pulse-glow 2s infinite' }} />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: '#33E6A1', letterSpacing: '0.2em' }}>EN LÍNEA</span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {NAV.map(({ label, href }) => (
               <a key={label} href={href}
                 onMouseEnter={() => setHovNav(label)}
                 onMouseLeave={() => setHovNav(null)}
                 style={{
                   position: 'relative', display: 'inline-block',
-                  fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 12,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: hovNav === label ? '#F5F7FB' : 'rgba(160,174,203,0.75)',
+                  fontFamily: 'var(--font-ui)', fontWeight: 500, fontSize: 14,
+                  letterSpacing: '0.01em',
+                  color: hovNav === label ? '#F5F7FB' : 'rgba(160,174,203,0.7)',
                   padding: '6px 14px', textDecoration: 'none',
                   transition: 'color 0.2s',
                 }}
               >
                 {label}
                 <span style={{
-                  position: 'absolute', bottom: 2, left: 14, right: 14, height: 1,
+                  position: 'absolute', bottom: 1, left: 14, right: 14, height: 1,
                   background: '#7C5CFF',
                   transform: hovNav === label ? 'scaleX(1)' : 'scaleX(0)',
                   transformOrigin: 'left',
-                  transition: 'transform 0.2s ease',
+                  transition: 'transform 0.22s ease',
                 }} />
               </a>
             ))}
             {user && (
               <>
-                <div style={{ width: 1, height: 18, background: 'rgba(42,51,82,0.8)', margin: '0 8px' }} />
+                <div style={{ width: 1, height: 16, background: 'rgba(42,51,82,0.8)', margin: '0 6px' }} />
                 <Link to="/dashboard" style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
-                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
-                  letterSpacing: '0.14em', textTransform: 'uppercase',
-                  color: '#7C5CFF', padding: '6px 12px',
-                  border: '1px solid rgba(124,92,255,0.35)',
-                  borderRadius: 4, textDecoration: 'none',
+                  fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 13,
+                  letterSpacing: '0.02em',
+                  color: '#7C5CFF', padding: '7px 14px',
+                  border: '1px solid rgba(124,92,255,0.3)',
+                  borderRadius: 6, textDecoration: 'none',
                   background: 'rgba(124,92,255,0.07)',
                   transition: 'all 0.2s',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.18)'; e.currentTarget.style.borderColor = '#7C5CFF'; e.currentTarget.style.color = '#9370FF'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.35)'; e.currentTarget.style.color = '#7C5CFF'; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.6)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.3)'; }}
                 >
-                  <Zap size={11} />
                   Dashboard
                 </Link>
               </>
             )}
-            <div style={{ width: 1, height: 18, background: 'rgba(42,51,82,0.8)', margin: '0 8px' }} />
+            <div style={{ width: 1, height: 16, background: 'rgba(42,51,82,0.8)', margin: '0 6px' }} />
             {user ? (
               /* ── Profile avatar + dropdown ── */
               <div ref={dropdownRef} style={{ position: 'relative' }}>
@@ -503,25 +498,25 @@ export default function Landing() {
                   onClick={() => setDropdownOpen(o => !o)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 7,
-                    background: dropdownOpen ? 'rgba(124,92,255,0.15)' : 'rgba(124,92,255,0.07)',
-                    border: `1px solid ${dropdownOpen ? '#7C5CFF' : 'rgba(124,92,255,0.35)'}`,
-                    borderRadius: 5, padding: '4px 10px 4px 5px',
+                    background: 'transparent',
+                    border: `1px solid ${dropdownOpen ? 'rgba(124,92,255,0.5)' : 'rgba(42,51,82,0.8)'}`,
+                    borderRadius: 20, padding: '3px 10px 3px 3px',
                     cursor: 'pointer', transition: 'all 0.2s',
                   }}
-                  onMouseEnter={e => { if (!dropdownOpen) { e.currentTarget.style.background = 'rgba(124,92,255,0.15)'; e.currentTarget.style.borderColor = '#7C5CFF'; } }}
-                  onMouseLeave={e => { if (!dropdownOpen) { e.currentTarget.style.background = 'rgba(124,92,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.35)'; } }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.5)'; }}
+                  onMouseLeave={e => { if (!dropdownOpen) e.currentTarget.style.borderColor = 'rgba(42,51,82,0.8)'; }}
                 >
                   <div style={{
-                    width: 26, height: 26, borderRadius: '50%',
+                    width: 28, height: 28, borderRadius: '50%',
                     background: 'linear-gradient(135deg, #7C5CFF, #33D1FF)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, color: '#fff',
+                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: '#fff',
                   }}>
                     {(user.email?.[0] ?? '?').toUpperCase()}
                   </div>
                   <svg width="10" height="6" viewBox="0 0 10 6" fill="none"
                     style={{ transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }}>
-                    <path d="M1 1L5 5L9 1" stroke="rgba(160,174,203,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M1 1L5 5L9 1" stroke="rgba(160,174,203,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
 
@@ -579,21 +574,28 @@ export default function Landing() {
             ) : (
               <>
                 <Link to="/login" style={{
-                  fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 12,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: 'rgba(160,174,203,0.8)', padding: '8px 16px',
-                  border: '1px solid rgba(61,79,122,0.7)', borderRadius: 4,
+                  fontFamily: 'var(--font-ui)', fontWeight: 500, fontSize: 14,
+                  letterSpacing: '0.01em',
+                  color: 'rgba(160,174,203,0.75)', padding: '7px 16px',
+                  border: '1px solid rgba(42,51,82,0.8)', borderRadius: 6,
                   textDecoration: 'none', transition: 'all 0.2s',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#7C5CFF'; e.currentTarget.style.color = '#7C5CFF'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(61,79,122,0.7)'; e.currentTarget.style.color = 'rgba(160,174,203,0.8)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.5)'; e.currentTarget.style.color = '#F5F7FB'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(42,51,82,0.8)'; e.currentTarget.style.color = 'rgba(160,174,203,0.75)'; }}
                 >Entrar</Link>
                 <Link to="/register" style={{
-                  ...btnPrimary, fontSize: 12, padding: '9px 20px', marginLeft: 4,
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 14,
+                  letterSpacing: '0.01em',
+                  padding: '7px 18px', borderRadius: 6,
+                  background: 'var(--violet)', color: '#fff',
+                  border: 'none', cursor: 'pointer', textDecoration: 'none',
+                  boxShadow: '0 2px 16px rgba(124,92,255,0.3)',
+                  transition: 'all 0.2s ease',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#9370FF'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(124,92,255,0.5)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(124,92,255,0.35)'; }}
-                >Empezar gratis <ArrowRight size={12} /></Link>
+                  onMouseEnter={e => { e.currentTarget.style.background = '#8f6fff'; e.currentTarget.style.boxShadow = '0 4px 22px rgba(124,92,255,0.45)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(124,92,255,0.3)'; }}
+                >Empezar gratis</Link>
               </>
             )}
           </div>
