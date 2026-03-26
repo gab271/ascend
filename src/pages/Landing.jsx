@@ -831,32 +831,6 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div style={{
-          position: 'absolute', bottom: 28, left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-          opacity: Math.max(0, 1 - scrollY / 180),
-          transition: 'opacity 0.2s',
-          pointerEvents: 'none', zIndex: 4,
-        }}>
-          <span style={{
-            fontFamily: 'var(--font-mono)', fontSize: 8,
-            letterSpacing: '0.35em', textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.38)',
-          }}>Scroll</span>
-          <div style={{
-            width: 1, height: 52, position: 'relative', overflow: 'hidden',
-            background: 'rgba(255,255,255,0.12)',
-          }}>
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0,
-              height: '50%',
-              background: 'linear-gradient(to bottom, rgba(255,255,255,0.0), rgba(255,255,255,0.7))',
-              animation: 'scroll-line-drop 1.7s cubic-bezier(0.4,0,0.6,1) infinite',
-            }} />
-          </div>
-        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
@@ -962,11 +936,15 @@ export default function Landing() {
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <Eyebrow color="#33D1FF">Sistema de progreso</Eyebrow>
             <h2 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(42px, 5vw, 68px)',
-              color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 300,
+              fontSize: 'clamp(40px, 5vw, 72px)',
+              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em',
               marginBottom: 14,
-            }}>Cuatro pasos.<br />Progreso de por vida.</h2>
+            }}>
+              Cuatro pasos.{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Progreso de por vida.</em>
+            </h2>
             <p style={{
               fontFamily: 'var(--font-body)', fontSize: 16,
               color: 'rgba(160,174,203,0.75)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
@@ -1059,10 +1037,14 @@ export default function Landing() {
             <div>
               <Eyebrow color="#7C5CFF">La aplicación</Eyebrow>
               <h2 style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 300,
                 fontSize: 'clamp(38px, 5vw, 62px)',
-                color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 18,
-              }}>Tu operación central<br />en tiempo real.</h2>
+                color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 18,
+              }}>
+                Tu operación central{' '}
+                <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>en tiempo real.</em>
+              </h2>
               <p style={{
                 fontFamily: 'var(--font-body)', fontSize: 15,
                 color: 'rgba(160,174,203,0.78)', lineHeight: 1.7, marginBottom: 28,
@@ -1114,10 +1096,14 @@ export default function Landing() {
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <Eyebrow color="#7C5CFF">Atributos del sistema</Eyebrow>
             <h2 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(42px, 5vw, 68px)',
-              color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 14,
-            }}>Tres pilares.<br />Un solo objetivo.</h2>
+              fontFamily: 'var(--font-body)',
+              fontWeight: 300,
+              fontSize: 'clamp(40px, 5vw, 68px)',
+              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
+            }}>
+              Tres pilares.{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Un solo objetivo.</em>
+            </h2>
             <p style={{
               fontFamily: 'var(--font-body)', fontSize: 16,
               color: 'rgba(160,174,203,0.75)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
@@ -1242,10 +1228,15 @@ export default function Landing() {
             <div>
               <Eyebrow color="#33E6A1">Por qué funciona</Eyebrow>
               <h2 style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(38px, 5vw, 60px)',
-                color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 18,
-              }}>No es motivación.<br />Es arquitectura<br />de comportamiento.</h2>
+                fontFamily: 'var(--font-body)',
+                fontWeight: 300,
+                fontSize: 'clamp(36px, 4.5vw, 58px)',
+                color: '#F5F7FB', lineHeight: 1.1, letterSpacing: '-0.01em', marginBottom: 18,
+              }}>
+                No es motivación.<br />
+                <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Es arquitectura</em><br />
+                de comportamiento.
+              </h2>
               <p style={{
                 fontFamily: 'var(--font-body)', fontSize: 15,
                 color: 'rgba(160,174,203,0.78)', lineHeight: 1.7, marginBottom: 36,
@@ -1309,10 +1300,15 @@ export default function Landing() {
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <Eyebrow color="#F5C451">Liga de operadores</Eyebrow>
             <h2 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(42px, 5vw, 68px)',
-              color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 14,
-            }}>El ranking no es<br />un adorno. Es un espejo.</h2>
+              fontFamily: 'var(--font-body)',
+              fontWeight: 300,
+              fontSize: 'clamp(40px, 5vw, 68px)',
+              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
+            }}>
+              El ranking no es{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>un adorno.</em>
+              {' '}Es un espejo.
+            </h2>
             <p style={{
               fontFamily: 'var(--font-body)', fontSize: 16,
               color: 'rgba(160,174,203,0.75)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
