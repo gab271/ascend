@@ -142,6 +142,12 @@ input::placeholder {
   font-family: var(--font-ui);
 }
 
+.auth-input-field::placeholder {
+  color: rgba(100, 120, 160, 0.65);
+  opacity: 1;
+  font-family: var(--font-ui);
+}
+
 button {
   cursor: pointer;
   border: none;
@@ -217,6 +223,15 @@ img {
 @keyframes grid-flow {
   0% { background-position: 0 0; }
   100% { background-position: 40px 40px; }
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.auth-left-panel {
+  overflow-y: auto;
 }
 
 @keyframes number-count {
