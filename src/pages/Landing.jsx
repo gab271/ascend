@@ -331,6 +331,7 @@ export default function Landing() {
   const [hovNav, setHovNav] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [heroEmail, setHeroEmail] = useState('');
   const dropdownRef = useRef(null);
   const isMobile = useBreakpoint(768);
 
@@ -784,6 +785,40 @@ export default function Landing() {
               >
                 Ver Demo
               </a>
+            </div>
+
+            {/* Social proof */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: isMobile ? 14 : 24, flexWrap: 'wrap', marginTop: 32,
+              animation: 'hero-fade-up 0.7s ease 0.55s both',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex' }}>
+                  {['#7C5CFF','#33D1FF','#33E6A1','#F5C451','#FF4D6A'].map((c, i) => (
+                    <div key={c} style={{
+                      width: 20, height: 20, borderRadius: '50%',
+                      background: `linear-gradient(135deg, ${c}, ${c}99)`,
+                      border: '1.5px solid rgba(10,11,16,0.7)',
+                      marginLeft: i > 0 ? -6 : 0,
+                    }} />
+                  ))}
+                </div>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+                  <strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>2.400+</strong> ya suben de nivel
+                </span>
+              </div>
+              <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                {[1,2,3,4,5].map(s => <Star key={s} size={10} color="#F5C451" fill="#F5C451" />)}
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)', marginLeft: 4 }}>
+                  <strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>4.9</strong> valoración
+                </span>
+              </div>
+              <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+                Gratis para siempre
+              </span>
             </div>
           </div>
           </div>{/* end flex-1 zone */}
@@ -1509,22 +1544,52 @@ export default function Landing() {
             {' '}<strong style={{ color: '#F5F7FB' }}>Tu progreso empieza cuando tú decides empezar.</strong>
           </p>
 
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
-            <Link
-              to="/register"
-              style={{ ...bBtnDark, fontSize: 15, padding: '15px 34px', animation: 'breathe 3s ease-in-out infinite' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.animation = 'none'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; e.currentTarget.style.animation = 'breathe 3s ease-in-out infinite'; }}
+          {/* Email form */}
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              navigate(`/register${heroEmail ? `?email=${encodeURIComponent(heroEmail)}` : ''}`);
+            }}
+            style={{
+              display: 'flex', gap: 8,
+              justifyContent: 'center', flexWrap: 'wrap',
+              marginBottom: 16, maxWidth: 560, margin: '0 auto 16px',
+            }}
+          >
+            <input
+              type="email"
+              value={heroEmail}
+              onChange={e => setHeroEmail(e.target.value)}
+              placeholder="tu@email.com"
+              style={{
+                fontFamily: 'var(--font-body)', fontSize: 14,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 2, padding: '14px 18px',
+                color: '#F5F7FB', outline: 'none',
+                flex: isMobile ? '1 1 100%' : '1 1 240px',
+                transition: 'border-color 0.18s',
+              }}
+              onFocus={e => e.target.style.borderColor = 'rgba(124,92,255,0.65)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+            />
+            <button
+              type="submit"
+              style={{ ...bBtnDark, fontSize: 14, padding: '14px 28px', animation: 'breathe 3s ease-in-out infinite', flex: isMobile ? '1 1 100%' : 'none' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.animationPlayState = 'paused'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; e.currentTarget.style.animationPlayState = 'running'; }}
             >
-              Empezar gratis — sin excusas <ArrowRight size={15} />
-            </Link>
+              Empezar gratis <ArrowRight size={14} />
+            </button>
+          </form>
+          <div style={{ marginBottom: 28 }}>
             <Link
               to="/login"
-              style={bBtnGhost}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = '#fff'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'; e.currentTarget.style.color = 'rgba(255,255,255,0.82)'; }}
+              style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(160,174,203,0.45)', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(160,174,203,0.8)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'rgba(160,174,203,0.45)'}
             >
-              Ya tengo cuenta
+              Ya tengo cuenta →
             </Link>
           </div>
 
