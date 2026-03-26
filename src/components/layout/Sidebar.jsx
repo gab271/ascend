@@ -1,4 +1,4 @@
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap } from 'lucide-react';
 import { currentUser } from '../../data/mockData';
 
@@ -35,6 +35,7 @@ function Avatar({ username, size = 40 }) {
 
 export default function Sidebar() {
   const xpPercent = (currentUser.xp / currentUser.xpNext) * 100;
+  const navigate = useNavigate();
 
   return (
     <aside style={{
@@ -297,31 +298,33 @@ export default function Sidebar() {
         padding: '12px',
         borderTop: '1px solid var(--border)',
       }}>
-        <button style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '10px 12px',
-          width: '100%',
-          borderRadius: 'var(--radius-md)',
-          fontFamily: 'var(--font-ui)',
-          fontWeight: 600,
-          fontSize: 14,
-          color: 'var(--text-muted)',
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          transition: 'var(--transition)',
-          letterSpacing: '0.05em',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.color = 'var(--text)';
-          e.currentTarget.style.background = 'var(--surface)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.color = 'var(--text-muted)';
-          e.currentTarget.style.background = 'transparent';
-        }}
+        <button
+          onClick={() => navigate('/settings')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '10px 12px',
+            width: '100%',
+            borderRadius: 'var(--radius-md)',
+            fontFamily: 'var(--font-ui)',
+            fontWeight: 600,
+            fontSize: 14,
+            color: 'var(--text-muted)',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'var(--transition)',
+            letterSpacing: '0.05em',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.color = 'var(--text)';
+            e.currentTarget.style.background = 'var(--surface)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.color = 'var(--text-muted)';
+            e.currentTarget.style.background = 'transparent';
+          }}
         >
           <Settings size={18} />
           Configuración

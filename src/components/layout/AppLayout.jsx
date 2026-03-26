@@ -7,6 +7,7 @@ const pageTitles = {
   '/profile': 'Perfil',
   '/ranking': 'Ranking',
   '/rewards': 'Inventario',
+  '/settings': 'Configuración',
 };
 
 export default function AppLayout() {

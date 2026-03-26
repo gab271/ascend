@@ -9,6 +9,7 @@ import Missions from './pages/Missions';
 import Profile from './pages/Profile';
 import Ranking from './pages/Ranking';
 import Rewards from './pages/Rewards';
+import Settings from './pages/Settings';
 import AppLayout from './components/layout/AppLayout';
 
 // Redirige a /login si no hay sesión activa
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/profile"   element={<Profile />} />
           <Route path="/ranking"   element={<Ranking />} />
           <Route path="/rewards"   element={<Rewards />} />
+          <Route path="/settings"  element={<Settings />} />
         </Route>
 
         {/* Catch-all */}
