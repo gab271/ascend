@@ -5,8 +5,8 @@ import { signOut } from '../lib/api/auth';
 import {
   ArrowRight, Zap, TrendingUp, Target, Trophy, Shield,
   DollarSign, Menu, X, CheckCircle2, Flame, Star,
-  ChevronRight, Activity, BarChart3, Swords,
-  Award, Users, RotateCcw, Crosshair, Lock, Play
+  ChevronRight, BarChart3, Swords,
+  Award, Users, RotateCcw, Crosshair, Play
 } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -84,7 +84,6 @@ function LogoMark({ size = 26 }) {
   );
 }
 
-/* Pill label used before section headers */
 function Eyebrow({ children, color = 'var(--violet)' }) {
   return (
     <div style={{
@@ -100,14 +99,13 @@ function Eyebrow({ children, color = 'var(--violet)' }) {
   );
 }
 
-/* Divider with optional accent */
 function Divider({ accent }) {
   return (
     <div style={{
       height: 1,
       background: accent
         ? `linear-gradient(90deg, transparent, ${accent}44, transparent)`
-        : 'linear-gradient(90deg, transparent, rgba(42,51,82,0.8), transparent)',
+        : 'linear-gradient(90deg, transparent, rgba(42,51,82,0.6), transparent)',
     }} />
   );
 }
@@ -131,10 +129,10 @@ function LiveTicker() {
   return (
     <div style={{
       overflow: 'hidden', whiteSpace: 'nowrap',
-      background: 'linear-gradient(90deg, rgba(124,92,255,0.07), rgba(51,209,255,0.04))',
-      borderTop: '1px solid rgba(124,92,255,0.18)',
-      borderBottom: '1px solid rgba(51,209,255,0.12)',
-      padding: '11px 0',
+      background: '#0D0F1A',
+      borderTop: '1px solid rgba(255,255,255,0.04)',
+      borderBottom: '1px solid rgba(255,255,255,0.04)',
+      padding: '10px 0',
     }}>
       <div style={{
         display: 'inline-block',
@@ -142,7 +140,7 @@ function LiveTicker() {
         fontFamily: 'var(--font-mono)',
         fontSize: 11,
         letterSpacing: '0.09em',
-        color: 'rgba(160,174,203,0.85)',
+        color: 'rgba(160,174,203,0.45)',
       }}>
         {(text + '     ').repeat(5)}
       </div>
@@ -378,35 +376,50 @@ export default function Landing() {
   }, []);
 
   const NAV = [
-    { label: 'Cómo funciona', href: '#how' },
-    { label: 'Sistema', href: '#pillars' },
-    { label: 'Ranking', href: '#ranking' },
+    { label: 'Características', href: '#features' },
+    { label: 'Cómo Funciona', href: '#how' },
+    { label: 'Leaderboard', href: '#ranking' },
   ];
 
-  // Reusable button styles
-  const btnPrimary = {
+  const BARLOW = "'Barlow', var(--font-ui), sans-serif";
+
+  /* Barlow rectangular button — light fill */
+  const bBtn = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 14,
-    letterSpacing: '0.1em', textTransform: 'uppercase',
-    padding: '14px 28px', borderRadius: 5,
-    background: 'var(--violet)', color: '#fff',
+    fontFamily: BARLOW, fontWeight: 500, fontSize: 14,
+    letterSpacing: '0.04em',
+    padding: '12px 26px', borderRadius: 2,
+    background: '#f8f8f8', color: '#171717',
     border: 'none', cursor: 'pointer', textDecoration: 'none',
-    clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
-    boxShadow: '0 4px 24px rgba(124,92,255,0.35)',
-    transition: 'all 0.2s ease',
+    transition: 'background 0.18s ease, color 0.18s ease',
   };
-  const btnGhost = {
+
+  /* Barlow rectangular button — ghost/outline */
+  const bBtnGhost = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 13,
-    letterSpacing: '0.08em', textTransform: 'uppercase',
-    padding: '13px 22px', borderRadius: 5,
-    background: 'transparent', color: 'rgba(160,174,203,0.9)',
-    border: '1px solid rgba(61,79,122,0.8)', cursor: 'pointer', textDecoration: 'none',
-    transition: 'all 0.2s ease',
+    fontFamily: BARLOW, fontWeight: 500, fontSize: 14,
+    letterSpacing: '0.04em',
+    padding: '11px 24px', borderRadius: 2,
+    background: 'transparent', color: 'rgba(255,255,255,0.82)',
+    border: '1px solid rgba(255,255,255,0.28)', cursor: 'pointer', textDecoration: 'none',
+    transition: 'all 0.18s ease',
+  };
+
+  /* Barlow button — dark variant for light sections */
+  const bBtnDark = {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    fontFamily: BARLOW, fontWeight: 500, fontSize: 14,
+    letterSpacing: '0.04em',
+    padding: '12px 26px', borderRadius: 2,
+    background: '#f8f8f8', color: '#171717',
+    border: 'none', cursor: 'pointer', textDecoration: 'none',
+    transition: 'background 0.18s ease',
   };
 
   const px = isMobile ? '20px' : '48px';
-  const sectionPad = isMobile ? '72px 20px' : '120px 48px';
+  const sectionPad = isMobile ? '80px 20px' : '128px 48px';
+
+  const scrolled = scrollY > 32;
 
   return (
     <div style={{ background: '#0A0B10', minHeight: '100vh', overflowX: 'hidden' }}>
@@ -414,97 +427,82 @@ export default function Landing() {
       {/* ─────────────── NAVBAR ─────────────── */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
-        height: 62,
+        height: 60,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: `0 ${px}`,
-        background: scrollY > 24 ? 'rgba(10,11,16,0.94)' : 'transparent',
-        backdropFilter: scrollY > 24 ? 'blur(20px) saturate(1.6)' : 'none',
-        borderBottom: scrollY > 24 ? '1px solid rgba(42,51,82,0.7)' : '1px solid transparent',
-        transition: 'background 0.4s, border-color 0.4s',
+        background: scrolled ? 'rgba(10,11,16,0.92)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(24px) saturate(1.4)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : '1px solid transparent',
+        transition: 'background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease',
       }}>
-        {/* Accent line top */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 2, pointerEvents: 'none',
-          background: 'linear-gradient(90deg, #7C5CFF 0%, #33D1FF 40%, transparent 70%)',
-        }} />
         {/* Scroll progress */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0,
           height: 1, width: `${progress}%`,
           background: 'linear-gradient(90deg, #7C5CFF, #33D1FF)',
-          opacity: progress > 2 ? 0.6 : 0,
-          transition: 'width 0.1s linear',
+          opacity: progress > 2 ? 0.55 : 0,
+          transition: 'width 0.1s linear, opacity 0.3s',
           pointerEvents: 'none',
         }} />
 
         {/* Logo */}
         <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <LogoMark size={26} />
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: '0.32em', color: '#F5F7FB' }}>ASCEND</span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.7)', letterSpacing: '0.1em', marginTop: 2 }}>v1.0</span>
+          <LogoMark size={24} />
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 19, letterSpacing: '0.32em', color: '#F5F7FB' }}>ASCEND</span>
         </a>
 
         {/* Desktop links */}
         {!isMobile && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {NAV.map(({ label, href }) => (
               <a key={label} href={href}
                 onMouseEnter={() => setHovNav(label)}
                 onMouseLeave={() => setHovNav(null)}
                 style={{
-                  position: 'relative', display: 'inline-block',
-                  fontFamily: 'var(--font-ui)', fontWeight: 500, fontSize: 14,
-                  letterSpacing: '0.01em',
-                  color: hovNav === label ? '#F5F7FB' : 'rgba(160,174,203,0.7)',
-                  padding: '6px 14px', textDecoration: 'none',
-                  transition: 'color 0.2s',
+                  fontFamily: 'var(--font-body)', fontWeight: 400, fontSize: 14,
+                  color: hovNav === label ? '#ffffff' : 'rgba(255,255,255,0.62)',
+                  padding: '6px 14px', textDecoration: 'none', borderRadius: 4,
+                  background: hovNav === label ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  transition: 'color 0.18s, background 0.18s',
                 }}
               >
                 {label}
-                <span style={{
-                  position: 'absolute', bottom: 1, left: 14, right: 14, height: 1,
-                  background: '#7C5CFF',
-                  transform: hovNav === label ? 'scaleX(1)' : 'scaleX(0)',
-                  transformOrigin: 'left',
-                  transition: 'transform 0.22s ease',
-                }} />
               </a>
             ))}
+
             {user && (
               <>
-                <div style={{ width: 1, height: 16, background: 'rgba(42,51,82,0.8)', margin: '0 6px' }} />
-                <Link to="/dashboard" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 13,
-                  letterSpacing: '0.02em',
-                  color: '#7C5CFF', padding: '7px 14px',
-                  border: '1px solid rgba(124,92,255,0.3)',
-                  borderRadius: 6, textDecoration: 'none',
-                  background: 'rgba(124,92,255,0.07)',
-                  transition: 'all 0.2s',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.6)'; }}
+                <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)', margin: '0 6px' }} />
+                <Link to="/dashboard"
+                  style={{
+                    fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: 14,
+                    color: '#7C5CFF', padding: '6px 14px', borderRadius: 4,
+                    border: '1px solid rgba(124,92,255,0.3)', textDecoration: 'none',
+                    background: 'rgba(124,92,255,0.07)', transition: 'all 0.18s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.55)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.3)'; }}
                 >
                   Dashboard
                 </Link>
               </>
             )}
-            <div style={{ width: 1, height: 16, background: 'rgba(42,51,82,0.8)', margin: '0 6px' }} />
+
+            <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)', margin: '0 8px' }} />
+
             {user ? (
-              /* ── Profile avatar + dropdown ── */
               <div ref={dropdownRef} style={{ position: 'relative' }}>
                 <button
                   onClick={() => setDropdownOpen(o => !o)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 7,
                     background: 'transparent',
-                    border: `1px solid ${dropdownOpen ? 'rgba(124,92,255,0.5)' : 'rgba(42,51,82,0.8)'}`,
+                    border: `1px solid ${dropdownOpen ? 'rgba(124,92,255,0.5)' : 'rgba(255,255,255,0.12)'}`,
                     borderRadius: 20, padding: '3px 10px 3px 3px',
-                    cursor: 'pointer', transition: 'all 0.2s',
+                    cursor: 'pointer', transition: 'all 0.18s',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.5)'; }}
-                  onMouseLeave={e => { if (!dropdownOpen) e.currentTarget.style.borderColor = 'rgba(42,51,82,0.8)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.45)'; }}
+                  onMouseLeave={e => { if (!dropdownOpen) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
                 >
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%',
@@ -516,54 +514,49 @@ export default function Landing() {
                   </div>
                   <svg width="10" height="6" viewBox="0 0 10 6" fill="none"
                     style={{ transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }}>
-                    <path d="M1 1L5 5L9 1" stroke="rgba(160,174,203,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M1 1L5 5L9 1" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
 
-                {/* Dropdown */}
                 {dropdownOpen && (
                   <div style={{
                     position: 'absolute', top: 'calc(100% + 8px)', right: 0,
                     width: 180, zIndex: 300,
-                    background: '#131722', border: '1px solid rgba(42,51,82,0.9)',
+                    background: '#131722', border: '1px solid rgba(255,255,255,0.08)',
                     borderRadius: 6, overflow: 'hidden',
-                    boxShadow: '0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,92,255,0.1)',
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
                   }}>
-                    {/* Email label */}
                     <div style={{
                       padding: '10px 14px 8px',
-                      borderBottom: '1px solid rgba(42,51,82,0.7)',
+                      borderBottom: '1px solid rgba(255,255,255,0.06)',
                       fontFamily: 'var(--font-mono)', fontSize: 9,
-                      letterSpacing: '0.1em', color: 'rgba(100,115,150,0.8)',
+                      letterSpacing: '0.1em', color: 'rgba(160,174,203,0.55)',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>
                       {user.email}
                     </div>
-                    {[
-                      { label: 'Perfil', to: '/profile' },
-                      { label: 'Configuración', to: '/settings' },
-                    ].map(({ label, to }) => (
+                    {[{ label: 'Perfil', to: '/profile' }, { label: 'Configuración', to: '/settings' }].map(({ label, to }) => (
                       <Link key={to} to={to} onClick={() => setDropdownOpen(false)} style={{
                         display: 'block', padding: '10px 14px',
-                        fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 13,
-                        letterSpacing: '0.04em', color: 'rgba(160,174,203,0.85)',
-                        textDecoration: 'none', transition: 'background 0.15s, color 0.15s',
+                        fontFamily: 'var(--font-body)', fontSize: 13,
+                        color: 'rgba(160,174,203,0.85)', textDecoration: 'none',
+                        transition: 'background 0.15s, color 0.15s',
                       }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.12)'; e.currentTarget.style.color = '#F5F7FB'; }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#F5F7FB'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(160,174,203,0.85)'; }}
                       >
                         {label}
                       </Link>
                     ))}
-                    <div style={{ height: 1, background: 'rgba(42,51,82,0.7)', margin: '4px 0' }} />
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
                     <button onClick={handleSignOut} style={{
                       display: 'block', width: '100%', textAlign: 'left',
                       padding: '10px 14px', background: 'none', border: 'none',
-                      fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 13,
-                      letterSpacing: '0.04em', color: 'rgba(255,77,106,0.75)',
-                      cursor: 'pointer', transition: 'background 0.15s, color 0.15s',
+                      fontFamily: 'var(--font-body)', fontSize: 13,
+                      color: 'rgba(255,77,106,0.75)', cursor: 'pointer',
+                      transition: 'background 0.15s, color 0.15s',
                     }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,77,106,0.1)'; e.currentTarget.style.color = '#FF4D6A'; }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,77,106,0.08)'; e.currentTarget.style.color = '#FF4D6A'; }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,77,106,0.75)'; }}
                     >
                       Cerrar sesión
@@ -573,29 +566,21 @@ export default function Landing() {
               </div>
             ) : (
               <>
-                <Link to="/login" style={{
-                  fontFamily: 'var(--font-ui)', fontWeight: 500, fontSize: 14,
-                  letterSpacing: '0.01em',
-                  color: 'rgba(160,174,203,0.75)', padding: '7px 16px',
-                  border: '1px solid rgba(42,51,82,0.8)', borderRadius: 6,
-                  textDecoration: 'none', transition: 'all 0.2s',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(124,92,255,0.5)'; e.currentTarget.style.color = '#F5F7FB'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(42,51,82,0.8)'; e.currentTarget.style.color = 'rgba(160,174,203,0.75)'; }}
+                <Link to="/login"
+                  style={{
+                    fontFamily: BARLOW, fontWeight: 500, fontSize: 13, letterSpacing: '0.04em',
+                    color: 'rgba(255,255,255,0.7)', padding: '8px 18px', borderRadius: 2,
+                    border: '1px solid rgba(255,255,255,0.18)', textDecoration: 'none',
+                    transition: 'all 0.18s', background: 'transparent',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
                 >Entrar</Link>
-                <Link to="/register" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 14,
-                  letterSpacing: '0.01em',
-                  padding: '7px 18px', borderRadius: 6,
-                  background: 'var(--violet)', color: '#fff',
-                  border: 'none', cursor: 'pointer', textDecoration: 'none',
-                  boxShadow: '0 2px 16px rgba(124,92,255,0.3)',
-                  transition: 'all 0.2s ease',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#8f6fff'; e.currentTarget.style.boxShadow = '0 4px 22px rgba(124,92,255,0.45)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(124,92,255,0.3)'; }}
-                >Empezar gratis</Link>
+                <Link to="/register"
+                  style={{ ...bBtn, fontSize: 13, padding: '8px 22px', marginLeft: 6 }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
+                >Comenzar</Link>
               </>
             )}
           </div>
@@ -613,67 +598,56 @@ export default function Landing() {
       {/* Mobile drawer */}
       {isMobile && menuOpen && (
         <div style={{
-          position: 'fixed', top: 62, left: 0, right: 0, zIndex: 190,
+          position: 'fixed', top: 60, left: 0, right: 0, zIndex: 190,
           background: 'rgba(10,11,16,0.98)', backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(42,51,82,0.7)',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
           padding: '20px 24px 28px',
         }}>
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, #7C5CFF, #33D1FF, transparent)' }} />
           {NAV.map(({ label, href }) => (
             <a key={label} href={href} onClick={() => setMenuOpen(false)} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 15,
-              color: 'rgba(160,174,203,0.9)', textDecoration: 'none',
-              padding: '14px 0', borderBottom: '1px solid rgba(42,51,82,0.5)',
+              fontFamily: 'var(--font-body)', fontWeight: 400, fontSize: 15,
+              color: 'rgba(255,255,255,0.75)', textDecoration: 'none',
+              padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)',
             }}>
-              {label} <ChevronRight size={14} color="rgba(74,90,122,0.8)" />
+              {label} <ChevronRight size={14} color="rgba(255,255,255,0.25)" />
             </a>
           ))}
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {user ? (
               <>
-                {/* User info row */}
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '12px 14px', borderRadius: 5,
-                  border: '1px solid rgba(42,51,82,0.7)',
-                  background: 'rgba(20,24,40,0.6)', marginBottom: 4,
+                  padding: '12px 14px', borderRadius: 2,
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.03)', marginBottom: 4,
                 }}>
                   <div style={{
                     width: 36, height: 36, borderRadius: '50%',
                     background: 'linear-gradient(135deg, #7C5CFF, #33D1FF)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 14,
-                    color: '#fff', flexShrink: 0,
+                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 14, color: '#fff', flexShrink: 0,
                   }}>
                     {(user.email?.[0] ?? '?').toUpperCase()}
                   </div>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)', fontSize: 10,
-                    letterSpacing: '0.08em', color: 'rgba(100,115,150,0.9)',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>{user.email}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em', color: 'rgba(160,174,203,0.6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</span>
                 </div>
-                <Link to="/dashboard" onClick={() => setMenuOpen(false)} style={{ ...btnPrimary, fontSize: 13, padding: '13px', width: '100%' }}>
+                <Link to="/dashboard" onClick={() => setMenuOpen(false)} style={{ ...bBtn, padding: '13px', width: '100%' }}>
                   <Zap size={13} /> Dashboard
                 </Link>
-                <Link to="/profile" onClick={() => setMenuOpen(false)} style={{ ...btnGhost, fontSize: 13, padding: '12px', width: '100%' }}>
-                  Perfil
-                </Link>
                 <button onClick={() => { setMenuOpen(false); handleSignOut(); }} style={{
-                  ...btnGhost, fontSize: 13, padding: '12px', width: '100%',
+                  ...bBtnGhost, padding: '12px', width: '100%',
                   color: 'rgba(255,77,106,0.8)', borderColor: 'rgba(255,77,106,0.3)',
-                  cursor: 'pointer',
                 }}>
                   Cerrar sesión
                 </button>
               </>
             ) : (
               <>
-                <Link to="/register" onClick={() => setMenuOpen(false)} style={{ ...btnPrimary, fontSize: 14, padding: '14px', width: '100%' }}>
+                <Link to="/register" onClick={() => setMenuOpen(false)} style={{ ...bBtn, padding: '14px', width: '100%' }}>
                   Empezar gratis
                 </Link>
-                <Link to="/login" onClick={() => setMenuOpen(false)} style={{ ...btnGhost, fontSize: 13, padding: '13px', width: '100%' }}>
+                <Link to="/login" onClick={() => setMenuOpen(false)} style={{ ...bBtnGhost, padding: '13px', width: '100%' }}>
                   Ya tengo cuenta
                 </Link>
               </>
@@ -683,454 +657,324 @@ export default function Landing() {
       )}
 
       {/* ═══════════════════════════════════════════════════════
-          HERO — RPG EDITION
+          HERO — FULL SCREEN VIDEO
       ═══════════════════════════════════════════════════════ */}
       <section style={{
-        position: 'relative', minHeight: '100vh',
-        display: 'flex', flexDirection: 'column', justifyContent: 'center',
-        paddingTop: 62, overflow: 'hidden',
+        position: 'relative',
+        height: '100vh',
+        minHeight: 600,
+        overflow: 'hidden',
       }}>
+        {/* GIF background — always visible */}
+        <img
+          src="/heroAscend.gif"
+          alt=""
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', zIndex: 0,
+          }}
+        />
 
-        {/* ── BG: Grid ── */}
+        {/* Video overlay — plays on top of gif when available, no overlays/filters */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', zIndex: 1,
+          }}
+        >
+          <source
+            src="https://d8j0nticm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07IWA1P/hf_20260306_074215_04640ca7-042c-45d6-bb56-58b1e8a42489.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        {/* Bottom transition to page background */}
         <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          backgroundImage: 'linear-gradient(rgba(42,51,82,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(42,51,82,0.1) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-          animation: 'grid-flow 24s linear infinite',
-          maskImage: 'radial-gradient(ellipse 90% 90% at 50% 40%, black 20%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 90% 90% at 50% 40%, black 20%, transparent 100%)',
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 280,
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(10,11,16,0.7) 60%, #0A0B10 100%)',
+          pointerEvents: 'none', zIndex: 2,
         }} />
 
-        {/* ── BG: Ambient orbs ── */}
+        {/* Content — flex column, no absolute overlap */}
         <div style={{
-          position: 'absolute', top: '10%', left: '-22%', width: 960, height: 960,
-          background: 'radial-gradient(ellipse, rgba(124,92,255,0.14) 0%, transparent 55%)',
-          pointerEvents: 'none', animation: 'orb-breathe 7s ease-in-out infinite',
-        }} />
-        <div style={{
-          position: 'absolute', top: '20%', right: '-18%', width: 800, height: 800,
-          background: 'radial-gradient(ellipse, rgba(51,209,255,0.09) 0%, transparent 55%)',
-          pointerEvents: 'none', animation: 'orb-breathe 10s ease-in-out infinite reverse',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '-35%', left: '30%', width: 900, height: 900,
-          background: 'radial-gradient(ellipse, rgba(245,196,81,0.04) 0%, transparent 55%)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* ── BG: Rising particles ── */}
-        {Array.from({ length: 26 }).map((_, i) => {
-          const palette = ['#7C5CFF', '#33D1FF', '#F5C451', '#33E6A1'];
-          const c = palette[i % 4];
-          const sz = i % 5 === 0 ? 3 : 2;
-          return (
-            <div key={i} style={{
-              position: 'absolute',
-              left: `${(i * 3.7 + 2) % 95}%`,
-              bottom: `${(i * 11) % 40}%`,
-              width: sz, height: sz,
-              borderRadius: '50%',
-              background: c,
-              boxShadow: `0 0 ${sz * 3}px ${c}`,
-              animation: `particle-rise ${7 + (i * 0.55) % 9}s ease-in ${(i * 0.38) % 7}s infinite`,
-              pointerEvents: 'none', opacity: 0, zIndex: 1,
-            }} />
-          );
-        })}
-
-        {/* ── BG: Horizontal scan line ── */}
-        <div style={{
-          position: 'absolute', left: 0, right: 0, height: 1, zIndex: 1,
-          background: 'linear-gradient(90deg, transparent 0%, rgba(124,92,255,0.2) 20%, rgba(51,209,255,0.55) 50%, rgba(124,92,255,0.2) 80%, transparent 100%)',
-          animation: 'hero-scan 11s ease-in-out infinite',
-          pointerEvents: 'none',
-        }} />
-
-        {/* ── Corner HUD accents ── */}
-        {!isMobile && [
-          { top: 80, left: 24, borderWidth: '2px 0 0 2px' },
-          { top: 80, right: 24, borderWidth: '2px 2px 0 0' },
-          { bottom: 24, left: 24, borderWidth: '0 0 2px 2px' },
-          { bottom: 24, right: 24, borderWidth: '0 2px 2px 0' },
-        ].map(({ borderWidth, ...pos }, i) => (
-          <div key={i} style={{
-            position: 'absolute', width: 28, height: 28,
-            borderColor: 'rgba(124,92,255,0.3)', borderStyle: 'solid',
-            borderWidth, pointerEvents: 'none', zIndex: 3, ...pos,
-          }} />
-        ))}
-
-        {/* ── Side labels ── */}
-        {!isMobile && (
-          <>
-            <div style={{
-              position: 'absolute', left: 14, top: '50%',
-              transform: 'translateY(-50%) rotate(180deg)',
-              fontFamily: 'var(--font-mono)', fontSize: 8,
-              color: 'rgba(74,90,122,0.4)', letterSpacing: '0.32em',
-              writingMode: 'vertical-rl', userSelect: 'none', pointerEvents: 'none', zIndex: 3,
-            }}>ASCEND OS v1.0 · SISTEMA ACTIVO</div>
-            <div style={{
-              position: 'absolute', right: 14, top: '50%',
-              transform: 'translateY(-50%)',
-              fontFamily: 'var(--font-mono)', fontSize: 8,
-              color: 'rgba(74,90,122,0.4)', letterSpacing: '0.32em',
-              writingMode: 'vertical-rl', userSelect: 'none', pointerEvents: 'none', zIndex: 3,
-            }}>SALUD · DINERO · DISCIPLINA</div>
-          </>
-        )}
-
-        {/* ── Content ── */}
-        <div style={{
-          position: 'relative', zIndex: 2,
-          maxWidth: 1280, margin: '0 auto', width: '100%',
-          padding: isMobile ? '60px 20px 80px' : '80px 56px 80px',
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'flex-start' : 'center',
-          gap: isMobile ? 52 : 80,
-          justifyContent: 'space-between',
+          position: 'absolute', inset: 0, zIndex: 3,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center',
+          paddingTop: 60,
+          paddingBottom: isMobile ? 28 : 48,
         }}>
 
-          {/* LEFT — Copy */}
-          <div style={{ maxWidth: isMobile ? '100%' : 540, flex: '0 0 auto' }}>
+          {/* Flex-1 zone: keeps content vertically centered in remaining space */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
 
-            {/* Season badge */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              padding: '6px 16px 6px 10px',
-              background: 'rgba(124,92,255,0.07)',
-              border: '1px solid rgba(124,92,255,0.22)',
-              borderLeft: '3px solid #7C5CFF',
-              marginBottom: 36,
-              animation: 'hero-fade-up 0.7s ease 0.05s both',
-            }}>
+          {/* Content container */}
+          <div style={{
+            textAlign: 'center',
+            padding: isMobile ? '32px 24px' : '48px 40px',
+            maxWidth: isMobile ? '96%' : 900,
+            width: '100%',
+          }}>
+            {/* Badge */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: isMobile ? 24 : 32, animation: 'hero-fade-up 0.6s ease 0.05s both' }}>
               <div style={{
-                width: 13, height: 13, flexShrink: 0,
-                background: 'rgba(124,92,255,0.18)',
-                border: '1px solid rgba(124,92,255,0.5)',
-                transform: 'rotate(45deg)',
-              }} />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(180,160,255,0.85)', letterSpacing: '0.22em' }}>
-                TEMPORADA 01 · EN VIVO
-              </span>
-              <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#33E6A1', boxShadow: '0 0 7px #33E6A1', animation: 'pulse-glow 2s infinite', flexShrink: 0 }} />
+                display: 'inline-block',
+                fontFamily: 'var(--font-mono)', fontSize: 10,
+                letterSpacing: '0.28em', textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.75)',
+                padding: '7px 18px',
+                border: '1px solid rgba(255,255,255,0.35)',
+                background: 'rgba(0,0,0,0.28)',
+                backdropFilter: 'blur(8px)',
+                textShadow: '0 1px 10px rgba(0,0,0,0.8)',
+              }}>
+                Tu vida. Tu aventura.
+              </div>
             </div>
 
             {/* Headline */}
             <h1 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: isMobile ? 'clamp(60px, 15vw, 84px)' : 'clamp(72px, 6.5vw, 102px)',
-              lineHeight: 0.93,
-              letterSpacing: '0.01em',
-              marginBottom: 18,
-              color: '#F5F7FB',
-              animation: 'hero-fade-up 0.75s ease 0.18s both',
+              marginBottom: isMobile ? 20 : 28,
+              animation: 'hero-fade-up 0.7s ease 0.15s both',
+              textShadow: '0 4px 40px rgba(0,0,0,0.55)',
             }}>
-              <GlitchText>DEJA DE</GlitchText>
-              <br />
               <span style={{
-                WebkitTextStroke: isMobile ? '1px rgba(255,255,255,0.15)' : '1.5px rgba(255,255,255,0.15)',
-                color: 'transparent',
-              }}>INTENTARLO.</span>
-              <br />
+                display: 'block',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 300,
+                fontSize: isMobile ? 'clamp(32px, 8vw, 52px)' : 'clamp(48px, 5.5vw, 76px)',
+                lineHeight: 1.1,
+                color: '#FFFFFF',
+                letterSpacing: '-0.01em',
+              }}>
+                Transforma tu vida en
+              </span>
               <span style={{
-                background: 'linear-gradient(95deg, #7C5CFF 0%, #33D1FF 60%, #33E6A1 100%)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              }}>EJECÚTALO.</span>
+                display: 'block',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontStyle: 'italic',
+                fontWeight: 400,
+                fontSize: isMobile ? 'clamp(42px, 10vw, 66px)' : 'clamp(62px, 7vw, 98px)',
+                lineHeight: 1.05,
+                color: '#FFFFFF',
+                letterSpacing: '-0.02em',
+              }}>
+                la aventura más épica
+              </span>
             </h1>
 
-            {/* Tick-mark divider */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 0,
-              marginBottom: 24, overflow: 'hidden',
-              animation: 'hero-fade-up 0.7s ease 0.3s both',
-            }}>
-              <div style={{ width: 32, height: 2, background: '#7C5CFF', flexShrink: 0 }} />
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} style={{
-                  width: i % 4 === 0 ? 2 : 1,
-                  height: i % 4 === 0 ? 18 : i % 2 === 0 ? 11 : 6,
-                  background: i % 4 === 0 ? '#7C5CFF' : i % 2 === 0 ? 'rgba(124,92,255,0.45)' : 'rgba(124,92,255,0.2)',
-                  marginLeft: 4, flexShrink: 0,
-                }} />
-              ))}
-              <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, rgba(124,92,255,0.35), transparent)', marginLeft: 6 }} />
-            </div>
-
-            {/* Subheadline */}
+            {/* Subtitle */}
             <p style={{
               fontFamily: 'var(--font-body)',
-              fontSize: isMobile ? 16 : 18,
-              color: 'rgba(160,174,203,0.88)',
-              lineHeight: 1.72, marginBottom: 32, maxWidth: 490,
-              animation: 'hero-fade-up 0.7s ease 0.38s both',
+              fontSize: isMobile ? 14 : 16,
+              color: 'rgba(255,255,255,0.72)',
+              lineHeight: 1.7,
+              maxWidth: 500,
+              margin: '0 auto 36px',
+              textShadow: '0 1px 14px rgba(0,0,0,0.8)',
+              animation: 'hero-fade-up 0.7s ease 0.28s both',
             }}>
-              Completa hábitos, retos y objetivos reales para ganar XP, subir de nivel y fortalecer
-              {' '}<strong style={{ color: '#F5F7FB', fontWeight: 600 }}>Salud, Dinero y Disciplina</strong>.
-              No es motivación. Es un sistema que te obliga a crecer.
+              Misiones diarias. Puntos de experiencia. Rankings globales.<br />
+              Tu mejor versión te espera al siguiente nivel.
             </p>
-
-            {/* RPG Attribute bars */}
-            <div style={{
-              display: 'flex', gap: isMobile ? 6 : 8, marginBottom: 36,
-              animation: 'hero-fade-up 0.7s ease 0.48s both',
-            }}>
-              {[
-                { label: 'SALUD',      val: 78, color: '#33E6A1', glow: 'rgba(51,230,161,0.35)',  bg: 'rgba(51,230,161,0.06)',  border: 'rgba(51,230,161,0.18)'  },
-                { label: 'DINERO',     val: 62, color: '#F5C451', glow: 'rgba(245,196,81,0.35)', bg: 'rgba(245,196,81,0.06)', border: 'rgba(245,196,81,0.18)' },
-                { label: 'DISCIPLINA', val: 91, color: '#7C5CFF', glow: 'rgba(124,92,255,0.35)',  bg: 'rgba(124,92,255,0.06)',  border: 'rgba(124,92,255,0.18)'  },
-              ].map(a => (
-                <div key={a.label} style={{
-                  flex: 1, padding: '10px 12px',
-                  background: a.bg,
-                  border: `1px solid ${a.border}`,
-                  borderBottom: `2px solid ${a.color}`,
-                  clipPath: 'polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%)',
-                }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: a.color, opacity: 0.65, letterSpacing: '0.16em', marginBottom: 6 }}>{a.label}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <div style={{ flex: 1, height: 3, background: 'rgba(0,0,0,0.4)', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${a.val}%`, height: '100%', background: a.color,
-                        boxShadow: `0 0 10px ${a.glow}`,
-                        position: 'relative', overflow: 'hidden',
-                      }}>
-                        <div style={{
-                          position: 'absolute', inset: 0,
-                          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)',
-                          backgroundSize: '200% 100%',
-                          animation: 'xp-shimmer 2.8s linear infinite',
-                        }} />
-                      </div>
-                    </div>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 21, color: a.color, lineHeight: 1, textShadow: `0 0 14px ${a.glow}` }}>{a.val}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
 
             {/* CTAs */}
             <div style={{
-              display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40,
-              animation: 'hero-fade-up 0.7s ease 0.58s both',
+              display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap',
+              animation: 'hero-fade-up 0.7s ease 0.4s both',
             }}>
-              <Link to="/register" style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
-                letterSpacing: '0.16em', textTransform: 'uppercase',
-                padding: '15px 30px',
-                background: 'linear-gradient(140deg, #8B6FFF 0%, #5A3FD4 100%)',
-                color: '#fff', border: 'none', cursor: 'pointer', textDecoration: 'none',
-                clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))',
-                boxShadow: '0 0 0 1px rgba(124,92,255,0.35), 0 8px 36px rgba(124,92,255,0.45), inset 0 1px 0 rgba(255,255,255,0.12)',
-                transition: 'all 0.22s ease',
-              }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'linear-gradient(140deg, #9A80FF 0%, #7C5CFF 100%)';
-                  e.currentTarget.style.boxShadow = '0 0 0 1px rgba(124,92,255,0.6), 0 14px 52px rgba(124,92,255,0.65), inset 0 1px 0 rgba(255,255,255,0.18)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'linear-gradient(140deg, #8B6FFF 0%, #5A3FD4 100%)';
-                  e.currentTarget.style.boxShadow = '0 0 0 1px rgba(124,92,255,0.35), 0 8px 36px rgba(124,92,255,0.45), inset 0 1px 0 rgba(255,255,255,0.12)';
-                  e.currentTarget.style.transform = 'none';
-                }}
+              <Link
+                to="/register"
+                style={{ ...bBtn, padding: '13px 32px', fontSize: 15 }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
               >
-                <Swords size={14} /> INICIAR ASCENSO
+                Empezar Gratis
               </Link>
-              <a href="#how" style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 12,
-                letterSpacing: '0.12em', textTransform: 'uppercase',
-                padding: '14px 24px',
-                background: 'transparent', color: 'rgba(51,209,255,0.75)',
-                border: '1px solid rgba(51,209,255,0.22)', cursor: 'pointer', textDecoration: 'none',
-                clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
-                transition: 'all 0.22s ease',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(51,209,255,0.55)'; e.currentTarget.style.color = '#33D1FF'; e.currentTarget.style.background = 'rgba(51,209,255,0.06)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(51,209,255,0.22)'; e.currentTarget.style.color = 'rgba(51,209,255,0.75)'; e.currentTarget.style.background = 'transparent'; }}
+              <a
+                href="#how"
+                style={{ ...bBtnGhost, padding: '12px 30px', fontSize: 15 }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'; e.currentTarget.style.color = 'rgba(255,255,255,0.82)'; }}
               >
-                <Play size={12} style={{ opacity: 0.7 }} /> VER CÓMO FUNCIONA
+                Ver Demo
               </a>
             </div>
-
-            {/* Social proof — HUD border style */}
-            <div style={{
-              display: 'flex', flexWrap: 'wrap',
-              animation: 'hero-fade-up 0.7s ease 0.68s both',
-            }}>
-              {[
-                { n: '2.4K+', label: 'OPERADORES' },
-                { n: '18K+', label: 'MISIONES' },
-                { n: '62D', label: 'RACHA RÉCORD' },
-              ].map(({ n, label }, i) => (
-                <div key={label} style={{
-                  padding: '12px 22px',
-                  background: 'rgba(10,11,16,0.5)',
-                  borderTop: '1px solid rgba(42,51,82,0.9)',
-                  borderBottom: '1px solid rgba(42,51,82,0.9)',
-                  borderLeft: i === 0 ? '1px solid rgba(42,51,82,0.9)' : '1px solid rgba(42,51,82,0.35)',
-                  borderRight: i === 2 ? '1px solid rgba(42,51,82,0.9)' : 'none',
-                }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, color: '#F5F7FB', lineHeight: 1, letterSpacing: '0.01em' }}>{n}</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', marginTop: 5, letterSpacing: '0.22em' }}>{label}</div>
-                </div>
-              ))}
-            </div>
           </div>
+          </div>{/* end flex-1 zone */}
 
-          {/* RIGHT — Mockup with orbital RPG frame */}
-          <div style={{ flex: '0 0 auto', width: isMobile ? '100%' : 'auto', display: 'flex', justifyContent: 'center', position: 'relative' }}>
-
-            {/* Orbital rings — desktop only */}
-            {!isMobile && (
-              <>
-                {/* Outer ring */}
+          {/* Stats — natural bottom */}
+          <div style={{
+            display: 'flex', justifyContent: 'center',
+            animation: 'hero-fade-up 0.7s ease 0.55s both',
+          }}>
+            {[
+              { n: '50K+', label: 'Aventureros' },
+              { n: '2M+', label: 'Misiones' },
+              { n: '180+', label: 'Países' },
+            ].map(({ n, label }, i) => (
+              <div key={label} style={{
+                padding: isMobile ? '8px 20px' : '10px 36px',
+                borderRight: i < 2 ? '1px solid rgba(255,255,255,0.18)' : 'none',
+                textAlign: 'center',
+              }}>
                 <div style={{
-                  position: 'absolute',
-                  top: '50%', left: '50%',
-                  marginTop: -275, marginLeft: -275,
-                  width: 550, height: 550,
-                  border: '1px solid rgba(124,92,255,0.1)',
-                  borderRadius: '50%',
-                  animation: 'spin-slow 38s linear infinite',
-                  pointerEvents: 'none',
-                }}>
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} style={{
-                      position: 'absolute',
-                      top: 0, left: '50%', marginLeft: -1,
-                      width: 2,
-                      height: i % 2 === 0 ? 18 : 9,
-                      background: i % 2 === 0 ? '#7C5CFF' : 'rgba(124,92,255,0.28)',
-                      transformOrigin: '50% 275px',
-                      transform: `rotate(${i * 45}deg)`,
-                      boxShadow: i % 2 === 0 ? '0 0 8px rgba(124,92,255,0.7)' : 'none',
-                    }} />
-                  ))}
-                </div>
-
-                {/* Inner ring */}
+                  fontFamily: 'var(--font-display)', fontSize: isMobile ? 26 : 34,
+                  color: '#fff', lineHeight: 1,
+                  textShadow: '0 2px 20px rgba(0,0,0,0.7)',
+                  letterSpacing: '0.02em',
+                }}>{n}</div>
                 <div style={{
-                  position: 'absolute',
-                  top: '50%', left: '50%',
-                  marginTop: -245, marginLeft: -245,
-                  width: 490, height: 490,
-                  border: '1px solid rgba(51,209,255,0.07)',
-                  borderRadius: '50%',
-                  animation: 'spin-slow 24s linear infinite reverse',
-                  pointerEvents: 'none',
-                }}>
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <div key={i} style={{
-                      position: 'absolute',
-                      top: 0, left: '50%', marginLeft: -0.5,
-                      width: 1,
-                      height: i % 3 === 0 ? 14 : 6,
-                      background: i % 3 === 0 ? 'rgba(51,209,255,0.65)' : 'rgba(51,209,255,0.18)',
-                      transformOrigin: '50% 245px',
-                      transform: `rotate(${i * 30}deg)`,
-                      boxShadow: i % 3 === 0 ? '0 0 5px rgba(51,209,255,0.5)' : 'none',
-                    }} />
-                  ))}
-                </div>
-
-                {/* Glow pool beneath mockup */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: -55, left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: 340, height: 55,
-                  background: 'radial-gradient(ellipse, rgba(124,92,255,0.5) 0%, transparent 68%)',
-                  filter: 'blur(20px)',
-                  animation: 'orb-breathe 3.5s ease-in-out infinite',
-                  pointerEvents: 'none',
-                }} />
-
-                {/* Corner targeting brackets */}
-                {[
-                  { top: -14, left: -14, borderWidth: '2px 0 0 2px' },
-                  { top: -14, right: -14, borderWidth: '2px 2px 0 0' },
-                  { bottom: -14, left: -14, borderWidth: '0 0 2px 2px' },
-                  { bottom: -14, right: -14, borderWidth: '0 2px 2px 0' },
-                ].map(({ borderWidth, ...pos }, i) => (
-                  <div key={i} style={{
-                    position: 'absolute', width: 22, height: 22,
-                    borderColor: 'rgba(124,92,255,0.55)', borderStyle: 'solid',
-                    borderWidth, pointerEvents: 'none', zIndex: 10, ...pos,
-                  }} />
-                ))}
-              </>
-            )}
-
-            {/* Floating mockup */}
-            <div style={{
-              animation: isMobile ? 'none' : 'float 5.5s ease-in-out infinite',
-              filter: isMobile ? 'none' : 'drop-shadow(0 40px 80px rgba(124,92,255,0.32)) drop-shadow(0 0 1px rgba(124,92,255,0.4))',
-              position: 'relative', zIndex: 5,
-            }}>
-              <ProductMockup isMobile={isMobile} />
-            </div>
+                  fontFamily: 'var(--font-mono)', fontSize: 9,
+                  color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em',
+                  marginTop: 5, textTransform: 'uppercase',
+                  textShadow: '0 1px 8px rgba(0,0,0,0.7)',
+                }}>{label}</div>
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Bottom fade */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: 120,
-          background: 'linear-gradient(to bottom, transparent, #0A0B10)',
-          pointerEvents: 'none',
-        }} />
       </section>
 
       <LiveTicker />
+
+      {/* ═══════════════════════════════════════════════════════
+          CARACTERÍSTICAS — ARSENAL DE HERRAMIENTAS
+      ═══════════════════════════════════════════════════════ */}
+      <Section id="features" style={{ padding: sectionPad }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <Eyebrow color="rgba(160,174,203,0.55)">Arsenal de herramientas</Eyebrow>
+            <h2 style={{
+              fontFamily: 'var(--font-body)',
+              fontWeight: 300,
+              fontSize: 'clamp(40px, 5vw, 72px)',
+              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em',
+              marginBottom: 16,
+            }}>
+              Todo lo que{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>necesitas</em>
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-body)', fontSize: 16,
+              color: 'rgba(160,174,203,0.65)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
+            }}>
+              Herramientas diseñadas para convertir tu rutina en la aventura más épica.
+            </p>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            gridTemplateRows: 'auto auto',
+          }}>
+            {[
+              {
+                icon: <Target size={22} color="rgba(160,174,203,0.6)" />,
+                title: 'Misiones Diarias',
+                desc: 'Convierte tus hábitos y tareas en misiones épicas con recompensas de XP.',
+              },
+              {
+                icon: <Zap size={22} color="rgba(160,174,203,0.6)" />,
+                title: 'Sistema de XP',
+                desc: 'Gana puntos de experiencia por cada misión completada y sube de nivel.',
+              },
+              {
+                icon: <Trophy size={22} color="rgba(160,174,203,0.6)" />,
+                title: 'Ranking Global',
+                desc: 'Compite contra aventureros de todo el mundo en tablas de clasificación.',
+              },
+              {
+                icon: <Shield size={22} color="rgba(160,174,203,0.6)" />,
+                title: 'Logros & Badges',
+                desc: 'Desbloquea insignias únicas al alcanzar hitos especiales en tu camino.',
+              },
+              {
+                icon: <Users size={22} color="rgba(160,174,203,0.6)" />,
+                title: 'Gremios',
+                desc: 'Únete a gremios y completa desafíos grupales con otros aventureros.',
+              },
+              {
+                icon: <Swords size={22} color="rgba(160,174,203,0.6)" />,
+                title: 'Boss Fights',
+                desc: 'Enfréntate a jefes semanales completando retos especiales de dificultad.',
+              },
+            ].map(({ icon, title, desc }, i) => {
+              const col = i % 3;
+              const row = Math.floor(i / 3);
+              const borderRight = !isMobile && col < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none';
+              const borderBottom = !isMobile && row === 0 ? '1px solid rgba(255,255,255,0.08)' : (isMobile && i < 5 ? '1px solid rgba(255,255,255,0.08)' : 'none');
+              return (
+                <div key={title} style={{
+                  padding: isMobile ? '32px 24px' : '48px 40px',
+                  borderRight,
+                  borderBottom,
+                  transition: 'background 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <div style={{ marginBottom: 20 }}>{icon}</div>
+                  <h3 style={{
+                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15,
+                    color: '#F5F7FB', letterSpacing: '0.02em', marginBottom: 10,
+                  }}>{title}</h3>
+                  <p style={{
+                    fontFamily: 'var(--font-body)', fontSize: 13,
+                    color: 'rgba(160,174,203,0.6)', lineHeight: 1.7,
+                  }}>{desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </Section>
+
+      <Divider />
 
       {/* ═══════════════════════════════════════════════════════
           CÓMO FUNCIONA
       ═══════════════════════════════════════════════════════ */}
       <Section id="how" style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <Eyebrow color="#33D1FF">Sistema de progreso</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(38px, 5vw, 60px)',
+              fontSize: 'clamp(42px, 5vw, 68px)',
               color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em',
-              marginBottom: 16,
+              marginBottom: 14,
             }}>Cuatro pasos.<br />Progreso de por vida.</h2>
             <p style={{
-              fontFamily: 'var(--font-body)', fontSize: 17,
-              color: 'rgba(160,174,203,0.85)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
+              fontFamily: 'var(--font-body)', fontSize: 16,
+              color: 'rgba(160,174,203,0.75)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
             }}>
-              El sistema de ASCEND transforma acciones reales en progreso medible. Sin ambigüedad. Sin excusas.
+              El sistema convierte acciones reales en progreso medible. Sin ambigüedad.
             </p>
           </div>
 
           <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
-            gap: 16, position: 'relative',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 2,
+            overflow: 'hidden',
           }}>
-            {/* Connector line */}
-            {!isMobile && (
-              <div style={{
-                position: 'absolute', top: 46, left: '13%', right: '13%', height: 1,
-                background: 'linear-gradient(90deg, #7C5CFF33, #33D1FF55, #33D1FF33)',
-                zIndex: 0,
-              }} />
-            )}
-
             {[
               {
                 step: '01', icon: <Crosshair size={20} color="#33D1FF" />, color: '#33D1FF',
                 title: 'Elige tus misiones',
-                body: 'Configura retos diarios que encajen con tus metas: entrenamiento, ahorro, lectura, descanso o lo que elijas construir.',
+                body: 'Configura retos diarios que encajen con tus metas: entrenamiento, ahorro, lectura, descanso.',
               },
               {
                 step: '02', icon: <CheckCircle2 size={20} color="#33E6A1" />, color: '#33E6A1',
                 title: 'Ejecuta en la vida real',
-                body: 'Haz la acción en el mundo real. Marca el progreso en ASCEND. El sistema lo registra y lo contabiliza sin trampa.',
+                body: 'Haz la acción en el mundo real. Marca el progreso en ASCEND. El sistema lo registra sin trampa.',
               },
               {
                 step: '03', icon: <Zap size={20} color="#7C5CFF" />, color: '#7C5CFF',
@@ -1140,52 +984,40 @@ export default function Landing() {
               {
                 step: '04', icon: <TrendingUp size={20} color="#F5C451" />, color: '#F5C451',
                 title: 'Fortalece tus pilares',
-                body: 'Tus acciones alimentan Salud, Dinero y Disciplina. Un perfil que muestra exactamente en qué eres fuerte y qué te falta.',
+                body: 'Tus acciones alimentan Salud, Dinero y Disciplina. Un perfil que muestra exactamente en qué eres fuerte.',
               },
-            ].map(({ step, icon, color, title, body }) => (
+            ].map(({ step, icon, color, title, body }, i) => (
               <div key={step} style={{
-                position: 'relative', zIndex: 1,
-                background: '#131722',
-                border: '1px solid rgba(42,51,82,0.8)',
-                borderRadius: 12, padding: '28px 24px',
-                transition: 'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
+                padding: isMobile ? '32px 24px' : '44px 32px',
+                background: '#0D0F1A',
+                borderRight: !isMobile && i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                borderBottom: isMobile && i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                transition: 'background 0.2s',
+                position: 'relative',
               }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = color;
-                  e.currentTarget.style.transform = 'translateY(-5px)';
-                  e.currentTarget.style.boxShadow = `0 20px 50px rgba(0,0,0,0.4), 0 0 20px ${color}18`;
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'rgba(42,51,82,0.8)';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
               >
-                {/* Step label */}
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}99`, letterSpacing: '0.22em', marginBottom: 18 }}>
-                  PASO {step}
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}80`, letterSpacing: '0.24em', marginBottom: 24 }}>
+                  — {step}
                 </div>
-                {/* Icon */}
                 <div style={{
-                  width: 44, height: 44, borderRadius: 10, marginBottom: 18,
-                  background: `${color}0F`, border: `1px solid ${color}28`,
+                  width: 44, height: 44, borderRadius: 2, marginBottom: 22,
+                  background: `${color}0C`, border: `1px solid ${color}20`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>{icon}</div>
-                {/* Title */}
                 <h3 style={{
-                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 16,
+                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15,
                   color: '#F5F7FB', letterSpacing: '0.02em', marginBottom: 10, lineHeight: 1.3,
                 }}>{title}</h3>
-                {/* Body */}
                 <p style={{
-                  fontFamily: 'var(--font-body)', fontSize: 14,
-                  color: 'rgba(160,174,203,0.8)', lineHeight: 1.65,
+                  fontFamily: 'var(--font-body)', fontSize: 13,
+                  color: 'rgba(160,174,203,0.7)', lineHeight: 1.65,
                 }}>{body}</p>
-                {/* Bottom bar */}
+                {/* Bottom accent line on hover */}
                 <div style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0, height: 2,
-                  background: `linear-gradient(90deg, ${color}66, transparent)`,
-                  borderRadius: '0 0 12px 12px',
+                  position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
+                  background: `linear-gradient(90deg, ${color}40, transparent)`,
                 }} />
               </div>
             ))}
@@ -1196,23 +1028,83 @@ export default function Landing() {
       <Divider />
 
       {/* ═══════════════════════════════════════════════════════
-          PILARES
+          APP SHOWCASE
+      ═══════════════════════════════════════════════════════ */}
+      <Section style={{ padding: sectionPad }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+            gap: isMobile ? 48 : 80,
+            alignItems: 'center',
+          }}>
+            {/* Left copy */}
+            <div>
+              <Eyebrow color="#7C5CFF">La aplicación</Eyebrow>
+              <h2 style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(38px, 5vw, 62px)',
+                color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 18,
+              }}>Tu operación central<br />en tiempo real.</h2>
+              <p style={{
+                fontFamily: 'var(--font-body)', fontSize: 15,
+                color: 'rgba(160,174,203,0.78)', lineHeight: 1.7, marginBottom: 28,
+              }}>
+                Cada día arrancas con tus misiones asignadas. Las completas en el mundo real, las marcas aquí.
+                Tu nivel, tus atributos y tu posición en el ranking se actualizan al momento.
+              </p>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36 }}>
+                {[
+                  'Dashboard con XP, nivel y rachas en vivo',
+                  'Barras de atributo: Salud, Dinero, Disciplina',
+                  'Misiones diarias personalizadas',
+                  'Ranking global actualizado en tiempo real',
+                ].map(item => (
+                  <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <CheckCircle2 size={14} color="#33E6A1" style={{ flexShrink: 0 }} />
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'rgba(160,174,203,0.82)' }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/register"
+                style={bBtnDark}
+                onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
+              >
+                Abrir mi dashboard <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Right mockup */}
+            <div style={{
+              display: 'flex', justifyContent: 'center',
+              animation: isMobile ? 'none' : 'float 6s ease-in-out infinite',
+            }}>
+              <ProductMockup isMobile={isMobile} />
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Divider />
+
+      {/* ═══════════════════════════════════════════════════════
+          TRES PILARES
       ═══════════════════════════════════════════════════════ */}
       <Section id="pillars" style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <Eyebrow color="#7C5CFF">Atributos del sistema</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(38px, 5vw, 60px)',
-              color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em',
-              marginBottom: 16,
+              fontSize: 'clamp(42px, 5vw, 68px)',
+              color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 14,
             }}>Tres pilares.<br />Un solo objetivo.</h2>
             <p style={{
-              fontFamily: 'var(--font-body)', fontSize: 17,
-              color: 'rgba(160,174,203,0.85)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
+              fontFamily: 'var(--font-body)', fontSize: 16,
+              color: 'rgba(160,174,203,0.75)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
             }}>
-              Todo lo que haces fortalece uno de los tres atributos que miden tu progreso real.
               No rastreamos intenciones. Rastreamos acciones.
             </p>
           </div>
@@ -1220,113 +1112,95 @@ export default function Landing() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-            gap: 20,
+            gap: 1,
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 2, overflow: 'hidden',
           }}>
             {[
               {
-                icon: <Shield size={26} color="#33E6A1" />,
-                color: '#33E6A1', bg: 'rgba(51,230,161,0.06)', border: 'rgba(51,230,161,0.16)',
-                label: 'SALUD', title: 'Cuerpo en forma, mente en foco',
+                icon: <Shield size={24} color="#33E6A1" />,
+                color: '#33E6A1', label: 'SALUD',
+                title: 'Cuerpo en forma,\nmente en foco',
                 val: 78, grad: 'linear-gradient(90deg, #1aad78, #33E6A1)',
-                desc: 'Mide tu consistencia física y mental. Cada hábito de ejercicio, descanso, nutrición o bienestar que completes refuerza este atributo.',
+                desc: 'Cada hábito de ejercicio, descanso, nutrición o bienestar que completes refuerza este atributo.',
                 missions: ['Entrenamiento de fuerza · +150 XP', 'Dormir 8 horas · +80 XP', 'Sin procesados · +120 XP'],
-                why: 'Sin energía no hay rendimiento. La salud no es una meta, es la base.',
               },
               {
-                icon: <DollarSign size={26} color="#F5C451" />,
-                color: '#F5C451', bg: 'rgba(245,196,81,0.06)', border: 'rgba(245,196,81,0.16)',
-                label: 'DINERO', title: 'Control financiero real',
+                icon: <DollarSign size={24} color="#F5C451" />,
+                color: '#F5C451', label: 'DINERO',
+                title: 'Control\nfinanciero real',
                 val: 62, grad: 'linear-gradient(90deg, #c49a30, #F5C451)',
-                desc: 'Registra tu educación e inteligencia financiera. Completa misiones de ahorro, inversión y control de gastos para subir este atributo.',
+                desc: 'Completa misiones de ahorro, inversión y control de gastos para subir este atributo.',
                 missions: ['Lectura financiera 30min · +100 XP', 'Sin gastos impulsivos · +80 XP', 'Revisar inversiones · +60 XP'],
-                why: 'La libertad financiera no llega por accidente. Se construye día a día.',
               },
               {
-                icon: <Swords size={26} color="#7C5CFF" />,
-                color: '#7C5CFF', bg: 'rgba(124,92,255,0.06)', border: 'rgba(124,92,255,0.16)',
-                label: 'DISCIPLINA', title: 'Constancia sin negociaciones',
+                icon: <Swords size={24} color="#7C5CFF" />,
+                color: '#7C5CFF', label: 'DISCIPLINA',
+                title: 'Constancia sin\nnegociaciones',
                 val: 91, grad: 'linear-gradient(90deg, #5a3fd4, #7C5CFF)',
-                desc: 'El atributo más difícil de subir y el que más impacto tiene en tu nivel global. Mide tu capacidad de cumplir lo que prometiste.',
-                missions: ['Rutina matutina completa · +90 XP', 'Sin redes sociales 2h · +70 XP', 'Tiempo de trabajo profundo · +130 XP'],
-                why: 'La disciplina no es un rasgo de personalidad. Es un músculo. Entrénalo.',
+                desc: 'El atributo más difícil de subir. Mide tu capacidad de cumplir lo que prometiste.',
+                missions: ['Rutina matutina completa · +90 XP', 'Sin redes sociales 2h · +70 XP', 'Trabajo profundo · +130 XP'],
               },
-            ].map(({ icon, color, bg, border, label, title, val, grad, desc, missions, why }) => (
+            ].map(({ icon, color, label, title, val, grad, desc, missions }, i) => (
               <div key={label} style={{
-                background: bg, border: `1px solid ${border}`,
-                borderRadius: 14, padding: isMobile ? '28px 22px' : '36px 28px',
-                position: 'relative', overflow: 'hidden',
-                transition: 'transform 0.25s, box-shadow 0.25s',
+                padding: isMobile ? '36px 26px' : '48px 36px',
+                background: '#0D0F1A',
+                borderRight: !isMobile && i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                borderBottom: isMobile && i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                position: 'relative',
+                transition: 'background 0.22s',
               }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 24px 60px ${color}14`; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
               >
-                {/* Top line */}
+                {/* Top accent */}
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
 
-                {/* Icon */}
-                <div style={{
-                  width: 52, height: 52, borderRadius: 12, marginBottom: 20,
-                  background: `${color}12`, border: `1px solid ${color}25`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>{icon}</div>
-
-                {/* Label */}
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}CC`, letterSpacing: '0.25em', marginBottom: 8 }}>
-                  PILAR · {label}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 2, flexShrink: 0,
+                    background: `${color}0A`, border: `1px solid ${color}20`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>{icon}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}99`, letterSpacing: '0.25em' }}>
+                    PILAR · {label}
+                  </div>
                 </div>
 
-                {/* Title */}
                 <h3 style={{
-                  fontFamily: 'var(--font-display)', fontSize: 28,
-                  color: '#F5F7FB', lineHeight: 1.1, marginBottom: 14,
+                  fontFamily: 'var(--font-display)', fontSize: 32,
+                  color: '#F5F7FB', lineHeight: 1.05, marginBottom: 14,
+                  whiteSpace: 'pre-line',
                 }}>{title}</h3>
 
-                {/* Desc */}
                 <p style={{
-                  fontFamily: 'var(--font-body)', fontSize: 14,
-                  color: 'rgba(160,174,203,0.85)', lineHeight: 1.65, marginBottom: 22,
+                  fontFamily: 'var(--font-body)', fontSize: 13,
+                  color: 'rgba(160,174,203,0.75)', lineHeight: 1.65, marginBottom: 24,
                 }}>{desc}</p>
 
                 {/* Progress */}
-                <div style={{ marginBottom: 22 }}>
+                <div style={{ marginBottom: 24 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
-                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, color, letterSpacing: '0.1em' }}>NIVEL PROMEDIO</span>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color, lineHeight: 1 }}>{val}</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}99`, letterSpacing: '0.12em' }}>NIVEL PROMEDIO</span>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, color, lineHeight: 1 }}>{val}</span>
                   </div>
-                  <div style={{ height: 6, background: 'rgba(10,11,16,0.5)', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%', width: `${val}%`, background: grad,
-                      borderRadius: 3, boxShadow: `0 0 8px ${color}44`,
-                      position: 'relative', overflow: 'hidden',
-                    }}>
-                      <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)',
-                        backgroundSize: '200% 100%',
-                        animation: 'xp-shimmer 2.5s linear infinite',
-                      }} />
-                    </div>
+                  <div style={{ height: 3, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${val}%`, background: grad, borderRadius: 2 }} />
                   </div>
                 </div>
 
-                {/* Missions */}
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.9)', letterSpacing: '0.2em', marginBottom: 8 }}>MISIONES EJEMPLO</div>
+                {/* Sample missions */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {missions.map(m => (
-                    <div key={m} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
-                      <div style={{ width: 3, height: 3, borderRadius: '50%', background: color, marginTop: 6, flexShrink: 0 }} />
-                      <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(160,174,203,0.75)', fontWeight: 500, lineHeight: 1.4 }}>{m}</span>
+                    <div key={m} style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 10,
+                      color: 'rgba(160,174,203,0.5)', letterSpacing: '0.04em',
+                      paddingLeft: 12, position: 'relative',
+                    }}>
+                      <span style={{ position: 'absolute', left: 0, color: `${color}60` }}>›</span>
+                      {m}
                     </div>
                   ))}
-                </div>
-
-                {/* Why */}
-                <div style={{
-                  padding: '10px 14px', borderRadius: 8,
-                  background: 'rgba(0,0,0,0.2)',
-                  borderLeft: `2px solid ${color}60`,
-                }}>
-                  <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(160,174,203,0.65)', fontStyle: 'italic', lineHeight: 1.5 }}>{why}</span>
                 </div>
               </div>
             ))}
@@ -1337,7 +1211,7 @@ export default function Landing() {
       <Divider />
 
       {/* ═══════════════════════════════════════════════════════
-          BENEFICIOS
+          POR QUÉ FUNCIONA
       ═══════════════════════════════════════════════════════ */}
       <Section style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
@@ -1347,94 +1221,59 @@ export default function Landing() {
             gap: isMobile ? 48 : 80,
             alignItems: 'center',
           }}>
-            {/* Left: copy */}
+            {/* Left */}
             <div>
               <Eyebrow color="#33E6A1">Por qué funciona</Eyebrow>
               <h2 style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(38px, 5vw, 58px)',
-                color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em',
-                marginBottom: 20,
+                fontSize: 'clamp(38px, 5vw, 60px)',
+                color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 18,
               }}>No es motivación.<br />Es arquitectura<br />de comportamiento.</h2>
               <p style={{
-                fontFamily: 'var(--font-body)', fontSize: 16,
-                color: 'rgba(160,174,203,0.85)', lineHeight: 1.7, marginBottom: 36,
+                fontFamily: 'var(--font-body)', fontSize: 15,
+                color: 'rgba(160,174,203,0.78)', lineHeight: 1.7, marginBottom: 36,
               }}>
-                La mayoría de apps te dan inspiración por 3 días. ASCEND construye el sistema operativo de tu disciplina.
-                Cuando tienes el mecanismo correcto, la motivación deja de importar.
+                La mayoría de apps te dan inspiración por 3 días. ASCEND construye el sistema operativo
+                de tu disciplina. Cuando tienes el mecanismo correcto, la motivación deja de importar.
               </p>
-
-              <Link to="/register" style={{
-                ...btnPrimary,
-                background: '#33E6A1', color: '#0A0B10',
-                boxShadow: '0 4px 24px rgba(51,230,161,0.3)',
-                clipPath: 'none', borderRadius: 6,
-              }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(51,230,161,0.45)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 24px rgba(51,230,161,0.3)'; e.currentTarget.style.transform = 'none'; }}
+              <Link
+                to="/register"
+                style={bBtnDark}
+                onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
               >
                 Construir mi sistema <ArrowRight size={14} />
               </Link>
             </div>
 
-            {/* Right: benefit cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Right: feature cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
               {[
-                {
-                  icon: <RotateCcw size={18} color="#33D1FF" />,
-                  color: '#33D1FF',
-                  title: 'Consistencia compuesta',
-                  desc: 'El sistema de rachas hace que fallar tenga un coste real. Eso convierte cada acción en un hábito sostenible.',
-                },
-                {
-                  icon: <BarChart3 size={18} color="#33E6A1" />,
-                  color: '#33E6A1',
-                  title: 'Progreso que se ve',
-                  desc: 'No más "creo que estoy mejorando". Tienes XP, nivel y atributos que reflejan exactamente dónde estás y hacia dónde vas.',
-                },
-                {
-                  icon: <Users size={18} color="#7C5CFF" />,
-                  color: '#7C5CFF',
-                  title: 'Accountability público',
-                  desc: 'Cuando tu progreso es visible para otros, la presión de cumplir se multiplica. El ranking convierte la intención en obligación.',
-                },
-                {
-                  icon: <Award size={18} color="#F5C451" />,
-                  color: '#F5C451',
-                  title: 'Recompensa inmediata',
-                  desc: 'XP, niveles e insignias dan satisfacción en tiempo real. Tu cerebro aprende que el esfuerzo vale la pena. Siempre.',
-                },
-                {
-                  icon: <Target size={18} color="#33D1FF" />,
-                  color: '#33D1FF',
-                  title: 'Claridad de ejecución',
-                  desc: 'Cada día sabes exactamente qué hacer. Sin decisiones paralizantes. Sin dudas. Solo ejecutar las misiones que ya elegiste.',
-                },
-                {
-                  icon: <Flame size={18} color="#FF4D6A" />,
-                  color: '#FF4D6A',
-                  title: 'Momentum sostenido',
-                  desc: 'La mayoría abandona por pérdida de impulso. Las rachas y el ranking mantienen activo el motor semana tras semana.',
-                },
-              ].map(({ icon, color, title, desc }) => (
+                { icon: <RotateCcw size={15} color="#33D1FF" />, color: '#33D1FF', title: 'Consistencia compuesta', desc: 'El sistema de rachas hace que fallar tenga un coste real. Eso convierte cada acción en un hábito sostenible.' },
+                { icon: <BarChart3 size={15} color="#33E6A1" />, color: '#33E6A1', title: 'Progreso que se ve', desc: 'No más "creo que estoy mejorando". Tienes XP, nivel y atributos que reflejan exactamente dónde estás.' },
+                { icon: <Users size={15} color="#7C5CFF" />, color: '#7C5CFF', title: 'Accountability público', desc: 'Cuando tu progreso es visible para otros, la presión de cumplir se multiplica. El ranking convierte la intención en obligación.' },
+                { icon: <Award size={15} color="#F5C451" />, color: '#F5C451', title: 'Recompensa inmediata', desc: 'XP, niveles e insignias dan satisfacción en tiempo real. Tu cerebro aprende que el esfuerzo vale la pena.' },
+                { icon: <Target size={15} color="#33D1FF" />, color: '#33D1FF', title: 'Claridad de ejecución', desc: 'Cada día sabes exactamente qué hacer. Sin decisiones paralizantes. Solo ejecutar las misiones que ya elegiste.' },
+                { icon: <Flame size={15} color="#FF4D6A" />, color: '#FF4D6A', title: 'Momentum sostenido', desc: 'Las rachas y el ranking mantienen activo el motor semana tras semana, cuando la euforia inicial se evapora.' },
+              ].map(({ icon, color, title, desc }, i) => (
                 <div key={title} style={{
-                  display: 'flex', gap: 16, alignItems: 'flex-start',
-                  background: '#131722',
-                  border: '1px solid rgba(42,51,82,0.8)',
-                  borderRadius: 10, padding: '18px 20px',
-                  transition: 'border-color 0.2s, transform 0.2s',
+                  display: 'flex', gap: 14, alignItems: 'flex-start',
+                  padding: '18px 20px',
+                  background: '#0D0F1A',
+                  borderBottom: i < 5 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                  transition: 'background 0.18s',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = `${color}55`; e.currentTarget.style.transform = 'translateX(4px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(42,51,82,0.8)'; e.currentTarget.style.transform = 'none'; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
                 >
                   <div style={{
-                    width: 38, height: 38, borderRadius: 8, flexShrink: 0,
-                    background: `${color}0E`, border: `1px solid ${color}25`,
+                    width: 34, height: 34, borderRadius: 2, flexShrink: 0,
+                    background: `${color}0A`, border: `1px solid ${color}1A`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>{icon}</div>
                   <div>
-                    <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 14, color: '#F5F7FB', marginBottom: 5, letterSpacing: '0.02em' }}>{title}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(160,174,203,0.75)', lineHeight: 1.6 }}>{desc}</div>
+                    <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, color: '#F5F7FB', marginBottom: 4, letterSpacing: '0.01em' }}>{title}</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.6 }}>{desc}</div>
                   </div>
                 </div>
               ))}
@@ -1450,21 +1289,18 @@ export default function Landing() {
       ═══════════════════════════════════════════════════════ */}
       <Section id="ranking" style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-
-          {/* Header centrado */}
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <Eyebrow color="#F5C451">Liga de operadores</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(38px, 5vw, 60px)',
-              color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em',
-              marginBottom: 16,
+              fontSize: 'clamp(42px, 5vw, 68px)',
+              color: '#F5F7FB', lineHeight: 1.0, letterSpacing: '0.01em', marginBottom: 14,
             }}>El ranking no es<br />un adorno. Es un espejo.</h2>
             <p style={{
-              fontFamily: 'var(--font-body)', fontSize: 17,
-              color: 'rgba(160,174,203,0.85)', maxWidth: 560, margin: '0 auto', lineHeight: 1.65,
+              fontFamily: 'var(--font-body)', fontSize: 16,
+              color: 'rgba(160,174,203,0.75)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
             }}>
-              Tu posición refleja con exactitud cuánto trabajaste. No hay trampa. No hay atajos.
+              Tu posición refleja cuánto trabajaste. No hay trampa.
               Solo la suma de todo lo que hiciste cuando nadie te estaba mirando.
             </p>
           </div>
@@ -1475,52 +1311,43 @@ export default function Landing() {
             gap: isMobile ? 48 : 56,
             alignItems: 'flex-start',
           }}>
-            {/* Left: why it matters */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Left */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
-                {
-                  icon: <Trophy size={18} color="#F5C451" />, color: '#F5C451',
-                  title: 'Estatus que se gana',
-                  desc: 'Tu posición en el ranking es puro mérito. Cada XP que ves ahí fue el resultado de una acción real, no de cuánto llevas o cuánto pagas.',
-                },
-                {
-                  icon: <Users size={18} color="#33D1FF" />, color: '#33D1FF',
-                  title: 'La liga más exigente',
-                  desc: 'No compites contra bots ni estadísticas vacías. Compites contra personas reales con los mismos objetivos. Si subes, lo mereciste.',
-                },
-                {
-                  icon: <Zap size={18} color="#7C5CFF" />, color: '#7C5CFF',
-                  title: 'Presión que convierte',
-                  desc: 'Ver tu nombre en la tabla y que baje una posición duele más que cualquier recordatorio de app. Eso es accountability real.',
-                },
-                {
-                  icon: <Star size={18} color="#33E6A1" />, color: '#33E6A1',
-                  title: 'Recompensas de temporada',
-                  desc: 'Los mejores operadores de cada temporada desbloquean insignias legendarias, misiones únicas y reconocimiento permanente.',
-                },
+                { icon: <Trophy size={16} color="#F5C451" />, color: '#F5C451', title: 'Estatus que se gana', desc: 'Cada XP que ves ahí fue el resultado de una acción real, no de cuánto llevas o cuánto pagas.' },
+                { icon: <Users size={16} color="#33D1FF" />, color: '#33D1FF', title: 'La liga más exigente', desc: 'No compites contra bots. Compites contra personas reales con los mismos objetivos. Si subes, lo mereciste.' },
+                { icon: <Zap size={16} color="#7C5CFF" />, color: '#7C5CFF', title: 'Presión que convierte', desc: 'Ver tu nombre bajar una posición duele más que cualquier recordatorio. Eso es accountability real.' },
+                { icon: <Star size={16} color="#33E6A1" />, color: '#33E6A1', title: 'Recompensas de temporada', desc: 'Los mejores operadores de cada temporada desbloquean insignias legendarias y misiones únicas.' },
               ].map(({ icon, color, title, desc }) => (
-                <div key={title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                <div key={title} style={{
+                  display: 'flex', gap: 14, alignItems: 'flex-start',
+                  padding: '18px 20px',
+                  background: '#0D0F1A',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 2,
+                  transition: 'border-color 0.2s, background 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = `${color}30`; e.currentTarget.style.background = '#111420'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = '#0D0F1A'; }}
+                >
                   <div style={{
-                    width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-                    background: `${color}0E`, border: `1px solid ${color}25`,
+                    width: 36, height: 36, borderRadius: 2, flexShrink: 0,
+                    background: `${color}0A`, border: `1px solid ${color}1A`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>{icon}</div>
                   <div>
-                    <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 14, color: '#F5F7FB', marginBottom: 5 }}>{title}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(160,174,203,0.75)', lineHeight: 1.6 }}>{desc}</div>
+                    <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, color: '#F5F7FB', marginBottom: 4 }}>{title}</div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.6 }}>{desc}</div>
                   </div>
                 </div>
               ))}
 
               <div style={{ marginTop: 8 }}>
-                <Link to="/register" style={{
-                  ...btnPrimary,
-                  background: '#F5C451', color: '#0A0B10',
-                  boxShadow: '0 4px 24px rgba(245,196,81,0.3)',
-                  clipPath: 'none', borderRadius: 6,
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(245,196,81,0.45)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 24px rgba(245,196,81,0.3)'; e.currentTarget.style.transform = 'none'; }}
+                <Link
+                  to="/register"
+                  style={bBtnDark}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
                 >
                   Entrar a la liga <Trophy size={14} />
                 </Link>
@@ -1529,30 +1356,28 @@ export default function Landing() {
 
             {/* Right: ranking table */}
             <div style={{
-              background: '#131722',
-              border: '1px solid rgba(245,196,81,0.16)',
-              borderRadius: 14, overflow: 'hidden',
-              boxShadow: '0 24px 64px rgba(0,0,0,0.45), 0 0 40px rgba(245,196,81,0.04)',
-              position: 'relative',
+              background: '#0D0F1A',
+              border: '1px solid rgba(245,196,81,0.14)',
+              borderRadius: 2, overflow: 'hidden',
             }}>
-              {/* Glow header */}
+              {/* Header */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '14px 20px',
-                background: 'rgba(245,196,81,0.07)',
-                borderBottom: '1px solid rgba(245,196,81,0.14)',
+                padding: '13px 20px',
+                background: 'rgba(245,196,81,0.05)',
+                borderBottom: '1px solid rgba(245,196,81,0.1)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Trophy size={14} color="#F5C451" />
-                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, color: '#F5C451', letterSpacing: '0.12em' }}>RANKING GLOBAL · TEMPORADA I</span>
+                  <Trophy size={13} color="#F5C451" />
+                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: '#F5C451', letterSpacing: '0.12em' }}>RANKING GLOBAL · TEMPORADA I</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#33E6A1', animation: 'pulse-glow 2s infinite' }} />
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(74,90,122,0.9)', letterSpacing: '0.1em' }}>EN VIVO</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.45)', letterSpacing: '0.1em' }}>EN VIVO</span>
                 </div>
               </div>
 
-              {/* Rank rows */}
+              {/* Rows */}
               <div>
                 {[
                   { rank: 1, name: 'ÉLITE_NOVA', level: 48, xp: '89.420', streak: 92, tier: 'LEGENDARIO', color: '#F5C451' },
@@ -1560,71 +1385,74 @@ export default function Landing() {
                   { rank: 3, name: 'DARKSTAR_7', level: 42, xp: '79.650', streak: 61, tier: 'ÉPICO', color: '#7C5CFF' },
                   { rank: 4, name: 'RYUU_ALPHA', level: 38, xp: '68.200', streak: 44, tier: 'RARO', color: '#33D1FF' },
                   { rank: 5, name: 'VOID_ZERO', level: 35, xp: '59.800', streak: 31, tier: 'RARO', color: '#33D1FF' },
-                  { rank: null, name: null }, // separator
+                  { rank: null, name: null },
                   { rank: 12, name: 'TÚ', level: 24, xp: '34.980', streak: 14, tier: 'RARO', color: '#33D1FF', isUser: true },
-                ].map((row, idx) => {
+                ].map((row) => {
                   if (row.name === null) {
                     return (
                       <div key="sep" style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ flex: 1, height: 1, background: 'rgba(42,51,82,0.5)' }} />
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.7)', letterSpacing: '0.15em' }}>• • •</span>
-                        <div style={{ flex: 1, height: 1, background: 'rgba(42,51,82,0.5)' }} />
+                        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(160,174,203,0.3)', letterSpacing: '0.15em' }}>• • •</span>
+                        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.05)' }} />
                       </div>
                     );
                   }
-                  const rankColor = row.rank === 1 ? '#F5C451' : row.rank === 2 ? '#C0C0C0' : row.rank === 3 ? '#CD7F32' : 'rgba(74,90,122,0.8)';
+                  const rankColor = row.rank === 1 ? '#F5C451' : row.rank === 2 ? '#C0C0C0' : row.rank === 3 ? '#CD7F32' : 'rgba(160,174,203,0.35)';
                   return (
                     <div key={row.rank} style={{
                       display: 'flex', alignItems: 'center',
                       padding: '11px 20px',
-                      background: row.isUser ? 'rgba(51,209,255,0.06)' : 'transparent',
-                      borderLeft: `3px solid ${row.isUser ? '#33D1FF' : 'transparent'}`,
-                      borderBottom: '1px solid rgba(42,51,82,0.4)',
-                      gap: 12,
-                      ...(row.isUser && { marginTop: 0 }),
-                    }}>
-                      {/* Rank */}
-                      <div style={{
-                        width: 30, flexShrink: 0, textAlign: 'center',
-                        fontFamily: 'var(--font-display)', fontSize: row.rank <= 3 ? 20 : 15,
-                        color: rankColor,
-                      }}>#{row.rank}</div>
+                      background: row.isUser ? 'rgba(51,209,255,0.04)' : 'transparent',
+                      borderBottom: '1px solid rgba(255,255,255,0.04)',
+                      transition: 'background 0.15s',
+                    }}
+                      onMouseEnter={e => { if (!row.isUser) e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                      onMouseLeave={e => { if (!row.isUser) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      {/* Rank number */}
+                      <div style={{ width: 36, flexShrink: 0 }}>
+                        <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: rankColor, lineHeight: 1 }}>{row.rank}</span>
+                      </div>
 
                       {/* Avatar */}
                       <div style={{
-                        width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                        background: `${row.color}14`, border: `1px solid ${row.color}28`,
+                        width: 30, height: 30, borderRadius: '50%', flexShrink: 0, marginRight: 12,
+                        background: `linear-gradient(135deg, ${row.color}40, ${row.color}15)`,
+                        border: `1px solid ${row.color}30`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontFamily: 'var(--font-display)', fontSize: 13, color: row.color,
-                      }}>{row.name[0]}</div>
+                        fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
+                        color: row.color,
+                      }}>
+                        {row.name[0]}
+                      </div>
 
                       {/* Info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3, flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2, flexWrap: 'wrap' }}>
                           <span style={{
                             fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
-                            color: row.isUser ? '#33D1FF' : '#F5F7FB', letterSpacing: '0.03em',
+                            color: row.isUser ? '#33D1FF' : '#F5F7FB', letterSpacing: '0.02em',
                           }}>{row.name}</span>
                           <span style={{
                             fontFamily: 'var(--font-mono)', fontSize: 8,
                             color: row.color, padding: '2px 6px',
-                            background: `${row.color}10`, border: `1px solid ${row.color}22`,
-                            borderRadius: 3, letterSpacing: '0.1em',
+                            background: `${row.color}0C`, border: `1px solid ${row.color}20`,
+                            borderRadius: 2, letterSpacing: '0.1em',
                           }}>{row.tier}</span>
                           {row.isUser && (
-                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(51,209,255,0.55)', letterSpacing: '0.1em' }}>← ERES TÚ</span>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(51,209,255,0.5)', letterSpacing: '0.1em' }}>← ERES TÚ</span>
                           )}
                         </div>
                         <div style={{ display: 'flex', gap: 10 }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(74,90,122,0.9)' }}>Nv {row.level}</span>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(124,92,255,0.8)' }}>{row.xp} XP</span>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.4)' }}>Nv {row.level}</span>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(124,92,255,0.7)' }}>{row.xp} XP</span>
                         </div>
                       </div>
 
                       {/* Streak */}
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: '#F5C451', lineHeight: 1 }}>🔥{row.streak}</div>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.7)', marginTop: 2 }}>DÍAS</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: '#F5C451', lineHeight: 1 }}>🔥{row.streak}</div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(160,174,203,0.3)', marginTop: 2 }}>DÍAS</div>
                       </div>
                     </div>
                   );
@@ -1634,21 +1462,21 @@ export default function Landing() {
               {/* Footer */}
               <div style={{
                 padding: '12px 20px',
-                background: 'rgba(0,0,0,0.25)',
-                borderTop: '1px solid rgba(42,51,82,0.5)',
+                background: 'rgba(0,0,0,0.2)',
+                borderTop: '1px solid rgba(255,255,255,0.05)',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(74,90,122,0.85)', letterSpacing: '0.06em' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.35)', letterSpacing: '0.06em' }}>
                   2.400+ operadores · actualizado en tiempo real
                 </span>
                 <Link to="/register" style={{
                   display: 'flex', alignItems: 'center', gap: 4,
-                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
-                  color: '#7C5CFF', letterSpacing: '0.08em', textDecoration: 'none',
-                  transition: 'color 0.2s',
+                  fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 10,
+                  color: 'rgba(124,92,255,0.7)', letterSpacing: '0.08em', textDecoration: 'none',
+                  transition: 'color 0.18s',
                 }}
                   onMouseEnter={e => e.currentTarget.style.color = '#9370FF'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#7C5CFF'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(124,92,255,0.7)'}
                 >
                   Ver ranking completo <ChevronRight size={11} />
                 </Link>
@@ -1664,35 +1492,24 @@ export default function Landing() {
           CTA FINAL
       ═══════════════════════════════════════════════════════ */}
       <Section style={{
-        padding: isMobile ? '80px 20px 100px' : '130px 48px 150px',
+        padding: isMobile ? '100px 20px 120px' : '140px 48px 160px',
         position: 'relative', overflow: 'hidden',
+        textAlign: 'center',
       }}>
-        {/* Background grid */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          backgroundImage: 'linear-gradient(rgba(42,51,82,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(42,51,82,0.14) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-        }} />
-        {/* Radial glow */}
+        {/* Subtle radial glow */}
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '75vw', height: '70vh', pointerEvents: 'none',
-          background: 'radial-gradient(ellipse, rgba(124,92,255,0.1) 0%, transparent 70%)',
+          width: '80vw', height: '80vh', pointerEvents: 'none',
+          background: 'radial-gradient(ellipse, rgba(124,92,255,0.07) 0%, transparent 65%)',
         }} />
-        {/* Corner decorators */}
-        <div style={{ position: 'absolute', top: 40, left: 40, width: 40, height: 40, borderTop: '1px solid rgba(124,92,255,0.25)', borderLeft: '1px solid rgba(124,92,255,0.25)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: 40, right: 40, width: 40, height: 40, borderTop: '1px solid rgba(124,92,255,0.25)', borderRight: '1px solid rgba(124,92,255,0.25)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: 60, left: 40, width: 40, height: 40, borderBottom: '1px solid rgba(124,92,255,0.25)', borderLeft: '1px solid rgba(124,92,255,0.25)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: 60, right: 40, width: 40, height: 40, borderBottom: '1px solid rgba(124,92,255,0.25)', borderRight: '1px solid rgba(124,92,255,0.25)', pointerEvents: 'none' }} />
 
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 760, margin: '0 auto' }}>
-
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto' }}>
           <Eyebrow color="#7C5CFF">El momento es ahora</Eyebrow>
 
           <h2 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: isMobile ? 'clamp(52px, 14vw, 76px)' : 'clamp(68px, 7.5vw, 104px)',
+            fontSize: isMobile ? 'clamp(56px, 14vw, 80px)' : 'clamp(72px, 8vw, 112px)',
             lineHeight: 0.92, letterSpacing: '0.01em',
             marginBottom: 24, color: '#F5F7FB',
           }}>
@@ -1703,8 +1520,7 @@ export default function Landing() {
             <br />
             <GlitchText>SOBRE ESTO.</GlitchText>
             <br />
-            <span style={{ WebkitTextStroke: isMobile ? '1px rgba(255,255,255,0.2)' : '1.5px rgba(255,255,255,0.18)', color: 'transparent' }}>EMPIEZA</span>
-            {' '}
+            <span style={{ WebkitTextStroke: isMobile ? '1px rgba(255,255,255,0.2)' : '1.5px rgba(255,255,255,0.18)', color: 'transparent' }}>EMPIEZA </span>
             <span style={{
               background: 'linear-gradient(90deg, #7C5CFF, #33D1FF)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
@@ -1713,43 +1529,40 @@ export default function Landing() {
 
           <p style={{
             fontFamily: 'var(--font-body)',
-            fontSize: isMobile ? 16 : 18,
-            color: 'rgba(160,174,203,0.85)',
+            fontSize: isMobile ? 15 : 17,
+            color: 'rgba(160,174,203,0.78)',
             lineHeight: 1.7, marginBottom: 44,
-            maxWidth: 580, margin: '0 auto 44px',
+            maxWidth: 540, margin: '0 auto 44px',
           }}>
-            Miles de operadores ya están completando misiones, ganando XP y construyendo la mejor versión de sí mismos.
+            Miles de operadores ya completan misiones y construyen la mejor versión de sí mismos.
             {' '}<strong style={{ color: '#F5F7FB' }}>Tu progreso empieza cuando tú decides empezar.</strong>
           </p>
 
-          {/* Main CTA */}
-          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
-            <Link to="/register" style={{
-              ...btnPrimary,
-              fontSize: 15, padding: '16px 36px',
-              boxShadow: '0 8px 36px rgba(124,92,255,0.4)',
-              animation: 'breathe 3s ease-in-out infinite',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#9370FF'; e.currentTarget.style.boxShadow = '0 12px 48px rgba(124,92,255,0.55)'; e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'; e.currentTarget.style.animation = 'none'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 8px 36px rgba(124,92,255,0.4)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.animation = 'breathe 3s ease-in-out infinite'; }}
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
+            <Link
+              to="/register"
+              style={{ ...bBtnDark, fontSize: 15, padding: '15px 34px', animation: 'breathe 3s ease-in-out infinite' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.animation = 'none'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; e.currentTarget.style.animation = 'breathe 3s ease-in-out infinite'; }}
             >
               Empezar gratis — sin excusas <ArrowRight size={15} />
             </Link>
-            <Link to="/login" style={btnGhost}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(51,209,255,0.4)'; e.currentTarget.style.color = '#33D1FF'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(61,79,122,0.8)'; e.currentTarget.style.color = 'rgba(160,174,203,0.9)'; }}
+            <Link
+              to="/login"
+              style={bBtnGhost}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'; e.currentTarget.style.color = 'rgba(255,255,255,0.82)'; }}
             >
               Ya tengo cuenta
             </Link>
           </div>
 
-          {/* Microcopy */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap' }}>
             {['Sin tarjeta de crédito', 'Gratis para siempre', 'Progreso visible desde el día 1'].map((t, i) => (
               <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                {i > 0 && <span style={{ color: 'rgba(42,51,82,0.8)', fontSize: 10 }}>·</span>}
-                <CheckCircle2 size={11} color="rgba(51,230,161,0.6)" />
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(160,174,203,0.5)', fontWeight: 500 }}>{t}</span>
+                {i > 0 && <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: 10 }}>·</span>}
+                <CheckCircle2 size={11} color="rgba(51,230,161,0.55)" />
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.45)', fontWeight: 400 }}>{t}</span>
               </div>
             ))}
           </div>
@@ -1761,7 +1574,7 @@ export default function Landing() {
       ═══════════════════════════════════════════════════════ */}
       <footer style={{
         background: '#0D0F1A',
-        borderTop: '1px solid rgba(42,51,82,0.7)',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
         padding: isMobile ? '48px 20px 32px' : '64px 48px 36px',
       }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
@@ -1779,21 +1592,16 @@ export default function Landing() {
               </a>
               <p style={{
                 fontFamily: 'var(--font-body)', fontSize: 13,
-                color: 'rgba(160,174,203,0.55)', lineHeight: 1.7, maxWidth: 260, marginBottom: 20,
+                color: 'rgba(160,174,203,0.45)', lineHeight: 1.7, maxWidth: 260, marginBottom: 20,
               }}>
                 El sistema que convierte disciplina, hábitos y metas en progreso visible y medible.
               </p>
-              {/* Attribute pills */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {[
-                  ['SALUD', '#33E6A1'],
-                  ['DINERO', '#F5C451'],
-                  ['DISCIPLINA', '#7C5CFF'],
-                ].map(([label, color]) => (
+                {[['SALUD', '#33E6A1'], ['DINERO', '#F5C451'], ['DISCIPLINA', '#7C5CFF']].map(([label, color]) => (
                   <span key={label} style={{
                     fontFamily: 'var(--font-mono)', fontSize: 9,
                     color, padding: '3px 8px', letterSpacing: '0.15em',
-                    background: `${color}0D`, border: `1px solid ${color}22`, borderRadius: 3,
+                    background: `${color}08`, border: `1px solid ${color}18`, borderRadius: 2,
                   }}>{label}</span>
                 ))}
               </div>
@@ -1807,18 +1615,18 @@ export default function Landing() {
             ].map(({ title, links }) => (
               <div key={title}>
                 <div style={{
-                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
-                  color: 'rgba(245,247,251,0.8)', letterSpacing: '0.15em',
+                  fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 10,
+                  color: 'rgba(245,247,251,0.5)', letterSpacing: '0.2em',
                   textTransform: 'uppercase', marginBottom: 16,
                 }}>{title}</div>
                 {links.map(link => (
                   <a key={link} href="#" style={{
                     display: 'block', fontFamily: 'var(--font-body)', fontSize: 13,
-                    color: 'rgba(160,174,203,0.5)', textDecoration: 'none',
-                    marginBottom: 10, transition: 'color 0.2s', lineHeight: 1.4,
+                    color: 'rgba(160,174,203,0.4)', textDecoration: 'none',
+                    marginBottom: 10, transition: 'color 0.18s', lineHeight: 1.4,
                   }}
-                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(160,174,203,0.9)'}
-                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(160,174,203,0.5)'}
+                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(160,174,203,0.85)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(160,174,203,0.4)'}
                   >{link}</a>
                 ))}
               </div>
@@ -1827,16 +1635,16 @@ export default function Landing() {
 
           {/* Bottom bar */}
           <div style={{
-            paddingTop: 20, borderTop: '1px solid rgba(42,51,82,0.5)',
+            paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.05)',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10,
           }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(74,90,122,0.7)', letterSpacing: '0.06em' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(160,174,203,0.25)', letterSpacing: '0.06em' }}>
               © 2026 ASCEND — Todos los derechos reservados
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#33E6A1', animation: 'pulse-glow 2s infinite' }} />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(74,90,122,0.7)', letterSpacing: '0.06em' }}>
-                Build <span style={{ color: '#7C5CFF' }}>v1.0.0</span> · Sistema operativo de progreso humano
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(160,174,203,0.25)', letterSpacing: '0.06em' }}>
+                Build <span style={{ color: 'rgba(124,92,255,0.6)' }}>v1.0.0</span> · Sistema operativo de progreso humano
               </span>
             </div>
           </div>
