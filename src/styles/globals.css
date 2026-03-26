@@ -784,3 +784,35 @@ img {
   transform: rotate(180deg);
   user-select: none;
 }
+
+/* ============================================
+   Hero RPG Animations
+   ============================================ */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes orb-breathe {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.1); }
+}
+
+@keyframes particle-rise {
+  0%   { opacity: 0; transform: translateY(0) scale(1); }
+  8%   { opacity: 0.9; }
+  80%  { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-75vh) scale(0.3); }
+}
+
+@keyframes hero-scan {
+  0%   { top: 8%;  opacity: 0; }
+  6%   { opacity: 0.6; }
+  92%  { opacity: 0.25; }
+  100% { top: 92%; opacity: 0; }
+}
+
+@keyframes ring-tick-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}

@@ -683,59 +683,138 @@ export default function Landing() {
       )}
 
       {/* ═══════════════════════════════════════════════════════
-          HERO
+          HERO — RPG EDITION
       ═══════════════════════════════════════════════════════ */}
       <section style={{
         position: 'relative', minHeight: '100vh',
         display: 'flex', flexDirection: 'column', justifyContent: 'center',
         paddingTop: 62, overflow: 'hidden',
       }}>
-        {/* Grid */}
+
+        {/* ── BG: Grid ── */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          backgroundImage: 'linear-gradient(rgba(42,51,82,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(42,51,82,0.18) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-          animation: 'grid-flow 12s linear infinite',
+          backgroundImage: 'linear-gradient(rgba(42,51,82,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(42,51,82,0.1) 1px, transparent 1px)',
+          backgroundSize: '64px 64px',
+          animation: 'grid-flow 24s linear infinite',
+          maskImage: 'radial-gradient(ellipse 90% 90% at 50% 40%, black 20%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 90% 90% at 50% 40%, black 20%, transparent 100%)',
         }} />
-        {/* Violet glow - left */}
+
+        {/* ── BG: Ambient orbs ── */}
         <div style={{
-          position: 'absolute', top: '30%', left: '-10%', width: 640, height: 640,
-          background: 'radial-gradient(ellipse, rgba(124,92,255,0.08) 0%, transparent 65%)',
-          pointerEvents: 'none',
+          position: 'absolute', top: '10%', left: '-22%', width: 960, height: 960,
+          background: 'radial-gradient(ellipse, rgba(124,92,255,0.14) 0%, transparent 55%)',
+          pointerEvents: 'none', animation: 'orb-breathe 7s ease-in-out infinite',
         }} />
-        {/* Cyan glow - right */}
         <div style={{
-          position: 'absolute', top: '20%', right: '-5%', width: 500, height: 500,
-          background: 'radial-gradient(ellipse, rgba(51,209,255,0.06) 0%, transparent 65%)',
+          position: 'absolute', top: '20%', right: '-18%', width: 800, height: 800,
+          background: 'radial-gradient(ellipse, rgba(51,209,255,0.09) 0%, transparent 55%)',
+          pointerEvents: 'none', animation: 'orb-breathe 10s ease-in-out infinite reverse',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-35%', left: '30%', width: 900, height: 900,
+          background: 'radial-gradient(ellipse, rgba(245,196,81,0.04) 0%, transparent 55%)',
           pointerEvents: 'none',
         }} />
 
+        {/* ── BG: Rising particles ── */}
+        {Array.from({ length: 26 }).map((_, i) => {
+          const palette = ['#7C5CFF', '#33D1FF', '#F5C451', '#33E6A1'];
+          const c = palette[i % 4];
+          const sz = i % 5 === 0 ? 3 : 2;
+          return (
+            <div key={i} style={{
+              position: 'absolute',
+              left: `${(i * 3.7 + 2) % 95}%`,
+              bottom: `${(i * 11) % 40}%`,
+              width: sz, height: sz,
+              borderRadius: '50%',
+              background: c,
+              boxShadow: `0 0 ${sz * 3}px ${c}`,
+              animation: `particle-rise ${7 + (i * 0.55) % 9}s ease-in ${(i * 0.38) % 7}s infinite`,
+              pointerEvents: 'none', opacity: 0, zIndex: 1,
+            }} />
+          );
+        })}
+
+        {/* ── BG: Horizontal scan line ── */}
+        <div style={{
+          position: 'absolute', left: 0, right: 0, height: 1, zIndex: 1,
+          background: 'linear-gradient(90deg, transparent 0%, rgba(124,92,255,0.2) 20%, rgba(51,209,255,0.55) 50%, rgba(124,92,255,0.2) 80%, transparent 100%)',
+          animation: 'hero-scan 11s ease-in-out infinite',
+          pointerEvents: 'none',
+        }} />
+
+        {/* ── Corner HUD accents ── */}
+        {!isMobile && [
+          { top: 80, left: 24, borderWidth: '2px 0 0 2px' },
+          { top: 80, right: 24, borderWidth: '2px 2px 0 0' },
+          { bottom: 24, left: 24, borderWidth: '0 0 2px 2px' },
+          { bottom: 24, right: 24, borderWidth: '0 2px 2px 0' },
+        ].map(({ borderWidth, ...pos }, i) => (
+          <div key={i} style={{
+            position: 'absolute', width: 28, height: 28,
+            borderColor: 'rgba(124,92,255,0.3)', borderStyle: 'solid',
+            borderWidth, pointerEvents: 'none', zIndex: 3, ...pos,
+          }} />
+        ))}
+
+        {/* ── Side labels ── */}
+        {!isMobile && (
+          <>
+            <div style={{
+              position: 'absolute', left: 14, top: '50%',
+              transform: 'translateY(-50%) rotate(180deg)',
+              fontFamily: 'var(--font-mono)', fontSize: 8,
+              color: 'rgba(74,90,122,0.4)', letterSpacing: '0.32em',
+              writingMode: 'vertical-rl', userSelect: 'none', pointerEvents: 'none', zIndex: 3,
+            }}>ASCEND OS v1.0 · SISTEMA ACTIVO</div>
+            <div style={{
+              position: 'absolute', right: 14, top: '50%',
+              transform: 'translateY(-50%)',
+              fontFamily: 'var(--font-mono)', fontSize: 8,
+              color: 'rgba(74,90,122,0.4)', letterSpacing: '0.32em',
+              writingMode: 'vertical-rl', userSelect: 'none', pointerEvents: 'none', zIndex: 3,
+            }}>SALUD · DINERO · DISCIPLINA</div>
+          </>
+        )}
+
+        {/* ── Content ── */}
         <div style={{
           position: 'relative', zIndex: 2,
           maxWidth: 1280, margin: '0 auto', width: '100%',
-          padding: isMobile ? '60px 20px 80px' : '80px 48px 80px',
+          padding: isMobile ? '60px 20px 80px' : '80px 56px 80px',
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           alignItems: isMobile ? 'flex-start' : 'center',
-          gap: isMobile ? 48 : 64,
+          gap: isMobile ? 52 : 80,
           justifyContent: 'space-between',
         }}>
 
           {/* LEFT — Copy */}
-          <div style={{ maxWidth: isMobile ? '100%' : 520, flex: '0 0 auto' }}>
+          <div style={{ maxWidth: isMobile ? '100%' : 540, flex: '0 0 auto' }}>
 
-            {/* Live badge */}
+            {/* Season badge */}
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              padding: '6px 14px 6px 10px',
-              background: 'rgba(51,230,161,0.07)',
-              border: '1px solid rgba(51,230,161,0.2)',
-              borderRadius: 100, marginBottom: 28,
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              padding: '6px 16px 6px 10px',
+              background: 'rgba(124,92,255,0.07)',
+              border: '1px solid rgba(124,92,255,0.22)',
+              borderLeft: '3px solid #7C5CFF',
+              marginBottom: 36,
+              animation: 'hero-fade-up 0.7s ease 0.05s both',
             }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#33E6A1', boxShadow: '0 0 6px #33E6A1', animation: 'pulse-glow 2s infinite', flexShrink: 0 }} />
-              <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: '#33E6A1', letterSpacing: '0.06em' }}>
-                +2.400 operadores activos ahora mismo
+              <div style={{
+                width: 13, height: 13, flexShrink: 0,
+                background: 'rgba(124,92,255,0.18)',
+                border: '1px solid rgba(124,92,255,0.5)',
+                transform: 'rotate(45deg)',
+              }} />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(180,160,255,0.85)', letterSpacing: '0.22em' }}>
+                TEMPORADA 01 · EN VIVO
               </span>
+              <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#33E6A1', boxShadow: '0 0 7px #33E6A1', animation: 'pulse-glow 2s infinite', flexShrink: 0 }} />
             </div>
 
             {/* Headline */}
@@ -744,8 +823,9 @@ export default function Landing() {
               fontSize: isMobile ? 'clamp(60px, 15vw, 84px)' : 'clamp(72px, 6.5vw, 102px)',
               lineHeight: 0.93,
               letterSpacing: '0.01em',
-              marginBottom: 20,
+              marginBottom: 18,
               color: '#F5F7FB',
+              animation: 'hero-fade-up 0.75s ease 0.18s both',
             }}>
               <GlitchText>DEJA DE</GlitchText>
               <br />
@@ -760,63 +840,245 @@ export default function Landing() {
               }}>EJECÚTALO.</span>
             </h1>
 
+            {/* Tick-mark divider */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 0,
+              marginBottom: 24, overflow: 'hidden',
+              animation: 'hero-fade-up 0.7s ease 0.3s both',
+            }}>
+              <div style={{ width: 32, height: 2, background: '#7C5CFF', flexShrink: 0 }} />
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} style={{
+                  width: i % 4 === 0 ? 2 : 1,
+                  height: i % 4 === 0 ? 18 : i % 2 === 0 ? 11 : 6,
+                  background: i % 4 === 0 ? '#7C5CFF' : i % 2 === 0 ? 'rgba(124,92,255,0.45)' : 'rgba(124,92,255,0.2)',
+                  marginLeft: 4, flexShrink: 0,
+                }} />
+              ))}
+              <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, rgba(124,92,255,0.35), transparent)', marginLeft: 6 }} />
+            </div>
+
             {/* Subheadline */}
             <p style={{
               fontFamily: 'var(--font-body)',
               fontSize: isMobile ? 16 : 18,
-              color: 'rgba(160,174,203,0.9)',
-              lineHeight: 1.7,
-              marginBottom: 32,
-              maxWidth: 480,
+              color: 'rgba(160,174,203,0.88)',
+              lineHeight: 1.72, marginBottom: 32, maxWidth: 490,
+              animation: 'hero-fade-up 0.7s ease 0.38s both',
             }}>
               Completa hábitos, retos y objetivos reales para ganar XP, subir de nivel y fortalecer
               {' '}<strong style={{ color: '#F5F7FB', fontWeight: 600 }}>Salud, Dinero y Disciplina</strong>.
               No es motivación. Es un sistema que te obliga a crecer.
             </p>
 
+            {/* RPG Attribute bars */}
+            <div style={{
+              display: 'flex', gap: isMobile ? 6 : 8, marginBottom: 36,
+              animation: 'hero-fade-up 0.7s ease 0.48s both',
+            }}>
+              {[
+                { label: 'SALUD',      val: 78, color: '#33E6A1', glow: 'rgba(51,230,161,0.35)',  bg: 'rgba(51,230,161,0.06)',  border: 'rgba(51,230,161,0.18)'  },
+                { label: 'DINERO',     val: 62, color: '#F5C451', glow: 'rgba(245,196,81,0.35)', bg: 'rgba(245,196,81,0.06)', border: 'rgba(245,196,81,0.18)' },
+                { label: 'DISCIPLINA', val: 91, color: '#7C5CFF', glow: 'rgba(124,92,255,0.35)',  bg: 'rgba(124,92,255,0.06)',  border: 'rgba(124,92,255,0.18)'  },
+              ].map(a => (
+                <div key={a.label} style={{
+                  flex: 1, padding: '10px 12px',
+                  background: a.bg,
+                  border: `1px solid ${a.border}`,
+                  borderBottom: `2px solid ${a.color}`,
+                  clipPath: 'polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%)',
+                }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: a.color, opacity: 0.65, letterSpacing: '0.16em', marginBottom: 6 }}>{a.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <div style={{ flex: 1, height: 3, background: 'rgba(0,0,0,0.4)', borderRadius: 2, overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${a.val}%`, height: '100%', background: a.color,
+                        boxShadow: `0 0 10px ${a.glow}`,
+                        position: 'relative', overflow: 'hidden',
+                      }}>
+                        <div style={{
+                          position: 'absolute', inset: 0,
+                          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)',
+                          backgroundSize: '200% 100%',
+                          animation: 'xp-shimmer 2.8s linear infinite',
+                        }} />
+                      </div>
+                    </div>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 21, color: a.color, lineHeight: 1, textShadow: `0 0 14px ${a.glow}` }}>{a.val}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             {/* CTAs */}
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
-              <Link to="/register" style={btnPrimary}
-                onMouseEnter={e => { e.currentTarget.style.background = '#9370FF'; e.currentTarget.style.boxShadow = '0 8px 36px rgba(124,92,255,0.5)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'var(--violet)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(124,92,255,0.35)'; e.currentTarget.style.transform = 'none'; }}
+            <div style={{
+              display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40,
+              animation: 'hero-fade-up 0.7s ease 0.58s both',
+            }}>
+              <Link to="/register" style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9,
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
+                letterSpacing: '0.16em', textTransform: 'uppercase',
+                padding: '15px 30px',
+                background: 'linear-gradient(140deg, #8B6FFF 0%, #5A3FD4 100%)',
+                color: '#fff', border: 'none', cursor: 'pointer', textDecoration: 'none',
+                clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px))',
+                boxShadow: '0 0 0 1px rgba(124,92,255,0.35), 0 8px 36px rgba(124,92,255,0.45), inset 0 1px 0 rgba(255,255,255,0.12)',
+                transition: 'all 0.22s ease',
+              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'linear-gradient(140deg, #9A80FF 0%, #7C5CFF 100%)';
+                  e.currentTarget.style.boxShadow = '0 0 0 1px rgba(124,92,255,0.6), 0 14px 52px rgba(124,92,255,0.65), inset 0 1px 0 rgba(255,255,255,0.18)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'linear-gradient(140deg, #8B6FFF 0%, #5A3FD4 100%)';
+                  e.currentTarget.style.boxShadow = '0 0 0 1px rgba(124,92,255,0.35), 0 8px 36px rgba(124,92,255,0.45), inset 0 1px 0 rgba(255,255,255,0.12)';
+                  e.currentTarget.style.transform = 'none';
+                }}
               >
-                Empezar gratis <ArrowRight size={14} />
+                <Swords size={14} /> INICIAR ASCENSO
               </Link>
-              <a href="#how" style={btnGhost}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(51,209,255,0.5)'; e.currentTarget.style.color = '#33D1FF'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(61,79,122,0.8)'; e.currentTarget.style.color = 'rgba(160,174,203,0.9)'; }}
+              <a href="#how" style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 12,
+                letterSpacing: '0.12em', textTransform: 'uppercase',
+                padding: '14px 24px',
+                background: 'transparent', color: 'rgba(51,209,255,0.75)',
+                border: '1px solid rgba(51,209,255,0.22)', cursor: 'pointer', textDecoration: 'none',
+                clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
+                transition: 'all 0.22s ease',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(51,209,255,0.55)'; e.currentTarget.style.color = '#33D1FF'; e.currentTarget.style.background = 'rgba(51,209,255,0.06)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(51,209,255,0.22)'; e.currentTarget.style.color = 'rgba(51,209,255,0.75)'; e.currentTarget.style.background = 'transparent'; }}
               >
-                <Play size={12} style={{ opacity: 0.7 }} /> Ver cómo funciona
+                <Play size={12} style={{ opacity: 0.7 }} /> VER CÓMO FUNCIONA
               </a>
             </div>
 
-            {/* Social proof stats */}
+            {/* Social proof — HUD border style */}
             <div style={{
-              display: 'flex', flexWrap: 'wrap', gap: isMobile ? 20 : 32,
-              paddingTop: 28, borderTop: '1px solid rgba(42,51,82,0.7)',
+              display: 'flex', flexWrap: 'wrap',
+              animation: 'hero-fade-up 0.7s ease 0.68s both',
             }}>
               {[
-                { n: '2.4K+', label: 'Operadores activos' },
-                { n: '18K+', label: 'Misiones completadas' },
-                { n: '62', label: 'Días de racha récord' },
-              ].map(({ n, label }) => (
-                <div key={label}>
+                { n: '2.4K+', label: 'OPERADORES' },
+                { n: '18K+', label: 'MISIONES' },
+                { n: '62D', label: 'RACHA RÉCORD' },
+              ].map(({ n, label }, i) => (
+                <div key={label} style={{
+                  padding: '12px 22px',
+                  background: 'rgba(10,11,16,0.5)',
+                  borderTop: '1px solid rgba(42,51,82,0.9)',
+                  borderBottom: '1px solid rgba(42,51,82,0.9)',
+                  borderLeft: i === 0 ? '1px solid rgba(42,51,82,0.9)' : '1px solid rgba(42,51,82,0.35)',
+                  borderRight: i === 2 ? '1px solid rgba(42,51,82,0.9)' : 'none',
+                }}>
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, color: '#F5F7FB', lineHeight: 1, letterSpacing: '0.01em' }}>{n}</div>
-                  <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(160,174,203,0.6)', marginTop: 5, fontWeight: 500 }}>{label}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', marginTop: 5, letterSpacing: '0.22em' }}>{label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* RIGHT — Mockup */}
-          <div style={{ flex: '0 0 auto', width: isMobile ? '100%' : 'auto', display: 'flex', justifyContent: 'center' }}>
-            <ProductMockup isMobile={isMobile} />
+          {/* RIGHT — Mockup with orbital RPG frame */}
+          <div style={{ flex: '0 0 auto', width: isMobile ? '100%' : 'auto', display: 'flex', justifyContent: 'center', position: 'relative' }}>
+
+            {/* Orbital rings — desktop only */}
+            {!isMobile && (
+              <>
+                {/* Outer ring */}
+                <div style={{
+                  position: 'absolute',
+                  top: '50%', left: '50%',
+                  marginTop: -275, marginLeft: -275,
+                  width: 550, height: 550,
+                  border: '1px solid rgba(124,92,255,0.1)',
+                  borderRadius: '50%',
+                  animation: 'spin-slow 38s linear infinite',
+                  pointerEvents: 'none',
+                }}>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} style={{
+                      position: 'absolute',
+                      top: 0, left: '50%', marginLeft: -1,
+                      width: 2,
+                      height: i % 2 === 0 ? 18 : 9,
+                      background: i % 2 === 0 ? '#7C5CFF' : 'rgba(124,92,255,0.28)',
+                      transformOrigin: '50% 275px',
+                      transform: `rotate(${i * 45}deg)`,
+                      boxShadow: i % 2 === 0 ? '0 0 8px rgba(124,92,255,0.7)' : 'none',
+                    }} />
+                  ))}
+                </div>
+
+                {/* Inner ring */}
+                <div style={{
+                  position: 'absolute',
+                  top: '50%', left: '50%',
+                  marginTop: -245, marginLeft: -245,
+                  width: 490, height: 490,
+                  border: '1px solid rgba(51,209,255,0.07)',
+                  borderRadius: '50%',
+                  animation: 'spin-slow 24s linear infinite reverse',
+                  pointerEvents: 'none',
+                }}>
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} style={{
+                      position: 'absolute',
+                      top: 0, left: '50%', marginLeft: -0.5,
+                      width: 1,
+                      height: i % 3 === 0 ? 14 : 6,
+                      background: i % 3 === 0 ? 'rgba(51,209,255,0.65)' : 'rgba(51,209,255,0.18)',
+                      transformOrigin: '50% 245px',
+                      transform: `rotate(${i * 30}deg)`,
+                      boxShadow: i % 3 === 0 ? '0 0 5px rgba(51,209,255,0.5)' : 'none',
+                    }} />
+                  ))}
+                </div>
+
+                {/* Glow pool beneath mockup */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: -55, left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: 340, height: 55,
+                  background: 'radial-gradient(ellipse, rgba(124,92,255,0.5) 0%, transparent 68%)',
+                  filter: 'blur(20px)',
+                  animation: 'orb-breathe 3.5s ease-in-out infinite',
+                  pointerEvents: 'none',
+                }} />
+
+                {/* Corner targeting brackets */}
+                {[
+                  { top: -14, left: -14, borderWidth: '2px 0 0 2px' },
+                  { top: -14, right: -14, borderWidth: '2px 2px 0 0' },
+                  { bottom: -14, left: -14, borderWidth: '0 0 2px 2px' },
+                  { bottom: -14, right: -14, borderWidth: '0 2px 2px 0' },
+                ].map(({ borderWidth, ...pos }, i) => (
+                  <div key={i} style={{
+                    position: 'absolute', width: 22, height: 22,
+                    borderColor: 'rgba(124,92,255,0.55)', borderStyle: 'solid',
+                    borderWidth, pointerEvents: 'none', zIndex: 10, ...pos,
+                  }} />
+                ))}
+              </>
+            )}
+
+            {/* Floating mockup */}
+            <div style={{
+              animation: isMobile ? 'none' : 'float 5.5s ease-in-out infinite',
+              filter: isMobile ? 'none' : 'drop-shadow(0 40px 80px rgba(124,92,255,0.32)) drop-shadow(0 0 1px rgba(124,92,255,0.4))',
+              position: 'relative', zIndex: 5,
+            }}>
+              <ProductMockup isMobile={isMobile} />
+            </div>
           </div>
         </div>
 
         {/* Bottom fade */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 120,
           background: 'linear-gradient(to bottom, transparent, #0A0B10)',
           pointerEvents: 'none',
         }} />
