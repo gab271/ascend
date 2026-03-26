@@ -1,18 +1,34 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Zap } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Zap, AlertCircle } from 'lucide-react';
 import AuthLayout, { AuthInput, AuthButton } from '../components/layout/AuthLayout';
+import { signIn } from '../lib/api/auth';
 
 export default function Login() {
-  const [form, setForm]       = useState({ email: '', password: '' });
+  const [form, setForm]         = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
-  const [focused, setFocused] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [focused, setFocused]   = useState(null);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+  const navigate                = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
-    setTimeout(() => setLoading(false), 2200);
+    const { error } = await signIn({ email: form.email, password: form.password });
+    if (error) {
+      setError(
+        error.message === 'Invalid login credentials'
+          ? 'Correo o contraseña incorrectos.'
+          : error.message === 'Email not confirmed'
+          ? 'Debes verificar tu correo antes de iniciar sesión.'
+          : error.message
+      );
+      setLoading(false);
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -150,6 +166,23 @@ export default function Login() {
               Recuperar acceso →
             </Link>
           </div>
+
+          {error && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '12px 14px',
+              background: 'rgba(255,77,106,0.08)',
+              border: '1px solid rgba(255,77,106,0.3)',
+              borderRadius: 8,
+              marginBottom: 16,
+              fontFamily: 'var(--font-ui)',
+              fontSize: 13,
+              color: '#FF4D6A',
+            }}>
+              <AlertCircle size={15} style={{ flexShrink: 0 }} />
+              {error}
+            </div>
+          )}
 
           <AuthButton loading={loading} delay={0.35}>
             {loading

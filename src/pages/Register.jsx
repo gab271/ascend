@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import AuthLayout, { AuthInput, AuthButton } from '../components/layout/AuthLayout';
+import { signUp } from '../lib/api/auth';
 
 /* ═══════════════════════════════════════════════════════════════
    PASSWORD STRENGTH
@@ -54,16 +55,86 @@ export default function Register() {
   const [showConf, setShowConf] = useState(false);
   const [focused, setFocused]   = useState(null);
   const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const mismatch = form.confirm && form.password !== form.confirm;
   const match    = form.confirm && form.password === form.confirm;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (mismatch) return;
+    setError('');
     setLoading(true);
-    setTimeout(() => setLoading(false), 2400);
+    const { error } = await signUp({
+      email:    form.email,
+      password: form.password,
+      username: form.username,
+    });
+    if (error) {
+      setError(
+        error.message?.includes('already registered')
+          ? 'Ese correo ya tiene una cuenta. ¿Quieres iniciar sesión?'
+          : error.message
+      );
+      setLoading(false);
+    } else {
+      setEmailSent(true);
+      setLoading(false);
+    }
   };
+
+  // ── Estado: email de verificación enviado ──────────────────
+  if (emailSent) {
+    return (
+      <AuthLayout variant="register">
+        <div style={{ width: '100%', maxWidth: 420 }}>
+          <div style={{
+            width: 68, height: 68, borderRadius: '50%',
+            background: 'rgba(51,230,161,0.08)',
+            border: '1px solid rgba(51,230,161,0.28)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: 36,
+            animation: 'entry-up 0.5s ease forwards', opacity: 0, animationFillMode: 'forwards',
+            boxShadow: '0 0 32px rgba(51,230,161,0.15)',
+          }}>
+            <CheckCircle2 size={30} color="var(--green)" strokeWidth={1.5} />
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontSize: 'clamp(52px,5vw,80px)',
+            lineHeight: 0.88, marginBottom: 24,
+            animation: 'entry-up 0.55s ease 0.08s forwards', opacity: 0, animationFillMode: 'forwards',
+          }}>
+            <span style={{ color: 'var(--text)' }}>VERIFICA</span><br />
+            <span style={{ color: 'var(--green)', textShadow: '0 0 30px rgba(51,230,161,0.35)' }}>TU CORREO</span>
+          </div>
+          <p style={{
+            fontFamily: 'var(--font-ui)', fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.7,
+            marginBottom: 12,
+            animation: 'entry-up 0.55s ease 0.14s forwards', opacity: 0, animationFillMode: 'forwards',
+          }}>
+            Enviamos un enlace de activación a{' '}
+            <strong style={{ color: 'var(--cyan)', fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+              {form.email}
+            </strong>.
+            Haz clic en el enlace para activar tu cuenta.
+          </p>
+          <Link to="/login" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 24,
+            fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
+            letterSpacing: '0.1em', color: 'var(--text-muted)', textDecoration: 'none',
+            textTransform: 'uppercase', transition: 'color 0.2s',
+            animation: 'entry-up 0.5s ease 0.2s forwards', opacity: 0, animationFillMode: 'forwards',
+          }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--text)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+          >
+            ← Ir a iniciar sesión
+          </Link>
+        </div>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout variant="register">
@@ -243,6 +314,20 @@ export default function Register() {
               <span style={{ color: '#33D1FF', cursor: 'pointer', borderBottom: '1px solid rgba(51,209,255,0.25)' }}>Política de Privacidad</span>.
             </p>
           </div>
+
+          {error && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '12px 14px',
+              background: 'rgba(255,77,106,0.08)',
+              border: '1px solid rgba(255,77,106,0.3)',
+              borderRadius: 8, marginBottom: 16,
+              fontFamily: 'var(--font-ui)', fontSize: 13, color: '#FF4D6A',
+            }}>
+              <AlertCircle size={15} style={{ flexShrink: 0 }} />
+              {error}
+            </div>
+          )}
 
           <AuthButton loading={loading} delay={0.43} variant="cyan">
             {loading

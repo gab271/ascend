@@ -1,22 +1,28 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { Mail, ArrowLeft, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import AuthLayout, { AuthInput, AuthButton } from '../components/layout/AuthLayout';
+import { sendPasswordResetEmail } from '../lib/api/auth';
 
 export default function ForgotPassword() {
-  const [email, setEmail]      = useState('');
-  const [focused, setFocused]  = useState(null);
-  const [loading, setLoading]  = useState(false);
-  const [sent, setSent]        = useState(false);
+  const [email, setEmail]     = useState('');
+  const [focused, setFocused] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent]       = useState(false);
+  const [error, setError]     = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) return;
+    setError('');
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    const { error } = await sendPasswordResetEmail(email);
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+    } else {
       setSent(true);
-    }, 2000);
+    }
   };
 
   // ── Success state ──────────────────────────────────────────────────────────
@@ -220,6 +226,20 @@ export default function ForgotPassword() {
           onBlur={() => setFocused(null)}
           delay={0.15}
         />
+
+        {error && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '12px 14px',
+            background: 'rgba(255,77,106,0.08)',
+            border: '1px solid rgba(255,77,106,0.3)',
+            borderRadius: 8, marginBottom: 16,
+            fontFamily: 'var(--font-ui)', fontSize: 13, color: '#FF4D6A',
+          }}>
+            <AlertCircle size={15} style={{ flexShrink: 0 }} />
+            {error}
+          </div>
+        )}
 
         <AuthButton loading={loading} delay={0.22}>
           {loading ? 'ENVIANDO...' : <><span>ENVIAR ENLACE</span><ArrowRight size={16} /></>}
