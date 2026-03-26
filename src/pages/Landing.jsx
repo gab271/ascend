@@ -330,6 +330,7 @@ export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hovNav, setHovNav] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const dropdownRef = useRef(null);
   const isMobile = useBreakpoint(768);
 
@@ -664,18 +665,21 @@ export default function Landing() {
           }}
         />
 
-        {/* Video overlay — parallax matching gif */}
+        {/* Video overlay — parallax matching gif, fades in once ready */}
         <video
           autoPlay
           loop
           muted
           playsInline
+          onCanPlay={() => setVideoReady(true)}
           style={{
             position: 'absolute', left: 0, right: 0,
             top: '-12%', width: '100%', height: '124%',
             objectFit: 'cover', zIndex: 1,
             transform: `translateY(${scrollY * 0.32}px)`,
             willChange: 'transform',
+            opacity: videoReady ? 1 : 0,
+            transition: 'opacity 0.6s ease',
           }}
         >
           <source
@@ -686,8 +690,8 @@ export default function Landing() {
 
         {/* Bottom transition to page background */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: 280,
-          background: 'linear-gradient(to bottom, transparent 0%, rgba(10,11,16,0.7) 60%, #0A0B10 100%)',
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 160,
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(10,11,16,0.6) 55%, #0A0B10 100%)',
           pointerEvents: 'none', zIndex: 2,
         }} />
 
@@ -697,7 +701,7 @@ export default function Landing() {
           display: 'flex', flexDirection: 'column',
           alignItems: 'center',
           paddingTop: 60,
-          paddingBottom: isMobile ? 28 : 48,
+          paddingBottom: isMobile ? 52 : 110,
         }}>
 
           {/* Flex-1 zone: keeps content vertically centered in remaining space */}
@@ -783,38 +787,6 @@ export default function Landing() {
             </div>
           </div>
           </div>{/* end flex-1 zone */}
-
-          {/* Stats — natural bottom */}
-          <div style={{
-            display: 'flex', justifyContent: 'center',
-            animation: 'hero-fade-up 0.7s ease 0.55s both',
-            paddingBottom: isMobile ? 0 : 8,
-          }}>
-            {[
-              { n: '50K+', label: 'Aventureros' },
-              { n: '2M+', label: 'Misiones' },
-              { n: '180+', label: 'Países' },
-            ].map(({ n, label }, i) => (
-              <div key={label} style={{
-                padding: isMobile ? '8px 20px' : '10px 36px',
-                borderRight: i < 2 ? '1px solid rgba(255,255,255,0.18)' : 'none',
-                textAlign: 'center',
-              }}>
-                <div style={{
-                  fontFamily: 'var(--font-display)', fontSize: isMobile ? 26 : 34,
-                  color: '#fff', lineHeight: 1,
-                  textShadow: '0 2px 20px rgba(0,0,0,0.7)',
-                  letterSpacing: '0.02em',
-                }}>{n}</div>
-                <div style={{
-                  fontFamily: 'var(--font-mono)', fontSize: 9,
-                  color: 'rgba(255,255,255,0.5)', letterSpacing: '0.2em',
-                  marginTop: 5, textTransform: 'uppercase',
-                  textShadow: '0 1px 8px rgba(0,0,0,0.7)',
-                }}>{label}</div>
-              </div>
-            ))}
-          </div>
         </div>
 
       </section>
