@@ -712,19 +712,9 @@ export default function Landing() {
           }}>
             {/* Badge */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: isMobile ? 24 : 32, animation: 'hero-fade-up 0.6s ease 0.05s both' }}>
-              <div style={{
-                display: 'inline-block',
-                fontFamily: 'var(--font-mono)', fontSize: 10,
-                letterSpacing: '0.28em', textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.75)',
-                padding: '7px 18px',
-                border: '1px solid rgba(255,255,255,0.35)',
-                background: 'rgba(0,0,0,0.28)',
-                backdropFilter: 'blur(8px)',
-                textShadow: '0 1px 10px rgba(0,0,0,0.8)',
-              }}>
+              <span className="hero-badge-glass">
                 Tu vida. Tu aventura.
-              </div>
+              </span>
             </div>
 
             {/* Headline */}
@@ -775,22 +765,18 @@ export default function Landing() {
 
             {/* CTAs */}
             <div style={{
-              display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap',
+              display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap',
               animation: 'hero-fade-up 0.7s ease 0.4s both',
             }}>
               <Link
                 to="/register"
-                style={{ ...bBtn, padding: '13px 32px', fontSize: 15 }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
+                className="hero-btn-glass hero-btn-glass-primary"
               >
                 Empezar Gratis
               </Link>
               <a
                 href="#how"
-                style={{ ...bBtnGhost, padding: '12px 30px', fontSize: 15 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'; e.currentTarget.style.color = 'rgba(255,255,255,0.82)'; }}
+                className="hero-btn-glass hero-btn-glass-secondary"
               >
                 Ver Demo
               </a>

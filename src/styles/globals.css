@@ -246,6 +246,144 @@ img {
 }
 
 /* ============================================
+   Liquid Glass — Hero Buttons
+   ============================================ */
+@keyframes liquid-shimmer {
+  0%   { transform: translateX(-110%) skewX(-15deg); }
+  100% { transform: translateX(240%)  skewX(-15deg); }
+}
+
+.hero-btn-glass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Barlow', var(--font-ui), sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  padding: 13px 32px;
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
+  -webkit-backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              background 0.25s ease,
+              border-color 0.25s ease;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* shimmer sweep layer */
+.hero-btn-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.30) 50%,
+    transparent 65%
+  );
+  transform: translateX(-110%) skewX(-15deg);
+  transition: none;
+  pointer-events: none;
+}
+
+.hero-btn-glass:hover {
+  transform: translateY(-2px) scale(1.025) translateZ(0);
+}
+
+.hero-btn-glass:hover::before {
+  animation: liquid-shimmer 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.hero-btn-glass:active {
+  transform: translateY(0) scale(0.98) translateZ(0);
+}
+
+/* Primary — pearl white glass */
+.hero-btn-glass-primary {
+  background: rgba(255, 255, 255, 0.20);
+  border: 1px solid rgba(255, 255, 255, 0.50);
+  color: #ffffff;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.28),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.40),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.10);
+}
+
+.hero-btn-glass-primary:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.68);
+  box-shadow:
+    0 10px 48px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.52),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.10);
+}
+
+/* Badge — wide liquid glass pill */
+.hero-badge-glass {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+  padding: 10px 36px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
+  -webkit-backdrop-filter: blur(22px) saturate(1.9) brightness(1.08);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.22),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-badge-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* Secondary — smoke glass */
+.hero-btn-glass-secondary {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.hero-btn-glass-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.40);
+  color: #ffffff;
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+/* ============================================
    Layout Utilities
    ============================================ */
 .container {
