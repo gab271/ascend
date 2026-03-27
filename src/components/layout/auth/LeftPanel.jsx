@@ -81,22 +81,8 @@ export default function LeftPanel({ variant = 'login' }) {
         mixBlendMode: 'screen',
       }} />
 
-      {/* Ghost ASCEND watermark */}
-      <div style={{
-        position: 'absolute', bottom: '1%', right: -14,
-        fontFamily: 'var(--font-display)',
-        fontSize: 'clamp(96px, 12vw, 170px)',
-        color: 'transparent',
-        WebkitTextStroke: '1px rgba(42,51,82,0.28)',
-        lineHeight: 0.86,
-        userSelect: 'none', pointerEvents: 'none',
-        letterSpacing: '-0.02em', zIndex: 0,
-        whiteSpace: 'nowrap',
-      }}>
-        ASC<br />END
-      </div>
 
-      {/* Scan sweep line */}
+{/* Scan sweep line */}
       <div style={{
         position: 'absolute', left: 0, right: 0, height: 1,
         background: `linear-gradient(90deg, transparent, ${accent}22, transparent)`,
