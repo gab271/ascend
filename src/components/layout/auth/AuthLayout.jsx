@@ -9,26 +9,45 @@ export default function AuthLayout({ children, variant = 'login' }) {
   const isMobile = useBreakpoint(960);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0A0B10' }}>
+    <div style={{ position: 'fixed', inset: 0, display: 'flex', overflow: 'hidden', background: 'var(--void)' }}>
       {!isMobile && <LeftPanel variant={variant} />}
 
-      {/* Right: form area */}
+      {/* Right: form panel */}
       <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
-        justifyContent: isMobile ? 'flex-start' : 'center',
-        padding: isMobile ? '32px 24px 48px' : '60px 64px',
-        overflowY: 'auto', minHeight: '100vh', position: 'relative',
+        width: isMobile ? '100%' : 440,
+        height: '100%',
+        flexShrink: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        background: '#0E0F17',
+        padding: isMobile ? '40px 24px 60px' : '56px 44px',
+        position: 'relative',
       }}>
+        {/* Left border separator */}
+        {!isMobile && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, bottom: 0, width: 1,
+            background: 'rgba(42,51,82,0.5)',
+            pointerEvents: 'none',
+          }} />
+        )}
+
         {/* Ambient glow */}
         <div style={{
-          position: 'fixed', top: -100, right: -80,
-          width: 440, height: 440,
-          background: 'radial-gradient(circle, rgba(124,92,255,0.05) 0%, transparent 65%)',
+          position: 'absolute', bottom: -80, right: -60,
+          width: 320, height: 320,
+          background: 'radial-gradient(circle, rgba(124,92,255,0.07) 0%, transparent 65%)',
           pointerEvents: 'none',
         }} />
 
         {isMobile && <MobileHeader variant={variant} />}
-        {children}
+
+        <div style={{ width: '100%', maxWidth: 360, margin: '0 auto' }}>
+          {children}
+        </div>
       </div>
     </div>
   );
