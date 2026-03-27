@@ -1,32 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
+import AuthGuard from './guards/AuthGuard';
+import GuestGuard from './guards/GuestGuard';
 import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import Dashboard from './pages/Dashboard';
-import Missions from './pages/Missions';
-import Profile from './pages/Profile';
-import Ranking from './pages/Ranking';
-import Rewards from './pages/Rewards';
-import Settings from './pages/Settings';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import Dashboard from './pages/app/Dashboard';
+import Missions from './pages/app/Missions';
+import Profile from './pages/app/Profile';
+import Ranking from './pages/app/Ranking';
+import Rewards from './pages/app/Rewards';
+import Settings from './pages/app/Settings';
 import AppLayout from './components/layout/AppLayout';
-
-// Redirige a /login si no hay sesión activa
-function ProtectedRoute({ children }) {
-  const { session, loading } = useAuth();
-  if (loading) return null; // espera a que Supabase responda
-  if (!session) return <Navigate to="/login" replace />;
-  return children;
-}
-
-// Redirige a /dashboard si ya hay sesión (evita ver login/register logueado)
-function GuestRoute({ children }) {
-  const { session, loading } = useAuth();
-  if (loading) return null;
-  if (session) return <Navigate to="/dashboard" replace />;
-  return children;
-}
 
 // Film grain SVG data URI — very subtle texture overlay
 const GRAIN_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E";
@@ -57,13 +44,16 @@ export default function App() {
         {/* Landing page — full screen, no sidebar */}
         <Route path="/" element={<Landing />} />
 
-        {/* Auth pages — solo accesibles sin sesión */}
-        <Route path="/login"           element={<GuestRoute><Login /></GuestRoute>} />
-        <Route path="/register"        element={<GuestRoute><Register /></GuestRoute>} />
-        <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+        {/* Auth pages — only accessible without a session */}
+        <Route path="/login"           element={<GuestGuard><Login /></GuestGuard>} />
+        <Route path="/register"        element={<GuestGuard><Register /></GuestGuard>} />
+        <Route path="/forgot-password" element={<GuestGuard><ForgotPassword /></GuestGuard>} />
 
-        {/* App pages — requieren sesión activa */}
-        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        {/* Password reset — must remain accessible without a session (token is in URL) */}
+        <Route path="/auth/reset-password" element={<ResetPassword />} />
+
+        {/* App pages — require an active session */}
+        <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/missions"  element={<Missions />} />
           <Route path="/profile"   element={<Profile />} />

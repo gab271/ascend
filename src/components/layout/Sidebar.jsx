@@ -1,6 +1,9 @@
-import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap } from 'lucide-react';
-import { currentUser } from '../../data/mockData';
+import { useAuth } from '../../context/AuthContext';
+import { signOut } from '../../lib/api/auth';
+// DEV: gamification stats come from mock until real profile API is wired
+import { currentUser } from '../../fixtures/mockData';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -34,8 +37,17 @@ function Avatar({ username, size = 40 }) {
 }
 
 export default function Sidebar() {
-  const xpPercent = (currentUser.xp / currentUser.xpNext) * 100;
+  const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Use real username from auth when available; fall back to mock for dev
+  const displayName = user?.user_metadata?.username ?? currentUser.username;
+  const xpPercent   = (currentUser.xp / currentUser.xpNext) * 100;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <aside style={{
@@ -143,7 +155,7 @@ export default function Sidebar() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
           <div style={{ position: 'relative' }}>
-            <Avatar username={currentUser.username} size={44} />
+            <Avatar username={displayName} size={44} />
             {/* Level badge */}
             <div style={{
               position: 'absolute',
@@ -172,7 +184,7 @@ export default function Sidebar() {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
             }}>
-              {currentUser.username}
+              {displayName}
             </div>
             <div style={{
               fontFamily: 'var(--font-ui)',
@@ -329,7 +341,9 @@ export default function Sidebar() {
           <Settings size={18} />
           Configuración
         </button>
-        <button style={{
+        <button
+          onClick={handleSignOut}
+          style={{
           display: 'flex',
           alignItems: 'center',
           gap: 12,

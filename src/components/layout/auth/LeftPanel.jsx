@@ -1,175 +1,8 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, Trophy, Flame, Zap, Shield, DollarSign, Swords, Star, TrendingUp } from 'lucide-react';
+import LogoMark from '../../icons/LogoMark';
 
-/* ═══════════════════════════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════════════════════════ */
-function useBreakpoint(bp = 960) {
-  const [below, setBelow] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth <= bp
-  );
-  useEffect(() => {
-    const fn = () => setBelow(window.innerWidth <= bp);
-    window.addEventListener('resize', fn);
-    return () => window.removeEventListener('resize', fn);
-  }, [bp]);
-  return below;
-}
-
-function LogoMark({ size = 26 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      <defs>
-        <linearGradient id="auth_lg" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#7C5CFF" />
-          <stop offset="100%" stopColor="#33D1FF" />
-        </linearGradient>
-      </defs>
-      <polygon points="14,2 26,14 14,26 2,14" stroke="url(#auth_lg)" strokeWidth="1.5" fill="rgba(124,92,255,0.1)" />
-      <polyline points="9,17 14,9 19,17" stroke="url(#auth_lg)" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="14" y1="9" x2="14" y2="20" stroke="url(#auth_lg)" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   AUTH INPUT — elevado
-═══════════════════════════════════════════════════════════════ */
-export function AuthInput({
-  label, type = 'text', value, onChange,
-  icon, placeholder, focused, onFocus, onBlur,
-  suffix, delay = 0, error = false,
-}) {
-  const accent     = error ? '#FF4D6A' : '#7C5CFF';
-  const borderCol  = error ? 'rgba(255,77,106,0.5)'
-    : focused ? 'rgba(124,92,255,0.55)' : 'rgba(42,51,82,0.9)';
-  const labelCol   = error ? '#FF4D6A'
-    : focused ? '#7C5CFF' : 'rgba(160,174,203,0.5)';
-  const iconCol    = error ? '#FF4D6A'
-    : focused ? '#7C5CFF' : 'rgba(100,120,160,0.65)';
-  const bgCol      = focused ? 'rgba(124,92,255,0.035)' : 'rgba(10,11,16,0.45)';
-  const shadow     = focused
-    ? `0 0 0 1px rgba(124,92,255,0.22), 0 8px 28px rgba(124,92,255,0.07)`
-    : 'none';
-
-  return (
-    <div style={{
-      marginBottom: 22,
-      animation: `entry-up 0.5s ease ${delay}s forwards`,
-      opacity: 0,
-      animationFillMode: 'forwards',
-    }}>
-      {/* Label */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        fontFamily: 'var(--font-mono)', fontSize: 9,
-        letterSpacing: '0.2em', textTransform: 'uppercase',
-        color: labelCol, marginBottom: 8,
-        transition: 'color 0.25s', userSelect: 'none',
-      }}>
-        <span style={{
-          display: 'inline-block', width: 4, height: 4,
-          background: (focused || error) ? accent : 'rgba(74,90,122,0.5)',
-          transform: 'rotate(45deg)', transition: 'background 0.25s', flexShrink: 0,
-        }} />
-        {label}
-        {focused && !error && (
-          <span style={{ animation: 'blink-cursor 1s step-end infinite', color: '#7C5CFF', marginLeft: 1 }}>_</span>
-        )}
-      </div>
-
-      {/* Input shell */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        background: bgCol,
-        border: `1px solid ${borderCol}`,
-        borderLeft: `2px solid ${(focused || error) ? accent : 'rgba(42,51,82,0.9)'}`,
-        padding: '0 14px 0 14px',
-        height: 54,
-        transition: 'all 0.25s ease',
-        boxShadow: shadow,
-        position: 'relative',
-      }}>
-        {icon && (
-          <span style={{ color: iconCol, display: 'flex', alignItems: 'center', flexShrink: 0, transition: 'color 0.25s' }}>
-            {icon}
-          </span>
-        )}
-        <input
-          className="auth-input-field"
-          type={type}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          placeholder={placeholder}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          style={{
-            flex: 1, background: 'none', border: 'none', outline: 'none',
-            fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 15,
-            color: '#F5F7FB', letterSpacing: '0.03em',
-          }}
-        />
-        {suffix}
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   AUTH BUTTON
-═══════════════════════════════════════════════════════════════ */
-export function AuthButton({ loading, children, delay = 0, variant = 'violet' }) {
-  const colors = {
-    violet: { bg: 'linear-gradient(135deg, #8B6FFF 0%, #7C5CFF 50%, #6B4DFF 100%)', shadow: 'rgba(124,92,255,0.45)', hoverShadow: 'rgba(124,92,255,0.65)' },
-    cyan:   { bg: 'linear-gradient(135deg, #22C5F5 0%, #33D1FF 50%, #0BB5EE 100%)', shadow: 'rgba(51,209,255,0.4)',  hoverShadow: 'rgba(51,209,255,0.6)'  },
-  };
-  const c = colors[variant] || colors.violet;
-
-  return (
-    <button
-      type="submit"
-      disabled={loading}
-      style={{
-        width: '100%', height: 56,
-        background: loading ? 'rgba(124,92,255,0.3)' : c.bg,
-        border: 'none',
-        clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)',
-        color: '#fff',
-        fontFamily: 'var(--font-display)',
-        fontSize: 17, letterSpacing: '0.16em',
-        cursor: loading ? 'not-allowed' : 'pointer',
-        boxShadow: loading ? 'none' : `0 6px 28px ${c.shadow}, 0 2px 8px ${c.shadow}`,
-        transition: 'box-shadow 0.3s, background 0.3s, transform 0.2s',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        animation: `entry-up 0.5s ease ${delay}s forwards`,
-        opacity: 0, animationFillMode: 'forwards',
-      }}
-      onMouseEnter={e => {
-        if (!loading) {
-          e.currentTarget.style.boxShadow = `0 10px 40px ${c.hoverShadow}, 0 4px 14px ${c.shadow}`;
-          e.currentTarget.style.transform = 'translateY(-2px)';
-        }
-      }}
-      onMouseLeave={e => {
-        if (!loading) {
-          e.currentTarget.style.boxShadow = `0 6px 28px ${c.shadow}, 0 2px 8px ${c.shadow}`;
-          e.currentTarget.style.transform = 'none';
-        }
-      }}
-    >
-      {loading && (
-        <span style={{ animation: 'spin-slow 0.7s linear infinite', display: 'inline-block', fontSize: 16, opacity: 0.8 }}>◌</span>
-      )}
-      {children}
-    </button>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   LEFT PANEL — LOGIN VARIANT
-   "Lo que te espera de vuelta"
-═══════════════════════════════════════════════════════════════ */
+/* ─── Login variant content ──────────────────────────────────── */
 function LoginContent() {
   const XP = 4230, XP_NEXT = 5000;
   const pct = Math.round((XP / XP_NEXT) * 100);
@@ -181,13 +14,10 @@ function LoginContent() {
 
   return (
     <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
-
-      {/* Section label */}
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.9)', letterSpacing: '0.24em', marginBottom: 4 }}>
         // ESTADO DEL OPERADOR
       </div>
 
-      {/* Player card */}
       <div style={{
         background: 'rgba(10,11,16,0.65)',
         border: '1px solid rgba(42,51,82,0.9)',
@@ -195,7 +25,6 @@ function LoginContent() {
         padding: '20px 20px 16px',
         animation: 'entry-left 0.6s ease 0.1s forwards', opacity: 0, animationFillMode: 'forwards',
       }}>
-        {/* Level row */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, marginBottom: 16 }}>
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: 60, lineHeight: 0.9,
@@ -206,7 +35,6 @@ function LoginContent() {
             <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: 16, color: '#F5F7FB', letterSpacing: '0.1em', lineHeight: 1 }}>ENFORCER</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(124,92,255,0.75)', letterSpacing: '0.14em', marginTop: 3 }}>◆ ÉPICO</div>
           </div>
-          {/* Streak badge */}
           <div style={{ marginLeft: 'auto', textAlign: 'right', paddingBottom: 4 }}>
             <div style={{
               fontFamily: 'var(--font-display)', fontSize: 28, color: '#F5C451',
@@ -217,7 +45,6 @@ function LoginContent() {
           </div>
         </div>
 
-        {/* XP bar */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.85)', letterSpacing: '0.18em' }}>XP</span>
@@ -245,7 +72,6 @@ function LoginContent() {
           </div>
         </div>
 
-        {/* Attribute bars */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 14 }}>
           {ATTRS.map(a => (
             <div key={a.label}>
@@ -260,7 +86,6 @@ function LoginContent() {
           ))}
         </div>
 
-        {/* Last mission + rank */}
         <div style={{ display: 'flex', gap: 8 }}>
           <div style={{
             flex: 1, padding: '8px 10px',
@@ -284,7 +109,6 @@ function LoginContent() {
         </div>
       </div>
 
-      {/* Community stats */}
       <div style={{
         display: 'flex', border: '1px solid rgba(42,51,82,0.7)', overflow: 'hidden',
         animation: 'entry-left 0.6s ease 0.2s forwards', opacity: 0, animationFillMode: 'forwards',
@@ -307,10 +131,7 @@ function LoginContent() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   LEFT PANEL — REGISTER VARIANT
-   "Lo que está esperando por ti"
-═══════════════════════════════════════════════════════════════ */
+/* ─── Register variant content ───────────────────────────────── */
 function RegisterContent() {
   const RANKS = [
     { tier: 'LEGEND',    range: 'Nv. 41+',   color: '#F5C451', icon: <Star size={13} />,      desc: 'Élite global. Top 1%.' },
@@ -322,12 +143,10 @@ function RegisterContent() {
 
   return (
     <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
-
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.9)', letterSpacing: '0.24em', marginBottom: 4 }}>
         // RANGOS DEL SISTEMA
       </div>
 
-      {/* Rank tier ladder */}
       <div style={{
         border: '1px solid rgba(42,51,82,0.8)', overflow: 'hidden',
         animation: 'entry-left 0.6s ease 0.1s forwards', opacity: 0, animationFillMode: 'forwards',
@@ -339,7 +158,6 @@ function RegisterContent() {
             background: i === 0 ? `${color}08` : 'rgba(10,11,16,0.4)',
             borderBottom: i < RANKS.length - 1 ? '1px solid rgba(42,51,82,0.5)' : 'none',
             borderLeft: `2px solid ${color}`,
-            transition: 'background 0.2s',
           }}>
             <div style={{
               width: 28, height: 28, borderRadius: 6, flexShrink: 0,
@@ -361,10 +179,7 @@ function RegisterContent() {
         ))}
       </div>
 
-      {/* Three pillars */}
-      <div style={{
-        animation: 'entry-left 0.6s ease 0.2s forwards', opacity: 0, animationFillMode: 'forwards',
-      }}>
+      <div style={{ animation: 'entry-left 0.6s ease 0.2s forwards', opacity: 0, animationFillMode: 'forwards' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.85)', letterSpacing: '0.2em', marginBottom: 10 }}>
           // PILARES DEL SISTEMA
         </div>
@@ -389,7 +204,6 @@ function RegisterContent() {
         </div>
       </div>
 
-      {/* Join stats */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
         background: 'rgba(124,92,255,0.06)', border: '1px solid rgba(124,92,255,0.15)',
@@ -404,10 +218,8 @@ function RegisterContent() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   LEFT PANEL SHELL — shared chrome
-═══════════════════════════════════════════════════════════════ */
-function LeftPanel({ variant }) {
+/* ─── Left panel shell ───────────────────────────────────────── */
+export default function LeftPanel({ variant }) {
   const isRegister = variant === 'register';
   const accentColor = isRegister ? '#33D1FF' : '#7C5CFF';
 
@@ -521,66 +333,6 @@ function LeftPanel({ variant }) {
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,0.55)', letterSpacing: '0.14em', marginTop: 10 }}>
           — SISTEMA ASCEND v1.0
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   MOBILE HEADER — compact brand bar
-═══════════════════════════════════════════════════════════════ */
-function MobileHeader({ variant }) {
-  const isRegister = variant === 'register';
-  return (
-    <div style={{
-      position: 'relative', marginBottom: 36,
-      paddingBottom: 24, borderBottom: '1px solid rgba(42,51,82,0.7)',
-    }}>
-      {/* Top accent */}
-      <div style={{
-        position: 'absolute', top: -24, left: -24, right: -24, height: 2,
-        background: isRegister
-          ? 'linear-gradient(90deg, #33D1FF, #33E6A1, transparent)'
-          : 'linear-gradient(90deg, #7C5CFF, #33D1FF, transparent)',
-      }} />
-      <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 12 }}>
-        <LogoMark size={22} />
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '0.3em', color: '#F5F7FB' }}>ASCEND</span>
-      </Link>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(74,90,122,0.8)', letterSpacing: '0.14em' }}>
-        {isRegister ? '// ACTIVACIÓN DE NUEVO OPERADOR' : '// PROTOCOLO DE RECONEXIÓN'}
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   AUTH LAYOUT — main export
-═══════════════════════════════════════════════════════════════ */
-export default function AuthLayout({ children, variant = 'login' }) {
-  const isMobile = useBreakpoint(960);
-
-  return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0A0B10' }}>
-      {!isMobile && <LeftPanel variant={variant} />}
-
-      {/* Right: form area */}
-      <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
-        justifyContent: isMobile ? 'flex-start' : 'center',
-        padding: isMobile ? '32px 24px 48px' : '60px 64px',
-        overflowY: 'auto', minHeight: '100vh', position: 'relative',
-      }}>
-        {/* Ambient glow */}
-        <div style={{
-          position: 'fixed', top: -100, right: -80,
-          width: 440, height: 440,
-          background: 'radial-gradient(circle, rgba(124,92,255,0.05) 0%, transparent 65%)',
-          pointerEvents: 'none',
-        }} />
-
-        {isMobile && <MobileHeader variant={variant} />}
-        {children}
       </div>
     </div>
   );
