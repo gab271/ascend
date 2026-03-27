@@ -3,10 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { signOut } from '../lib/api/auth';
 import {
-  ArrowRight, Zap, TrendingUp, Target, Trophy, Shield,
-  DollarSign, Menu, X, CheckCircle2, Flame, Star,
-  ChevronRight, BarChart3, Swords,
-  Award, Users, RotateCcw, Crosshair, Play
+  ArrowRight, Zap, TrendingUp, Trophy,
+  Menu, X, CheckCircle2, Star,
+  ChevronRight, Users, Crosshair, Play
 } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -364,7 +363,6 @@ export default function Landing() {
   }, []);
 
   const NAV = [
-    { label: 'Características', href: '#features' },
     { label: 'Cómo Funciona', href: '#how' },
     { label: 'Leaderboard', href: '#ranking' },
   ];
@@ -826,100 +824,6 @@ export default function Landing() {
 
       </section>
 
-      {/* ═══════════════════════════════════════════════════════
-          CARACTERÍSTICAS — ARSENAL DE HERRAMIENTAS
-      ═══════════════════════════════════════════════════════ */}
-      <Section id="features" style={{ padding: sectionPad }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <Eyebrow color="rgba(160,174,203,0.55)">Arsenal de herramientas</Eyebrow>
-            <h2 style={{
-              fontFamily: 'var(--font-body)',
-              fontWeight: 300,
-              fontSize: 'clamp(40px, 5vw, 72px)',
-              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em',
-              marginBottom: 16,
-            }}>
-              Todo lo que{' '}
-              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>necesitas</em>
-            </h2>
-            <p style={{
-              fontFamily: 'var(--font-body)', fontSize: 16,
-              color: 'rgba(160,174,203,0.65)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
-            }}>
-              Herramientas diseñadas para convertir tu rutina en la aventura más épica.
-            </p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-            gridTemplateRows: 'auto auto',
-          }}>
-            {[
-              {
-                icon: <Target size={22} color="rgba(160,174,203,0.6)" />,
-                title: 'Misiones Diarias',
-                desc: 'Convierte tus hábitos y tareas en misiones épicas con recompensas de XP.',
-              },
-              {
-                icon: <Zap size={22} color="rgba(160,174,203,0.6)" />,
-                title: 'Sistema de XP',
-                desc: 'Gana puntos de experiencia por cada misión completada y sube de nivel.',
-              },
-              {
-                icon: <Trophy size={22} color="rgba(160,174,203,0.6)" />,
-                title: 'Ranking Global',
-                desc: 'Compite contra aventureros de todo el mundo en tablas de clasificación.',
-              },
-              {
-                icon: <Shield size={22} color="rgba(160,174,203,0.6)" />,
-                title: 'Logros & Badges',
-                desc: 'Desbloquea insignias únicas al alcanzar hitos especiales en tu camino.',
-              },
-              {
-                icon: <Users size={22} color="rgba(160,174,203,0.6)" />,
-                title: 'Gremios',
-                desc: 'Únete a gremios y completa desafíos grupales con otros aventureros.',
-              },
-              {
-                icon: <Swords size={22} color="rgba(160,174,203,0.6)" />,
-                title: 'Boss Fights',
-                desc: 'Enfréntate a jefes semanales completando retos especiales de dificultad.',
-              },
-            ].map(({ icon, title, desc }, i) => {
-              const col = i % 3;
-              const row = Math.floor(i / 3);
-              const borderRight = !isMobile && col < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none';
-              const borderBottom = !isMobile && row === 0 ? '1px solid rgba(255,255,255,0.08)' : (isMobile && i < 5 ? '1px solid rgba(255,255,255,0.08)' : 'none');
-              return (
-                <StaggerItem key={title} index={i} style={{ borderRight, borderBottom }}>
-                  <div style={{
-                    padding: isMobile ? '32px 24px' : '48px 40px',
-                    transition: 'background 0.2s',
-                    height: '100%',
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <div style={{ marginBottom: 20 }}>{icon}</div>
-                    <h3 style={{
-                      fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15,
-                      color: '#F5F7FB', letterSpacing: '0.02em', marginBottom: 10,
-                    }}>{title}</h3>
-                    <p style={{
-                      fontFamily: 'var(--font-body)', fontSize: 13,
-                      color: 'rgba(160,174,203,0.6)', lineHeight: 1.7,
-                    }}>{desc}</p>
-                  </div>
-                </StaggerItem>
-              );
-            })}
-          </div>
-        </div>
-      </Section>
-
-      <Divider />
 
       {/* ═══════════════════════════════════════════════════════
           CÓMO FUNCIONA
@@ -986,6 +890,14 @@ export default function Landing() {
                 onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
               >
+                {/* Large watermark step number */}
+                <div style={{
+                  position: 'absolute', top: -8, right: 16,
+                  fontFamily: 'var(--font-display)', fontSize: isMobile ? 96 : 112,
+                  lineHeight: 1, color: `${color}09`,
+                  userSelect: 'none', pointerEvents: 'none',
+                  letterSpacing: '-0.02em',
+                }}>{step}</div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}80`, letterSpacing: '0.24em', marginBottom: 24 }}>
                   — {step}
                 </div>
@@ -1081,209 +993,6 @@ export default function Landing() {
 
       <Divider />
 
-      {/* ═══════════════════════════════════════════════════════
-          TRES PILARES
-      ═══════════════════════════════════════════════════════ */}
-      <Section id="pillars" style={{ padding: sectionPad }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <Eyebrow color="#7C5CFF">Atributos del sistema</Eyebrow>
-            <h2 style={{
-              fontFamily: 'var(--font-body)',
-              fontWeight: 300,
-              fontSize: 'clamp(40px, 5vw, 68px)',
-              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
-            }}>
-              Tres pilares.{' '}
-              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Un solo objetivo.</em>
-            </h2>
-            <p style={{
-              fontFamily: 'var(--font-body)', fontSize: 16,
-              color: 'rgba(160,174,203,0.75)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
-            }}>
-              No rastreamos intenciones. Rastreamos acciones.
-            </p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-            gap: 1,
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: 2, overflow: 'hidden',
-          }}>
-            {[
-              {
-                icon: <Shield size={24} color="#33E6A1" />,
-                color: '#33E6A1', label: 'SALUD',
-                title: 'Cuerpo en forma,\nmente en foco',
-                val: 78, grad: 'linear-gradient(90deg, #1aad78, #33E6A1)',
-                desc: 'Cada hábito de ejercicio, descanso, nutrición o bienestar que completes refuerza este atributo.',
-                missions: ['Entrenamiento de fuerza · +150 XP', 'Dormir 8 horas · +80 XP', 'Sin procesados · +120 XP'],
-              },
-              {
-                icon: <DollarSign size={24} color="#F5C451" />,
-                color: '#F5C451', label: 'DINERO',
-                title: 'Control\nfinanciero real',
-                val: 62, grad: 'linear-gradient(90deg, #c49a30, #F5C451)',
-                desc: 'Completa misiones de ahorro, inversión y control de gastos para subir este atributo.',
-                missions: ['Lectura financiera 30min · +100 XP', 'Sin gastos impulsivos · +80 XP', 'Revisar inversiones · +60 XP'],
-              },
-              {
-                icon: <Swords size={24} color="#7C5CFF" />,
-                color: '#7C5CFF', label: 'DISCIPLINA',
-                title: 'Constancia sin\nnegociaciones',
-                val: 91, grad: 'linear-gradient(90deg, #5a3fd4, #7C5CFF)',
-                desc: 'El atributo más difícil de subir. Mide tu capacidad de cumplir lo que prometiste.',
-                missions: ['Rutina matutina completa · +90 XP', 'Sin redes sociales 2h · +70 XP', 'Trabajo profundo · +130 XP'],
-              },
-            ].map(({ icon, color, label, title, val, grad, desc, missions }, i) => (
-              <div key={label} style={{
-                padding: isMobile ? '36px 26px' : '48px 36px',
-                background: '#0D0F1A',
-                borderRight: !isMobile && i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                borderBottom: isMobile && i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                position: 'relative',
-                transition: 'background 0.22s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
-              >
-                {/* Top accent */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: 2, flexShrink: 0,
-                    background: `${color}0A`, border: `1px solid ${color}20`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>{icon}</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}99`, letterSpacing: '0.25em' }}>
-                    PILAR · {label}
-                  </div>
-                </div>
-
-                <h3 style={{
-                  fontFamily: 'var(--font-display)', fontSize: 32,
-                  color: '#F5F7FB', lineHeight: 1.05, marginBottom: 14,
-                  whiteSpace: 'pre-line',
-                }}>{title}</h3>
-
-                <p style={{
-                  fontFamily: 'var(--font-body)', fontSize: 13,
-                  color: 'rgba(160,174,203,0.75)', lineHeight: 1.65, marginBottom: 24,
-                }}>{desc}</p>
-
-                {/* Progress */}
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}99`, letterSpacing: '0.12em' }}>NIVEL PROMEDIO</span>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, color, lineHeight: 1 }}>{val}</span>
-                  </div>
-                  <div style={{ height: 3, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${val}%`, background: grad, borderRadius: 2 }} />
-                  </div>
-                </div>
-
-                {/* Sample missions */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {missions.map(m => (
-                    <div key={m} style={{
-                      fontFamily: 'var(--font-mono)', fontSize: 10,
-                      color: 'rgba(160,174,203,0.5)', letterSpacing: '0.04em',
-                      paddingLeft: 12, position: 'relative',
-                    }}>
-                      <span style={{ position: 'absolute', left: 0, color: `${color}60` }}>›</span>
-                      {m}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      <Divider />
-
-      {/* ═══════════════════════════════════════════════════════
-          POR QUÉ FUNCIONA
-      ═══════════════════════════════════════════════════════ */}
-      <Section style={{ padding: sectionPad }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: isMobile ? 48 : 80,
-            alignItems: 'center',
-          }}>
-            {/* Left */}
-            <div>
-              <Eyebrow color="#33E6A1">Por qué funciona</Eyebrow>
-              <h2 style={{
-                fontFamily: 'var(--font-body)',
-                fontWeight: 300,
-                fontSize: 'clamp(36px, 4.5vw, 58px)',
-                color: '#F5F7FB', lineHeight: 1.1, letterSpacing: '-0.01em', marginBottom: 18,
-              }}>
-                No es motivación.<br />
-                <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Es arquitectura</em><br />
-                de comportamiento.
-              </h2>
-              <p style={{
-                fontFamily: 'var(--font-body)', fontSize: 15,
-                color: 'rgba(160,174,203,0.78)', lineHeight: 1.7, marginBottom: 36,
-              }}>
-                La mayoría de apps te dan inspiración por 3 días. ASCEND construye el sistema operativo
-                de tu disciplina. Cuando tienes el mecanismo correcto, la motivación deja de importar.
-              </p>
-              <Link
-                to="/register"
-                style={bBtnDark}
-                onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
-              >
-                Construir mi sistema <ArrowRight size={14} />
-              </Link>
-            </div>
-
-            {/* Right: feature cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden' }}>
-              {[
-                { icon: <RotateCcw size={15} color="#33D1FF" />, color: '#33D1FF', title: 'Consistencia compuesta', desc: 'El sistema de rachas hace que fallar tenga un coste real. Eso convierte cada acción en un hábito sostenible.' },
-                { icon: <BarChart3 size={15} color="#33E6A1" />, color: '#33E6A1', title: 'Progreso que se ve', desc: 'No más "creo que estoy mejorando". Tienes XP, nivel y atributos que reflejan exactamente dónde estás.' },
-                { icon: <Users size={15} color="#7C5CFF" />, color: '#7C5CFF', title: 'Accountability público', desc: 'Cuando tu progreso es visible para otros, la presión de cumplir se multiplica. El ranking convierte la intención en obligación.' },
-                { icon: <Award size={15} color="#F5C451" />, color: '#F5C451', title: 'Recompensa inmediata', desc: 'XP, niveles e insignias dan satisfacción en tiempo real. Tu cerebro aprende que el esfuerzo vale la pena.' },
-                { icon: <Target size={15} color="#33D1FF" />, color: '#33D1FF', title: 'Claridad de ejecución', desc: 'Cada día sabes exactamente qué hacer. Sin decisiones paralizantes. Solo ejecutar las misiones que ya elegiste.' },
-                { icon: <Flame size={15} color="#FF4D6A" />, color: '#FF4D6A', title: 'Momentum sostenido', desc: 'Las rachas y el ranking mantienen activo el motor semana tras semana, cuando la euforia inicial se evapora.' },
-              ].map(({ icon, color, title, desc }, i) => (
-                <div key={title} style={{
-                  display: 'flex', gap: 14, alignItems: 'flex-start',
-                  padding: '18px 20px',
-                  background: '#0D0F1A',
-                  borderBottom: i < 5 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                  transition: 'background 0.18s',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
-                >
-                  <div style={{
-                    width: 34, height: 34, borderRadius: 2, flexShrink: 0,
-                    background: `${color}0A`, border: `1px solid ${color}1A`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>{icon}</div>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, color: '#F5F7FB', marginBottom: 4, letterSpacing: '0.01em' }}>{title}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.6 }}>{desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Divider />
 
       {/* ═══════════════════════════════════════════════════════
           RANKING
