@@ -34,37 +34,33 @@ export default function LeftPanel({ variant = 'login' }) {
       flex: 1,
       position: 'relative',
       overflow: 'hidden',
-      /*
-        FOTO DE FONDO — descomenta cuando tengas la imagen:
-        backgroundImage: 'url(/auth-bg.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      */
     }}>
 
-      {/* ── Placeholder background (reemplazar con foto) ─────────── */}
+      {/* ── GIF background ───────────────────────────────────────── */}
+      <img
+        src="/loginvideoascend.gif"
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center',
+          pointerEvents: 'none',
+        }}
+      />
+
+
+      {/* Dark overlay for readability */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: `
-          radial-gradient(ellipse at 18% 78%, ${accent}1A 0%, transparent 52%),
-          radial-gradient(ellipse at 78% 18%, rgba(51,209,255,0.08) 0%, transparent 48%),
-          linear-gradient(155deg, #0D0F1C 0%, #0A0B10 40%, #0F0B1A 70%, #08090F 100%)
-        `,
-      }} />
-
-      {/* Animated grid */}
-      <div style={{
-        position: 'absolute', inset: '-20%',
-        backgroundImage: 'linear-gradient(rgba(42,51,82,0.11) 1px, transparent 1px), linear-gradient(90deg, rgba(42,51,82,0.11) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        animation: 'grid-flow 14s linear infinite',
+        background: 'rgba(8,9,14,0.55)',
         pointerEvents: 'none',
       }} />
 
       {/* Bottom + top gradient overlays */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 28%, transparent 55%, rgba(0,0,0,0.55) 100%)',
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 25%, transparent 50%, rgba(0,0,0,0.65) 100%)',
         pointerEvents: 'none',
       }} />
 
@@ -75,13 +71,14 @@ export default function LeftPanel({ variant = 'login' }) {
         pointerEvents: 'none',
       }} />
 
-      {/* Accent glow */}
+      {/* Subtle accent glow at bottom */}
       <div style={{
-        position: 'absolute', bottom: '-10%', left: '10%',
-        width: 700, height: 600,
-        background: `radial-gradient(circle, ${accent}10 0%, transparent 60%)`,
+        position: 'absolute', bottom: '-5%', left: '5%',
+        width: 600, height: 400,
+        background: `radial-gradient(circle, ${accent}18 0%, transparent 60%)`,
         pointerEvents: 'none',
         transition: 'background 0.7s',
+        mixBlendMode: 'screen',
       }} />
 
       {/* Ghost ASCEND watermark */}
