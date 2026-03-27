@@ -1211,12 +1211,32 @@ export default function Landing() {
         position: 'relative', overflow: 'hidden',
         textAlign: 'center',
       }}>
-        {/* Subtle radial glow */}
+        {/* GIF background */}
+        <img
+          src="/prefooteranimationAscend.gif"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Dark overlay for readability */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'rgba(8,9,14,0.72)',
+          pointerEvents: 'none',
+        }} />
+
+        {/* Radial color tint */}
         <div style={{
           position: 'absolute', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
           width: '80vw', height: '80vh', pointerEvents: 'none',
-          background: 'radial-gradient(ellipse, rgba(124,92,255,0.07) 0%, transparent 65%)',
+          background: 'radial-gradient(ellipse, rgba(124,92,255,0.1) 0%, transparent 65%)',
         }} />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto' }}>
