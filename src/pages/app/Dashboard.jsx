@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Flame, Shield, DollarSign, Zap, CheckCircle2, Circle, ChevronRight } from 'lucide-react';
+import { Shield, DollarSign, Zap, ChevronRight, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getMyProfile, getWeeklyXP } from '../../lib/api/profile';
 import { getDailyMissions, completeMission as completeMissionAPI } from '../../lib/api/missions';
@@ -10,7 +10,42 @@ import XPBar from '../../components/game/XPBar';
 import WeeklyChart from '../../components/game/WeeklyChart';
 import MissionRow from '../../components/game/MissionRow';
 
-// ─── Angular Stat Card (dashboard-only) ─────────────────────────
+// ─── Entry animation hook ─────────────────────────────────────
+function useEntry(delay = 0) {
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setEntered(true), delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+  return entered;
+}
+
+function entryStyle(entered) {
+  return {
+    opacity: entered ? 1 : 0,
+    transform: entered ? 'translateY(0)' : 'translateY(28px)',
+    filter: entered ? 'blur(0px)' : 'blur(8px)',
+    transition: 'opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1), filter 0.7s ease',
+  };
+}
+
+// ─── Eyebrow label ────────────────────────────────────────────
+function Eyebrow({ children, color = 'var(--text-muted)' }) {
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 10,
+      fontFamily: 'var(--font-mono)', fontSize: 10,
+      letterSpacing: '0.22em', textTransform: 'uppercase',
+      color, marginBottom: 14,
+    }}>
+      <span style={{ display: 'block', width: 18, height: 1, background: color, opacity: 0.45 }} />
+      {children}
+      <span style={{ display: 'block', width: 18, height: 1, background: color, opacity: 0.45 }} />
+    </div>
+  );
+}
+
+// ─── Angular Stat Card ────────────────────────────────────────
 function StatCard({ label, value, max, color, icon: Icon, change }) {
   const animated = useCountUp(value, 1200, 400);
   const [barWidth, setBarWidth] = useState(0);
@@ -43,10 +78,17 @@ function StatCard({ label, value, max, color, icon: Icon, change }) {
         e.currentTarget.style.boxShadow = 'none';
       }}
     >
+      {/* Ambient glow orb */}
       <div style={{
         position: 'absolute', bottom: -20, right: -20,
-        width: 100, height: 100, borderRadius: '50%',
+        width: 110, height: 110, borderRadius: '50%',
         background: `radial-gradient(circle, ${color}18 0%, transparent 70%)`,
+        pointerEvents: 'none',
+      }} />
+      {/* Top accent line */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+        background: `linear-gradient(90deg, transparent, ${color}55, transparent)`,
         pointerEvents: 'none',
       }} />
 
@@ -87,15 +129,17 @@ function StatCard({ label, value, max, color, icon: Icon, change }) {
 
       <div style={{ height: 5, background: 'var(--surface)', borderRadius: 3, overflow: 'hidden' }}>
         <div style={{
-          width: `${barWidth}%`, height: '100%', background: color, borderRadius: 3,
+          width: `${barWidth}%`, height: '100%', background: `linear-gradient(90deg, ${color}99, ${color})`,
+          borderRadius: 3,
           transition: 'width 1.1s cubic-bezier(0.4, 0, 0.2, 1)', transitionDelay: '0.6s',
+          boxShadow: `0 0 8px ${color}40`,
         }} />
       </div>
     </div>
   );
 }
 
-// ─── Normalize API response shapes ───────────────────────────────
+// ─── Normalize helpers ────────────────────────────────────────
 function normalizeProfile(raw) {
   if (!raw) return null;
   return {
@@ -124,22 +168,26 @@ function normalizeMissions(rows) {
 
 function normalizeRanking(rows) {
   return (rows ?? []).map(r => ({
-    id:      r.user_id,
+    id:       r.user_id,
     username: r.username,
-    level:   r.level,
-    xp:      r.total_xp,
-    title:   r.title_name ?? '',
-    isMe:    r.is_me,
+    level:    r.level,
+    xp:       r.total_xp,
+    title:    r.title_name ?? '',
+    isMe:     r.is_me,
   }));
 }
 
-// ─── Main Dashboard ───────────────────────────────────────────────
+// ─── Main Dashboard ───────────────────────────────────────────
 export default function Dashboard() {
-  const [profile,   setProfile]   = useState(null);
-  const [weeklyXP,  setWeeklyXP]  = useState([0, 0, 0, 0, 0, 0, 0]);
-  const [missions,  setMissions]  = useState([]);
-  const [rankData,  setRankData]  = useState([]);
-  const [loading,   setLoading]   = useState(true);
+  const [profile,  setProfile]  = useState(null);
+  const [weeklyXP, setWeeklyXP] = useState([0, 0, 0, 0, 0, 0, 0]);
+  const [missions, setMissions] = useState([]);
+  const [rankData, setRankData] = useState([]);
+  const [loading,  setLoading]  = useState(true);
+
+  const heroEntered  = useEntry(60);
+  const attrsEntered = useEntry(220);
+  const botEntered   = useEntry(380);
 
   useEffect(() => {
     async function load() {
@@ -165,17 +213,12 @@ export default function Dashboard() {
   }, []);
 
   const handleComplete = async (missionId) => {
-    // Optimistic update
     setMissions(prev => prev.map(m => m.id === missionId ? { ...m, completed: true } : m));
-
     const { error } = await completeMissionAPI(missionId);
     if (error) {
-      // Revert on failure
       setMissions(prev => prev.map(m => m.id === missionId ? { ...m, completed: false } : m));
       return;
     }
-
-    // Refresh profile so XP + level are up to date
     const { data: profileRaw } = await getMyProfile();
     setProfile(normalizeProfile(profileRaw));
   };
@@ -183,8 +226,22 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>
-          CARGANDO...
+        <div style={{
+          position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+        }}>
+          <div style={{
+            width: 40, height: 40,
+            border: '2px solid var(--border)',
+            borderTop: '2px solid var(--violet)',
+            borderRadius: '50%',
+            animation: 'spin-slow 0.8s linear infinite',
+          }} />
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: 10,
+            color: 'var(--text-muted)', letterSpacing: '0.28em',
+          }}>
+            CARGANDO SISTEMA
+          </div>
         </div>
       </div>
     );
@@ -192,202 +249,444 @@ export default function Dashboard() {
 
   const completedCount = missions.filter(m => m.completed).length;
   const topRankUsers   = rankData.slice(0, 4);
-
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
+  const hour           = new Date().getHours();
+  const greeting       = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ position: 'relative' }}>
 
-      {/* ═══ ROW 1: Level hex + XP + Streak ════════════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 200px', gap: 20 }}>
+      {/* ── Ambient background orbs ─────────────────────────── */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+        <div style={{
+          position: 'absolute', top: -120, right: -80,
+          width: 500, height: 500, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(124,92,255,0.07) 0%, transparent 65%)',
+          animation: 'orb-breathe 8s ease-in-out infinite',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: 40, left: -100,
+          width: 400, height: 400, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(51,209,255,0.05) 0%, transparent 60%)',
+          animation: 'orb-breathe 11s ease-in-out infinite',
+          animationDelay: '4s',
+        }} />
+      </div>
 
-        {/* ─ Hexagonal level display ─ */}
+      {/* ── Film grain overlay ───────────────────────────────── */}
+      <div style={{
+        position: 'absolute', inset: -150, pointerEvents: 'none', zIndex: 2,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        opacity: 0.028,
+        animation: 'grain-shift 0.9s steps(1) infinite',
+      }} />
+
+      {/* ── Page content ─────────────────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 3, display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+        {/* ═══ ROW 1: Hero card ═══════════════════════════════ */}
         <div
-          className="card"
+          className="hud-frame"
           style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(135deg, var(--panel) 0%, #100D1C 50%, #0D1425 100%)',
+            border: '1px solid rgba(124,92,255,0.2)',
+            borderRadius: 16,
             padding: '28px 36px',
-            background: 'linear-gradient(135deg, var(--panel), #16102A)',
-            borderColor: 'rgba(124,92,255,0.25)',
-            minWidth: 280, position: 'relative', overflow: 'visible',
+            overflow: 'hidden',
+            position: 'relative',
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr auto',
+            gap: 40,
+            alignItems: 'center',
+            ...entryStyle(heroEntered),
           }}
         >
+          {/* Animated background grid */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'radial-gradient(ellipse at center, rgba(124,92,255,0.1) 0%, transparent 70%)',
+            backgroundImage:
+              'linear-gradient(rgba(42,51,82,0.12) 1px, transparent 1px),' +
+              'linear-gradient(90deg, rgba(42,51,82,0.12) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+            animation: 'grid-flow 8s linear infinite',
             pointerEvents: 'none',
           }} />
-          <HexLevel level={profile.level} title={profile.title} />
-        </div>
 
-        {/* ─ XP + info ─ */}
-        <div
-          className="card"
-          style={{
-            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-            background: 'linear-gradient(135deg, var(--panel), #12182E)',
-          }}
-        >
-          <div style={{ marginBottom: 12 }}>
+          {/* Ambient left glow */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse at 20% 50%, rgba(124,92,255,0.12) 0%, transparent 55%)',
+            pointerEvents: 'none',
+          }} />
+
+          {/* Scan sweep line */}
+          <div style={{
+            position: 'absolute', left: 0, right: 0, height: 1,
+            background: 'linear-gradient(90deg, transparent, rgba(124,92,255,0.55), transparent)',
+            animation: 'scan-sweep 4s ease-in-out infinite',
+            pointerEvents: 'none', zIndex: 5,
+          }} />
+
+          {/* Top edge accent */}
+          <div style={{
+            position: 'absolute', top: 0, left: '15%', right: '15%', height: 1,
+            background: 'linear-gradient(90deg, transparent, rgba(124,92,255,0.4), rgba(51,209,255,0.3), transparent)',
+            pointerEvents: 'none',
+          }} />
+
+          {/* LEFT — HexLevel */}
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            <HexLevel level={profile.level} title={profile.title} />
+          </div>
+
+          {/* CENTER — Player identity + XP */}
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column' }}>
+            <Eyebrow color="var(--violet)">{greeting}</Eyebrow>
+
             <div style={{
-              fontFamily: 'var(--font-mono)', fontSize: 10,
-              color: 'var(--text-muted)', letterSpacing: '0.2em', marginBottom: 4,
+              fontFamily: 'var(--font-display)',
+              fontSize: 72, lineHeight: 0.88,
+              color: 'var(--text)',
+              letterSpacing: '0.04em',
+              textShadow: '0 2px 48px rgba(124,92,255,0.22)',
+              marginBottom: 10,
             }}>
-              {greeting.toUpperCase()},
-              <span style={{ color: 'var(--violet)', marginLeft: 6 }}>{profile.username}</span>
+              {profile.username}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 16 }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.15em', color: 'var(--text-muted)' }}>XP TOTAL</span>
-              <span style={{
-                fontFamily: 'var(--font-display)', fontSize: 42, color: 'var(--violet)',
-                lineHeight: 1, textShadow: '0 0 30px var(--violet-glow)',
+            {profile.title && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'var(--gold-dim)',
+                border: '1px solid rgba(245,196,81,0.28)',
+                borderRadius: 3, padding: '4px 12px',
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
+                letterSpacing: '0.12em', color: 'var(--gold)',
+                alignSelf: 'flex-start', marginBottom: 20,
               }}>
-                {profile.totalXP.toLocaleString()}
-              </span>
-            </div>
-          </div>
-
-          <XPBar current={profile.xp} max={profile.xpNext} nextLevel={profile.level + 1} />
-        </div>
-
-        {/* ─ Streak ─ */}
-        <div
-          className="card"
-          style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', textAlign: 'center',
-            background: 'linear-gradient(160deg, var(--panel), #1A1200)',
-            borderColor: 'rgba(245,196,81,0.2)', gap: 6,
-          }}
-        >
-          <div style={{ fontSize: 42, animation: 'streak-pulse 2.2s ease-in-out infinite', filter: 'drop-shadow(0 0 12px rgba(245,196,81,0.6))' }}>
-            🔥
-          </div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 72, color: 'var(--gold)', lineHeight: 0.9, textShadow: '0 0 40px var(--gold-glow)' }}>
-            {profile.streak}
-          </div>
-          <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.22em', color: 'var(--text-muted)' }}>
-            DÍAS DE RACHA
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ ROW 2: Attributes ══════════════════════════════════ */}
-      <div>
-        <div className="section-label">ATRIBUTOS</div>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <StatCard label="SALUD"      value={profile.stats.health.value}     max={100} color="var(--green)"  icon={Shield}     />
-          <StatCard label="DINERO"     value={profile.stats.money.value}      max={100} color="var(--gold)"   icon={DollarSign} />
-          <StatCard label="DISCIPLINA" value={profile.stats.discipline.value} max={100} color="var(--violet)" icon={Zap}        />
-        </div>
-      </div>
-
-      {/* ═══ ROW 3: Missions + sidebar ══════════════════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20 }}>
-
-        {/* Daily missions */}
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div>
-              <div className="section-label" style={{ marginBottom: 2 }}>MISIONES DEL DÍA</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
-                {completedCount}/{missions.length} completadas
+                <Crown size={10} color="var(--gold)" />
+                {profile.title.toUpperCase()}
               </div>
+            )}
+
+            <div style={{ marginTop: profile.title ? 0 : 16 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 14 }}>
+                <span style={{
+                  fontFamily: 'var(--font-mono)', fontSize: 10,
+                  letterSpacing: '0.18em', color: 'var(--text-muted)',
+                }}>
+                  XP TOTAL
+                </span>
+                <span style={{
+                  fontFamily: 'var(--font-display)', fontSize: 44, color: 'var(--violet)',
+                  lineHeight: 1, textShadow: '0 0 32px var(--violet-glow)',
+                }}>
+                  {profile.totalXP.toLocaleString()}
+                </span>
+              </div>
+              <XPBar current={profile.xp} max={profile.xpNext} nextLevel={profile.level + 1} />
             </div>
-            <Link to="/missions" style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: 'var(--violet)', display: 'flex', alignItems: 'center', gap: 3 }}>
-              VER TODAS <ChevronRight size={13} />
-            </Link>
           </div>
 
-          <div style={{ marginBottom: 18 }}>
-            <div style={{ display: 'flex', gap: 2 }}>
-              {missions.map((m, i) => (
-                <div key={i} style={{
-                  flex: 1, height: 6,
-                  background: m.completed ? 'var(--green)' : 'var(--surface)',
-                  border: m.completed ? 'none' : '1px solid var(--border)',
-                  borderRadius: 3, transition: 'background 0.4s ease',
-                }} />
-              ))}
+          {/* RIGHT — Streak */}
+          <div
+            style={{
+              position: 'relative', zIndex: 2,
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', textAlign: 'center',
+              background: 'linear-gradient(160deg, rgba(245,196,81,0.07) 0%, rgba(245,196,81,0.02) 100%)',
+              border: '1px solid rgba(245,196,81,0.18)',
+              borderRadius: 12, padding: '28px 32px', gap: 6,
+              flexShrink: 0,
+            }}
+          >
+            {/* Gold corner accent */}
+            <div style={{
+              position: 'absolute', top: 0, left: '20%', right: '20%', height: 1,
+              background: 'linear-gradient(90deg, transparent, rgba(245,196,81,0.5), transparent)',
+            }} />
+            <div style={{
+              fontSize: 38,
+              animation: 'streak-pulse 2.2s ease-in-out infinite',
+              filter: 'drop-shadow(0 0 14px rgba(245,196,81,0.65))',
+            }}>
+              🔥
             </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            {missions.map(mission => (
-              <MissionRow key={mission.id} mission={mission} onComplete={handleComplete} />
-            ))}
+            <div style={{
+              fontFamily: 'var(--font-display)', fontSize: 80, color: 'var(--gold)',
+              lineHeight: 0.85, textShadow: '0 0 48px var(--gold-glow)',
+            }}>
+              {profile.streak}
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 9,
+              letterSpacing: '0.26em', color: 'rgba(245,196,81,0.55)', marginTop: 6,
+              textTransform: 'uppercase',
+            }}>
+              Días de racha
+            </div>
           </div>
         </div>
 
-        {/* Right sidebar: ranking + chart */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {/* ═══ ROW 2: Attributes ══════════════════════════════ */}
+        <div style={{ ...entryStyle(attrsEntered) }}>
+          <Eyebrow>Atributos</Eyebrow>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <StatCard label="SALUD"      value={profile.stats.health.value}     max={100} color="var(--green)"  icon={Shield}     />
+            <StatCard label="DINERO"     value={profile.stats.money.value}      max={100} color="var(--gold)"   icon={DollarSign} />
+            <StatCard label="DISCIPLINA" value={profile.stats.discipline.value} max={100} color="var(--violet)" icon={Zap}        />
+          </div>
+        </div>
 
-          {/* Mini ranking */}
-          <div className="card" style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div className="section-label" style={{ marginBottom: 0 }}>RANKING</div>
-              <Link to="/ranking" style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.1em', color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                VER <ChevronRight size={12} />
-              </Link>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {topRankUsers.map((user, idx) => (
-                <div
-                  key={user.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '7px 10px', borderRadius: 7,
-                    background: user.isMe ? 'var(--violet-dim)' : 'transparent',
-                    border: `1px solid ${user.isMe ? 'rgba(124,92,255,0.3)' : 'transparent'}`,
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseEnter={e => { if (!user.isMe) e.currentTarget.style.background = 'var(--surface)'; }}
-                  onMouseLeave={e => { if (!user.isMe) e.currentTarget.style.background = 'transparent'; }}
-                >
+        {/* ═══ ROW 3: Missions + Sidebar ══════════════════════ */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20,
+          ...entryStyle(botEntered),
+        }}>
+
+          {/* ─ Daily missions ─ */}
+          <div
+            className="card"
+            style={{
+              position: 'relative', overflow: 'hidden',
+              background: 'var(--panel)',
+            }}
+          >
+            {/* Subtle grid texture */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              backgroundImage:
+                'linear-gradient(rgba(42,51,82,0.1) 1px, transparent 1px),' +
+                'linear-gradient(90deg, rgba(42,51,82,0.1) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+              pointerEvents: 'none',
+            }} />
+            {/* Cyan top edge */}
+            <div style={{
+              position: 'absolute', top: 0, left: '10%', right: '10%', height: 1,
+              background: 'linear-gradient(90deg, transparent, rgba(51,209,255,0.3), transparent)',
+              pointerEvents: 'none',
+            }} />
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                <div>
+                  <Eyebrow color="var(--cyan)">Misiones del Día</Eyebrow>
                   <div style={{
-                    fontFamily: 'var(--font-display)', fontSize: 16, width: 22, textAlign: 'center',
-                    color: idx === 0 ? 'var(--gold)' : idx === 1 ? '#C0C0C0' : idx === 2 ? '#CD7F32' : 'var(--text-muted)',
+                    fontFamily: 'var(--font-mono)', fontSize: 11,
+                    color: 'var(--text-muted)', marginTop: -8, marginBottom: 16,
                   }}>
-                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
-                  </div>
-                  <div style={{
-                    width: 26, height: 26, borderRadius: '50%',
-                    background: user.isMe ? 'linear-gradient(135deg, var(--violet), var(--cyan))' : 'var(--surface)',
-                    border: `2px solid ${user.isMe ? 'var(--violet)' : 'var(--border)'}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 9, color: 'white',
-                  }}>
-                    {user.username.slice(0, 2)}
-                  </div>
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{
-                      fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12,
-                      color: user.isMe ? 'var(--violet)' : 'var(--text)',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '0.04em',
-                    }}>
-                      {user.username}
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)' }}>LVL {user.level}</div>
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: user.isMe ? 'var(--violet)' : 'var(--text-muted)' }}>
-                    {(user.xp / 1000).toFixed(1)}K
+                    <span style={{ color: completedCount === missions.length && missions.length > 0 ? 'var(--green)' : 'var(--cyan)' }}>
+                      {completedCount}
+                    </span>
+                    <span style={{ color: 'var(--border-bright)' }}>/</span>
+                    {missions.length} completadas
                   </div>
                 </div>
-              ))}
+                <Link
+                  to="/missions"
+                  style={{
+                    fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 10,
+                    letterSpacing: '0.12em', color: 'var(--cyan)',
+                    display: 'flex', alignItems: 'center', gap: 3,
+                    opacity: 0.75, transition: 'opacity 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '0.75'}
+                >
+                  VER TODAS <ChevronRight size={12} />
+                </Link>
+              </div>
+
+              {/* Segmented progress track */}
+              <div style={{ display: 'flex', gap: 3, marginBottom: 20 }}>
+                {missions.map((m, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      flex: 1, height: 7,
+                      background: m.completed
+                        ? 'linear-gradient(90deg, var(--green), rgba(51,230,161,0.7))'
+                        : 'var(--surface)',
+                      border: m.completed ? 'none' : '1px solid var(--border)',
+                      borderRadius: 3,
+                      transition: 'background 0.5s ease',
+                      boxShadow: m.completed ? '0 0 6px rgba(51,230,161,0.4)' : 'none',
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {missions.map(mission => (
+                  <MissionRow key={mission.id} mission={mission} onComplete={handleComplete} />
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Weekly XP chart */}
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div className="section-label" style={{ marginBottom: 0 }}>XP SEMANAL</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--cyan)' }}>
-                {weeklyXP.reduce((a, b) => a + b, 0).toLocaleString()} XP
+          {/* ─ Right sidebar ─ */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+            {/* Ranking mini-panel */}
+            <div
+              className="card"
+              style={{
+                flex: 1, position: 'relative', overflow: 'hidden',
+                background: 'linear-gradient(160deg, var(--panel) 0%, #13110A 100%)',
+                borderColor: 'rgba(245,196,81,0.14)',
+              }}
+            >
+              {/* Gold top accent */}
+              <div style={{
+                position: 'absolute', top: 0, left: '15%', right: '15%', height: 1,
+                background: 'linear-gradient(90deg, transparent, rgba(245,196,81,0.4), transparent)',
+                pointerEvents: 'none',
+              }} />
+
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                  <Eyebrow color="var(--gold)">Ranking</Eyebrow>
+                  <Link
+                    to="/ranking"
+                    style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 10,
+                      letterSpacing: '0.1em', color: 'var(--gold)',
+                      display: 'flex', alignItems: 'center', gap: 3,
+                      opacity: 0.65, transition: 'opacity 0.2s',
+                      marginTop: -14,
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={e => e.currentTarget.style.opacity = '0.65'}
+                  >
+                    VER <ChevronRight size={11} />
+                  </Link>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {topRankUsers.map((user, idx) => {
+                    const rankColors = ['var(--gold)', '#C0C0C0', '#CD7F32', 'var(--text-muted)'];
+                    const rankBgs   = [
+                      'linear-gradient(90deg, rgba(245,196,81,0.1), rgba(245,196,81,0.03))',
+                      'linear-gradient(90deg, rgba(192,192,192,0.07), rgba(192,192,192,0.02))',
+                      'linear-gradient(90deg, rgba(205,127,50,0.07), rgba(205,127,50,0.02))',
+                      'transparent',
+                    ];
+                    const rankBorders = [
+                      'rgba(245,196,81,0.22)',
+                      'rgba(192,192,192,0.12)',
+                      'rgba(205,127,50,0.12)',
+                      'transparent',
+                    ];
+
+                    return (
+                      <div
+                        key={user.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 9,
+                          padding: idx === 0 ? '9px 10px' : '7px 10px',
+                          borderRadius: 7,
+                          background: user.isMe
+                            ? 'var(--violet-dim)'
+                            : rankBgs[idx] ?? 'transparent',
+                          border: `1px solid ${user.isMe ? 'rgba(124,92,255,0.28)' : rankBorders[idx] ?? 'transparent'}`,
+                          transition: 'background 0.2s',
+                        }}
+                        onMouseEnter={e => {
+                          if (!user.isMe && idx > 0)
+                            e.currentTarget.style.background = 'var(--surface)';
+                        }}
+                        onMouseLeave={e => {
+                          if (!user.isMe)
+                            e.currentTarget.style.background = rankBgs[idx] ?? 'transparent';
+                        }}
+                      >
+                        {/* Rank number */}
+                        <div style={{
+                          fontFamily: 'var(--font-display)',
+                          fontSize: idx === 0 ? 22 : 15,
+                          width: 26, textAlign: 'center',
+                          color: rankColors[idx] ?? 'var(--text-muted)',
+                          textShadow: idx === 0 ? '0 0 12px rgba(245,196,81,0.5)' : 'none',
+                          lineHeight: 1, flexShrink: 0,
+                        }}>
+                          {idx === 0 ? '①' : idx === 1 ? '②' : idx === 2 ? '③' : `${idx + 1}`}
+                        </div>
+
+                        {/* Avatar */}
+                        <div style={{
+                          width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+                          background: user.isMe
+                            ? 'linear-gradient(135deg, var(--violet), var(--cyan))'
+                            : `linear-gradient(135deg, ${rankColors[idx] ?? 'var(--surface)'}44, ${rankColors[idx] ?? 'var(--surface)'}22)`,
+                          border: `1px solid ${user.isMe ? 'var(--violet)' : rankColors[idx] ?? 'var(--border)'}44`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 9,
+                          color: 'white',
+                        }}>
+                          {user.username.slice(0, 2).toUpperCase()}
+                        </div>
+
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                          <div style={{
+                            fontFamily: 'var(--font-ui)', fontWeight: 700,
+                            fontSize: idx === 0 ? 13 : 12,
+                            color: user.isMe ? 'var(--violet)' : idx === 0 ? 'var(--gold)' : 'var(--text)',
+                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                            letterSpacing: '0.04em',
+                          }}>
+                            {user.username}
+                          </div>
+                          <div style={{
+                            fontFamily: 'var(--font-mono)', fontSize: 9,
+                            color: 'var(--text-muted)', letterSpacing: '0.06em',
+                          }}>
+                            LVL {user.level}
+                          </div>
+                        </div>
+
+                        <div style={{
+                          fontFamily: 'var(--font-mono)', fontSize: 10, flexShrink: 0,
+                          color: user.isMe ? 'var(--violet)' : idx === 0 ? 'var(--gold)' : 'var(--text-muted)',
+                        }}>
+                          {(user.xp / 1000).toFixed(1)}K
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-            <WeeklyChart data={weeklyXP} />
+
+            {/* Weekly XP chart */}
+            <div
+              className="card"
+              style={{
+                position: 'relative', overflow: 'hidden',
+                background: 'linear-gradient(160deg, var(--panel) 0%, #0A1018 100%)',
+                borderColor: 'rgba(51,209,255,0.14)',
+              }}
+            >
+              {/* Cyan top accent */}
+              <div style={{
+                position: 'absolute', top: 0, left: '15%', right: '15%', height: 1,
+                background: 'linear-gradient(90deg, transparent, rgba(51,209,255,0.35), transparent)',
+                pointerEvents: 'none',
+              }} />
+
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                  <Eyebrow color="var(--cyan)">XP Semanal</Eyebrow>
+                  <div style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--cyan)',
+                    marginTop: -14,
+                    textShadow: '0 0 14px var(--cyan-glow)',
+                  }}>
+                    {weeklyXP.reduce((a, b) => a + b, 0).toLocaleString()} XP
+                  </div>
+                </div>
+                <WeeklyChart data={weeklyXP} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
