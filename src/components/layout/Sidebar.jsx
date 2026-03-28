@@ -1,9 +1,9 @@
+import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { signOut } from '../../lib/api/auth';
-// DEV: gamification stats come from mock until real profile API is wired
-import { currentUser } from '../../fixtures/mockData';
+import { getMyProfile } from '../../lib/api/profile';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -39,10 +39,20 @@ function Avatar({ username, size = 40 }) {
 export default function Sidebar() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
 
-  // Use real username from auth when available; fall back to mock for dev
-  const displayName = user?.user_metadata?.username ?? currentUser.username;
-  const xpPercent   = (currentUser.xp / currentUser.xpNext) * 100;
+  useEffect(() => {
+    getMyProfile().then(({ data }) => { if (data) setProfile(data); });
+  }, []);
+
+  const displayName = profile?.username ?? user?.user_metadata?.username ?? '...';
+  const level       = profile?.level ?? '—';
+  const xp          = profile?.xp ?? 0;
+  const xpNext      = profile?.xp_next ?? 1;
+  const title       = profile?.active_title?.name ?? null;
+  const streak      = profile?.streak ?? 0;
+  const totalXP     = profile?.total_xp ?? 0;
+  const xpPercent   = (xp / xpNext) * 100;
 
   const handleSignOut = async () => {
     await signOut();
@@ -170,7 +180,7 @@ export default function Sidebar() {
               borderRadius: 3,
               border: '2px solid var(--panel)',
             }}>
-              {currentUser.level}
+              {level}
             </div>
           </div>
           <div style={{ overflow: 'hidden' }}>
@@ -192,7 +202,7 @@ export default function Sidebar() {
               color: 'var(--gold)',
               letterSpacing: '0.08em',
             }}>
-              {currentUser.title}
+              {title}
             </div>
           </div>
         </div>
@@ -211,7 +221,7 @@ export default function Sidebar() {
               <Zap size={10} color="var(--violet)" />
               XP
             </span>
-            <span>{currentUser.xp.toLocaleString()} / {currentUser.xpNext.toLocaleString()}</span>
+            <span>{xp.toLocaleString()} / {xpNext.toLocaleString()}</span>
           </div>
           <div className="progress-track" style={{ height: 5 }}>
             <div
@@ -301,7 +311,7 @@ export default function Sidebar() {
           display: 'inline-block',
           animation: 'ticker-scroll 18s linear infinite',
         }}>
-          {'// SISTEMA ACTIVO // XP: 48,230 // RACHA: 14 DÍAS // POSICIÓN: #5 //   '.repeat(3)}
+          {`// SISTEMA ACTIVO // XP: ${totalXP.toLocaleString()} // RACHA: ${streak} DÍAS //   `.repeat(3)}
         </div>
       </div>
 
