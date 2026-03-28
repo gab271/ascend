@@ -7,7 +7,7 @@
 export const currentUser = {
   id: 'usr_gabriel',
   username: 'GABRIEL_X',
-  title: 'Imparable',
+  title: 'Platino',
   level: 24,
   xp: 4230,
   xpNext: 5000,
@@ -49,16 +49,16 @@ export const allMissions = [
 ];
 
 export const ranking = [
-  { id: 'u1',          username: 'DARKSTAR_X', level: 31, xp: 78400, avatar: null, title: 'Leyenda',    change:  0            },
-  { id: 'u2',          username: 'RYUU_ALPHA', level: 29, xp: 65200, avatar: null, title: 'Élite',      change:  2            },
-  { id: 'u3',          username: 'NOVA_PRIME', level: 27, xp: 58900, avatar: null, title: 'Dominante',  change: -1            },
-  { id: 'u4',          username: 'ZEPHYR_77',  level: 26, xp: 52100, avatar: null, title: 'Imparable',  change:  1            },
-  { id: 'usr_gabriel', username: 'GABRIEL_X',  level: 24, xp: 48230, avatar: null, title: 'Imparable',  change:  3, isMe: true },
-  { id: 'u6',          username: 'CIPHER_K',   level: 23, xp: 41800, avatar: null, title: 'Ascendente', change: -2            },
-  { id: 'u7',          username: 'VECTOR_9',   level: 22, xp: 38500, avatar: null, title: 'Ascendente', change:  0            },
-  { id: 'u8',          username: 'PHANTOM_Z',  level: 21, xp: 35200, avatar: null, title: 'Iniciado',   change:  4            },
-  { id: 'u9',          username: 'STORM_IX',   level: 20, xp: 31000, avatar: null, title: 'Iniciado',   change: -1            },
-  { id: 'u10',         username: 'BLAZE_01',   level: 19, xp: 27500, avatar: null, title: 'Iniciado',   change:  1            },
+  { id: 'u1',          username: 'DARKSTAR_X', level: 35, xp: 158400, avatar: null, title: 'Radiante',  change:  0            },
+  { id: 'u2',          username: 'RYUU_ALPHA', level: 31, xp: 105200, avatar: null, title: 'Inmortal',  change:  2            },
+  { id: 'u3',          username: 'NOVA_PRIME', level: 27, xp: 68900,  avatar: null, title: 'Diamante',  change: -1            },
+  { id: 'u4',          username: 'ZEPHYR_77',  level: 25, xp: 55100,  avatar: null, title: 'Diamante',  change:  1            },
+  { id: 'usr_gabriel', username: 'GABRIEL_X',  level: 20, xp: 43230,  avatar: null, title: 'Platino',   change:  3, isMe: true },
+  { id: 'u6',          username: 'CIPHER_K',   level: 17, xp: 32800,  avatar: null, title: 'Oro',       change: -2            },
+  { id: 'u7',          username: 'VECTOR_9',   level: 14, xp: 23500,  avatar: null, title: 'Oro',       change:  0            },
+  { id: 'u8',          username: 'PHANTOM_Z',  level: 11, xp: 14200,  avatar: null, title: 'Plata',     change:  4            },
+  { id: 'u9',          username: 'STORM_IX',   level:  7, xp: 6200,   avatar: null, title: 'Bronce',    change: -1            },
+  { id: 'u10',         username: 'BLAZE_01',   level:  3, xp: 1400,   avatar: null, title: 'Hierro',    change:  1            },
 ];
 
 export const rewards = {
@@ -71,12 +71,14 @@ export const rewards = {
     { id: 'r6', name: 'La Corona',       rarity: 'legendary', type: 'badge', icon: '👑', unlocked: false, xpRequired: 50000 },
   ],
   titles: [
-    { id: 't1', name: 'Iniciado',    rarity: 'common',    type: 'title', unlocked: true,  xpRequired: 0      },
-    { id: 't2', name: 'Ascendente',  rarity: 'common',    type: 'title', unlocked: true,  xpRequired: 5000   },
-    { id: 't3', name: 'Imparable',   rarity: 'rare',      type: 'title', unlocked: true,  xpRequired: 20000  },
-    { id: 't4', name: 'Dominante',   rarity: 'rare',      type: 'title', unlocked: false, xpRequired: 35000  },
-    { id: 't5', name: 'Élite',       rarity: 'epic',      type: 'title', unlocked: false, xpRequired: 55000  },
-    { id: 't6', name: 'Leyenda',     rarity: 'legendary', type: 'title', unlocked: false, xpRequired: 100000 },
+    { id: 't1', name: 'Hierro',   rarity: 'common',    type: 'title', unlocked: true,  xpRequired: 0      },
+    { id: 't2', name: 'Bronce',   rarity: 'common',    type: 'title', unlocked: true,  xpRequired: 3000   },
+    { id: 't3', name: 'Plata',    rarity: 'common',    type: 'title', unlocked: true,  xpRequired: 10000  },
+    { id: 't4', name: 'Oro',      rarity: 'rare',      type: 'title', unlocked: false, xpRequired: 22000  },
+    { id: 't5', name: 'Platino',  rarity: 'rare',      type: 'title', unlocked: false, xpRequired: 40000  },
+    { id: 't6', name: 'Diamante', rarity: 'epic',      type: 'title', unlocked: false, xpRequired: 65000  },
+    { id: 't7', name: 'Inmortal', rarity: 'epic',      type: 'title', unlocked: false, xpRequired: 100000 },
+    { id: 't8', name: 'Radiante', rarity: 'legendary', type: 'title', unlocked: false, xpRequired: 150000 },
   ],
   frames: [
     { id: 'f1', name: 'Marco Básico',  rarity: 'common',    type: 'frame', unlocked: true,  xpRequired: 0     },

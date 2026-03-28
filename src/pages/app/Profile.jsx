@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { getMyProfile, getRewardsCatalog, uploadAvatar } from '../../lib/api/profile';
+import { getMyProfile, getRewardsCatalog, getWeeklyXP, uploadAvatar } from '../../lib/api/profile';
+import { getMyRank } from '../../lib/api/ranking';
+import { supabase } from '../../lib/supabase';
 import { RARITY_CONFIG } from '../../config/rarities';
 import { Shield, DollarSign, Zap, Edit3, Lock, Loader2 } from 'lucide-react';
 
@@ -100,21 +102,33 @@ function BadgeCard({ badge }) {
 }
 
 export default function Profile() {
-  const [activeTab,  setActiveTab]  = useState('badges');
-  const [profile,    setProfile]    = useState(null);
-  const [badges,     setBadges]     = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [avatarUrl,  setAvatarUrl]  = useState(null);
-  const [uploading,  setUploading]  = useState(false);
+  const [activeTab,    setActiveTab]    = useState('badges');
+  const [profile,      setProfile]      = useState(null);
+  const [badges,       setBadges]       = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [avatarUrl,    setAvatarUrl]    = useState(null);
+  const [uploading,    setUploading]    = useState(false);
+  const [statsData,    setStatsData]    = useState({ missionsCompleted: 0, weeklyXP: 0, rankPosition: 0 });
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    Promise.all([getMyProfile(), getRewardsCatalog()]).then(([{ data: p }, { data: r }]) => {
+    Promise.all([
+      getMyProfile(),
+      getRewardsCatalog(),
+      getWeeklyXP(),
+      getMyRank(),
+      supabase.from('user_daily_missions').select('id', { count: 'exact', head: true }).eq('completed', true),
+    ]).then(([{ data: p }, { data: r }, { data: weekXP }, { data: myRank }, { count: mCount }]) => {
       if (p) {
         setProfile(p);
         setAvatarUrl(p.avatar_url ?? null);
       }
       if (r) setBadges(r.badges ?? []);
+      setStatsData({
+        missionsCompleted: mCount ?? 0,
+        weeklyXP:          (weekXP ?? []).reduce((a, b) => a + b, 0),
+        rankPosition:      myRank?.rank ?? 0,
+      });
       setLoading(false);
     });
   }, []);
@@ -299,10 +313,10 @@ export default function Profile() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { label: 'Misiones Completadas',   value: 47,   suffix: '' },
-                { label: 'Días de Racha Máxima',   value: 21,   suffix: ' días' },
-                { label: 'XP Ganado Esta Semana',  value: 3000, suffix: ' XP' },
-                { label: 'Posición en Ranking',    value: 5,    suffix: '°' },
+                { label: 'Misiones Completadas',   value: statsData.missionsCompleted,                        suffix: '' },
+                { label: 'Días de Racha Máxima',   value: profile.longest_streak ?? 0,                       suffix: ' días' },
+                { label: 'XP Ganado Esta Semana',  value: statsData.weeklyXP.toLocaleString(),               suffix: ' XP' },
+                { label: 'Posición en Ranking',    value: statsData.rankPosition > 0 ? statsData.rankPosition : '—', suffix: statsData.rankPosition > 0 ? '°' : '' },
               ].map(stat => (
                 <div
                   key={stat.label}
