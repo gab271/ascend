@@ -99,7 +99,7 @@ export default function RewardCard({ item }) {
         }}>
           <Lock size={20} color="var(--text-muted)" />
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)' }}>
-            {item.xpRequired.toLocaleString()} XP
+            {(item.xp_required ?? 0).toLocaleString()} XP
           </span>
         </div>
       )}

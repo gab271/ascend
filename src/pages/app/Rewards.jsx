@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { rewards, currentUser } from '../../fixtures/mockData';
+import { useState, useEffect } from 'react';
+import { getMyProfile, getRewardsCatalog } from '../../lib/api/profile';
 import RewardCard from '../../components/game/RewardCard';
 
 const CATEGORIES = ['badges', 'titles', 'frames', 'backgrounds'];
@@ -12,6 +12,23 @@ const CATEGORY_LABELS = {
 
 export default function Rewards() {
   const [activeCategory, setActiveCategory] = useState('badges');
+  const [rewards,        setRewards]        = useState({ badges: [], titles: [], frames: [], backgrounds: [] });
+  const [totalXP,        setTotalXP]        = useState(0);
+  const [loading,        setLoading]        = useState(true);
+
+  useEffect(() => {
+    Promise.all([getRewardsCatalog(), getMyProfile()]).then(([{ data: r }, { data: p }]) => {
+      if (r) setRewards(r);
+      if (p) setTotalXP(p.total_xp ?? 0);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+    </div>
+  );
 
   const items = rewards[activeCategory] || [];
   const unlockedCount = items.filter(i => i.unlocked).length;
@@ -51,7 +68,7 @@ export default function Rewards() {
             ))}
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
-            {currentUser.totalXP.toLocaleString()} XP total · Sigue completando misiones para desbloquear más
+            {totalXP.toLocaleString()} XP total · Sigue completando misiones para desbloquear más
           </div>
         </div>
       </div>

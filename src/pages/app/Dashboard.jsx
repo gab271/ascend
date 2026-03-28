@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Flame, Shield, DollarSign, Zap, CheckCircle2, Circle, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { currentUser, dailyMissions, ranking } from '../../fixtures/mockData';
+import { getMyProfile, getWeeklyXP } from '../../lib/api/profile';
+import { getDailyMissions, completeMission as completeMissionAPI } from '../../lib/api/missions';
+import { getRanking } from '../../lib/api/ranking';
 import { useCountUp } from '../../hooks/useCountUp';
 import HexLevel from '../../components/game/HexLevel';
 import XPBar from '../../components/game/XPBar';
@@ -93,13 +95,103 @@ function StatCard({ label, value, max, color, icon: Icon, change }) {
   );
 }
 
+// ─── Normalize API response shapes ───────────────────────────────
+function normalizeProfile(raw) {
+  if (!raw) return null;
+  return {
+    username:    raw.username ?? '—',
+    level:       raw.level ?? 1,
+    xp:          raw.xp ?? 0,
+    xpNext:      raw.xp_next ?? 700,
+    totalXP:     raw.total_xp ?? 0,
+    streak:      raw.streak ?? 0,
+    title:       raw.active_title?.name ?? '',
+    stats: {
+      health:     { value: raw.stat_health    ?? 0 },
+      money:      { value: raw.stat_money     ?? 0 },
+      discipline: { value: raw.stat_discipline ?? 0 },
+    },
+  };
+}
+
+function normalizeMissions(rows) {
+  return (rows ?? []).map(row => ({
+    ...row.mission,
+    completed: row.completed,
+    rowId:     row.id,
+  }));
+}
+
+function normalizeRanking(rows) {
+  return (rows ?? []).map(r => ({
+    id:      r.user_id,
+    username: r.username,
+    level:   r.level,
+    xp:      r.total_xp,
+    title:   r.title_name ?? '',
+    isMe:    r.is_me,
+  }));
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────
 export default function Dashboard() {
-  const [missions, setMissions] = useState(dailyMissions);
-  const completeMission = (id) => setMissions(prev => prev.map(m => m.id === id ? { ...m, completed: true } : m));
+  const [profile,   setProfile]   = useState(null);
+  const [weeklyXP,  setWeeklyXP]  = useState([0, 0, 0, 0, 0, 0, 0]);
+  const [missions,  setMissions]  = useState([]);
+  const [rankData,  setRankData]  = useState([]);
+  const [loading,   setLoading]   = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [
+        { data: profileRaw },
+        { data: weekRaw },
+        { data: missionsRaw },
+        { data: rankRaw },
+      ] = await Promise.all([
+        getMyProfile(),
+        getWeeklyXP(),
+        getDailyMissions(),
+        getRanking({ limit: 4 }),
+      ]);
+
+      setProfile(normalizeProfile(profileRaw));
+      setWeeklyXP(weekRaw ?? [0, 0, 0, 0, 0, 0, 0]);
+      setMissions(normalizeMissions(missionsRaw));
+      setRankData(normalizeRanking(rankRaw));
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  const handleComplete = async (missionId) => {
+    // Optimistic update
+    setMissions(prev => prev.map(m => m.id === missionId ? { ...m, completed: true } : m));
+
+    const { error } = await completeMissionAPI(missionId);
+    if (error) {
+      // Revert on failure
+      setMissions(prev => prev.map(m => m.id === missionId ? { ...m, completed: false } : m));
+      return;
+    }
+
+    // Refresh profile so XP + level are up to date
+    const { data: profileRaw } = await getMyProfile();
+    setProfile(normalizeProfile(profileRaw));
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>
+          CARGANDO...
+        </div>
+      </div>
+    );
+  }
 
   const completedCount = missions.filter(m => m.completed).length;
-  const friends = ranking.slice(0, 4);
+  const topRankUsers   = rankData.slice(0, 4);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
@@ -126,7 +218,7 @@ export default function Dashboard() {
             background: 'radial-gradient(ellipse at center, rgba(124,92,255,0.1) 0%, transparent 70%)',
             pointerEvents: 'none',
           }} />
-          <HexLevel level={currentUser.level} title={currentUser.title} />
+          <HexLevel level={profile.level} title={profile.title} />
         </div>
 
         {/* ─ XP + info ─ */}
@@ -143,7 +235,7 @@ export default function Dashboard() {
               color: 'var(--text-muted)', letterSpacing: '0.2em', marginBottom: 4,
             }}>
               {greeting.toUpperCase()},
-              <span style={{ color: 'var(--violet)', marginLeft: 6 }}>{currentUser.username}</span>
+              <span style={{ color: 'var(--violet)', marginLeft: 6 }}>{profile.username}</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 16 }}>
@@ -152,12 +244,12 @@ export default function Dashboard() {
                 fontFamily: 'var(--font-display)', fontSize: 42, color: 'var(--violet)',
                 lineHeight: 1, textShadow: '0 0 30px var(--violet-glow)',
               }}>
-                {currentUser.totalXP.toLocaleString()}
+                {profile.totalXP.toLocaleString()}
               </span>
             </div>
           </div>
 
-          <XPBar current={currentUser.xp} max={currentUser.xpNext} nextLevel={currentUser.level + 1} />
+          <XPBar current={profile.xp} max={profile.xpNext} nextLevel={profile.level + 1} />
         </div>
 
         {/* ─ Streak ─ */}
@@ -174,7 +266,7 @@ export default function Dashboard() {
             🔥
           </div>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 72, color: 'var(--gold)', lineHeight: 0.9, textShadow: '0 0 40px var(--gold-glow)' }}>
-            {currentUser.streak}
+            {profile.streak}
           </div>
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.22em', color: 'var(--text-muted)' }}>
             DÍAS DE RACHA
@@ -186,9 +278,9 @@ export default function Dashboard() {
       <div>
         <div className="section-label">ATRIBUTOS</div>
         <div style={{ display: 'flex', gap: 16 }}>
-          <StatCard label="SALUD"      value={currentUser.stats.health.value}     max={100} color="var(--green)"  icon={Shield}     change={currentUser.stats.health.change} />
-          <StatCard label="DINERO"     value={currentUser.stats.money.value}      max={100} color="var(--gold)"   icon={DollarSign} change={currentUser.stats.money.change} />
-          <StatCard label="DISCIPLINA" value={currentUser.stats.discipline.value} max={100} color="var(--violet)" icon={Zap}        change={currentUser.stats.discipline.change} />
+          <StatCard label="SALUD"      value={profile.stats.health.value}     max={100} color="var(--green)"  icon={Shield}     />
+          <StatCard label="DINERO"     value={profile.stats.money.value}      max={100} color="var(--gold)"   icon={DollarSign} />
+          <StatCard label="DISCIPLINA" value={profile.stats.discipline.value} max={100} color="var(--violet)" icon={Zap}        />
         </div>
       </div>
 
@@ -224,7 +316,7 @@ export default function Dashboard() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
             {missions.map(mission => (
-              <MissionRow key={mission.id} mission={mission} onComplete={completeMission} />
+              <MissionRow key={mission.id} mission={mission} onComplete={handleComplete} />
             ))}
           </div>
         </div>
@@ -241,7 +333,7 @@ export default function Dashboard() {
               </Link>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {friends.map((user, idx) => (
+              {topRankUsers.map((user, idx) => (
                 <div
                   key={user.id}
                   style={{
@@ -292,10 +384,10 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <div className="section-label" style={{ marginBottom: 0 }}>XP SEMANAL</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--cyan)' }}>
-                {currentUser.weeklyXP.reduce((a, b) => a + b, 0).toLocaleString()} XP
+                {weeklyXP.reduce((a, b) => a + b, 0).toLocaleString()} XP
               </div>
             </div>
-            <WeeklyChart data={currentUser.weeklyXP} />
+            <WeeklyChart data={weeklyXP} />
           </div>
         </div>
       </div>

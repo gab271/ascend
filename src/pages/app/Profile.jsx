@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { currentUser } from '../../fixtures/mockData';
+import { useState, useEffect } from 'react';
+import { getMyProfile } from '../../lib/api/profile';
+import { getRewardsCatalog } from '../../lib/api/profile';
 import { RARITY_CONFIG } from '../../config/rarities';
 import { Shield, DollarSign, Zap, Edit3, Lock } from 'lucide-react';
 
@@ -101,7 +102,25 @@ function BadgeCard({ badge }) {
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('badges');
-  const xpPercent = (currentUser.xp / currentUser.xpNext) * 100;
+  const [profile,   setProfile]   = useState(null);
+  const [badges,    setBadges]    = useState([]);
+  const [loading,   setLoading]   = useState(true);
+
+  useEffect(() => {
+    Promise.all([getMyProfile(), getRewardsCatalog()]).then(([{ data: p }, { data: r }]) => {
+      if (p) setProfile(p);
+      if (r) setBadges(r.badges ?? []);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+    </div>
+  );
+
+  const xpPercent = (profile.xp / profile.xp_next) * 100;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -127,7 +146,7 @@ export default function Profile() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-display)', fontSize: 40, color: 'white', position: 'relative',
             }}>
-              {currentUser.username.slice(0, 2)}
+              {profile.username.slice(0, 2)}
             </div>
             <button style={{
               position: 'absolute', bottom: 0, right: 0,
@@ -147,39 +166,41 @@ export default function Profile() {
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
               <h1 style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 28, letterSpacing: '0.08em', color: 'var(--text)' }}>
-                {currentUser.username}
+                {profile.username}
               </h1>
-              <div style={{
-                fontFamily: 'var(--font-display)', fontSize: 16, color: 'var(--gold)',
-                background: 'var(--gold-dim)', border: '1px solid rgba(245,196,81,0.4)',
-                borderRadius: 6, padding: '4px 12px', letterSpacing: '0.1em',
-                boxShadow: '0 4px 12px var(--gold-glow)',
-              }}>
-                {currentUser.title.toUpperCase()}
-              </div>
+              {profile.active_title && (
+                <div style={{
+                  fontFamily: 'var(--font-display)', fontSize: 16, color: 'var(--gold)',
+                  background: 'var(--gold-dim)', border: '1px solid rgba(245,196,81,0.4)',
+                  borderRadius: 6, padding: '4px 12px', letterSpacing: '0.1em',
+                  boxShadow: '0 4px 12px var(--gold-glow)',
+                }}>
+                  {profile.active_title.name.toUpperCase()}
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 56, color: 'var(--text)', lineHeight: 1, textShadow: '0 0 30px rgba(124,92,255,0.4)' }}>{currentUser.level}</span>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 56, color: 'var(--text)', lineHeight: 1, textShadow: '0 0 30px rgba(124,92,255,0.4)' }}>{profile.level}</span>
                 <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, letterSpacing: '0.15em', color: 'var(--text-muted)' }}>NIVEL</span>
               </div>
               <div style={{ width: 1, height: 48, background: 'var(--border)' }} />
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>XP TOTAL</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--violet)' }}>{currentUser.totalXP.toLocaleString()}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--violet)' }}>{profile.total_xp.toLocaleString()}</div>
               </div>
               <div style={{ width: 1, height: 48, background: 'var(--border)' }} />
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>RACHA</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--gold)' }}>🔥 {currentUser.streak} días</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--gold)' }}>🔥 {profile.streak} días</div>
               </div>
             </div>
 
             <div style={{ maxWidth: 480 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--violet)' }}>Nivel {currentUser.level} → {currentUser.level + 1}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{currentUser.xp.toLocaleString()} / {currentUser.xpNext.toLocaleString()} XP</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--violet)' }}>Nivel {profile.level} → {profile.level + 1}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{profile.xp.toLocaleString()} / {profile.xp_next.toLocaleString()} XP</span>
               </div>
               <div style={{ height: 10, background: 'rgba(255,255,255,0.05)', borderRadius: 5, overflow: 'hidden', border: '1px solid var(--border)' }}>
                 <div style={{ width: `${xpPercent}%`, height: '100%', background: 'linear-gradient(90deg, var(--violet), var(--cyan))', borderRadius: 5, position: 'relative' }}>
@@ -191,7 +212,9 @@ export default function Profile() {
 
           <div style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
             JUGADOR DESDE<br />
-            <span style={{ color: 'var(--text-secondary)' }}>NOV 2024</span>
+            <span style={{ color: 'var(--text-secondary)' }}>
+              {new Date(profile.created_at).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }).toUpperCase()}
+            </span>
           </div>
         </div>
       </div>
@@ -202,9 +225,9 @@ export default function Profile() {
         <div className="card">
           <div className="section-label">ATRIBUTOS</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <ProfileStat label="SALUD"      value={currentUser.stats.health.value}     color="var(--green)"  icon={Shield} />
-            <ProfileStat label="DINERO"     value={currentUser.stats.money.value}      color="var(--gold)"   icon={DollarSign} />
-            <ProfileStat label="DISCIPLINA" value={currentUser.stats.discipline.value} color="var(--violet)" icon={Zap} />
+            <ProfileStat label="SALUD"      value={profile.stat_health}     color="var(--green)"  icon={Shield} />
+            <ProfileStat label="DINERO"     value={profile.stat_money}      color="var(--gold)"   icon={DollarSign} />
+            <ProfileStat label="DISCIPLINA" value={profile.stat_discipline} color="var(--violet)" icon={Zap} />
           </div>
         </div>
 
@@ -212,7 +235,7 @@ export default function Profile() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div className="section-label" style={{ marginBottom: 0 }}>INSIGNIAS</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>
-              {currentUser.badges.filter(b => b.unlocked).length}/{currentUser.badges.length}
+              {badges.filter(b => b.unlocked).length}/{badges.length}
             </div>
           </div>
 
@@ -237,7 +260,7 @@ export default function Profile() {
 
           {activeTab === 'badges' ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 10 }}>
-              {currentUser.badges.map(badge => (
+              {badges.map(badge => (
                 <BadgeCard key={badge.id} badge={badge} />
               ))}
             </div>

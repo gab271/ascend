@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { allMissions } from '../../fixtures/mockData';
+import { useState, useEffect } from 'react';
+import { getDailyMissions, completeMission as completeMissionAPI } from '../../lib/api/missions';
 import MissionCard from '../../components/game/MissionCard';
 
 const FILTERS = ['all', 'health', 'money', 'discipline', 'legendary'];
@@ -21,11 +21,23 @@ const FILTER_COLORS = {
 };
 
 export default function Missions() {
-  const [missions, setMissions] = useState(allMissions);
+  const [missions,     setMissions]     = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [loading,      setLoading]      = useState(true);
 
-  const completeMission = (id) => {
+  useEffect(() => {
+    getDailyMissions().then(({ data }) => {
+      setMissions((data ?? []).map(row => ({ ...row.mission, completed: row.completed })));
+      setLoading(false);
+    });
+  }, []);
+
+  const completeMission = async (id) => {
     setMissions(prev => prev.map(m => m.id === id ? { ...m, completed: true } : m));
+    const { error } = await completeMissionAPI(id);
+    if (error) {
+      setMissions(prev => prev.map(m => m.id === id ? { ...m, completed: false } : m));
+    }
   };
 
   const filtered = missions.filter(m => {
@@ -36,6 +48,12 @@ export default function Missions() {
 
   const completedCount = missions.filter(m => m.completed).length;
   const totalXP = missions.filter(m => !m.completed).reduce((sum, m) => sum + m.xp, 0);
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+    </div>
+  );
 
   return (
     <div>

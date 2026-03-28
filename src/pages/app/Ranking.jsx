@@ -1,10 +1,39 @@
-import { useState } from 'react';
-import { ranking } from '../../fixtures/mockData';
+import { useState, useEffect } from 'react';
+import { getRanking } from '../../lib/api/ranking';
 import PodiumCard from '../../components/game/PodiumCard';
 import ChangeIndicator from '../../components/game/ChangeIndicator';
 
+function normalize(rows) {
+  return (rows ?? []).map(r => ({
+    id:       r.user_id,
+    username: r.username,
+    level:    r.level,
+    xp:       r.total_xp,
+    streak:   r.streak,
+    title:    r.title_name ?? '',
+    isMe:     r.is_me,
+    change:   0,
+  }));
+}
+
 export default function Ranking() {
-  const [period, setPeriod] = useState('week');
+  const [period,   setPeriod]   = useState('week');
+  const [ranking,  setRanking]  = useState([]);
+  const [loading,  setLoading]  = useState(true);
+
+  useEffect(() => {
+    getRanking({ limit: 50 }).then(({ data }) => {
+      setRanking(normalize(data));
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+    </div>
+  );
+
   const myPosition = ranking.findIndex(u => u.isMe) + 1;
   const me = ranking.find(u => u.isMe);
 

@@ -7,6 +7,8 @@ export default function PodiumCard({ user, position }) {
     3: { color: '#CD7F32',    glow: 'rgba(205,127,50,0.3)',  size: 70, emoji: '🥉', marginTop: 48 },
   }[position];
 
+  if (!user) return null;
+
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,

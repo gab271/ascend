@@ -23,7 +23,7 @@ export async function getDailyMissions() {
       )
     `)
     .eq('assigned_date', today)
-    .order('created_at');
+    .order('id');
 
   return { data, error };
 }
