@@ -1530,7 +1530,58 @@ export default function Landing() {
               },
               {
                 q: '¿Es completamente gratuito?',
-                a: 'Sí. El acceso completo a misiones, XP, ranking y recompensas es gratuito. ASCEND cree que el progreso no debería estar detrás de un paywall.',
+                a: (
+                  <div>
+                    <p style={{ marginBottom: 18 }}>
+                      Sí. El acceso completo a misiones, XP, ranking y recompensas es <strong style={{ color: '#F5F7FB' }}>100% gratuito</strong> y lo seguirá siendo.
+                      ASCEND cree que el progreso no debería estar detrás de un paywall.
+                    </p>
+                    <div style={{
+                      display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12,
+                    }}>
+                      {/* Free */}
+                      <div style={{
+                        padding: '14px 16px', borderRadius: 2,
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.4)', letterSpacing: '0.2em', marginBottom: 10 }}>GRATUITO</div>
+                        {['Misiones diarias esenciales', 'XP + niveles globales', 'Ranking y rachas', 'Insignias y títulos base'].map(f => (
+                          <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                            <span style={{ color: '#33E6A1', fontSize: 11, lineHeight: '18px', flexShrink: 0 }}>✓</span>
+                            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.5 }}>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Pro */}
+                      <div style={{
+                        padding: '14px 16px', borderRadius: 2,
+                        background: 'linear-gradient(135deg, rgba(124,92,255,0.09), rgba(51,209,255,0.05))',
+                        border: '1px solid rgba(124,92,255,0.28)',
+                        position: 'relative', overflow: 'hidden',
+                      }}>
+                        <div style={{
+                          position: 'absolute', top: 0, right: 0,
+                          background: 'linear-gradient(90deg, #7C5CFF, #33D1FF)',
+                          padding: '3px 10px',
+                          fontFamily: 'var(--font-mono)', fontSize: 8,
+                          color: '#fff', letterSpacing: '0.16em',
+                          borderBottomLeftRadius: 4,
+                        }}>PRÓXIMO</div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(124,92,255,0.7)', letterSpacing: '0.2em', marginBottom: 10 }}>PRO</div>
+                        {['Catálogo extendido de misiones', 'Misiones personalizadas', 'Análisis avanzado de progreso', 'Cosméticos y recompensas exclusivos'].map(f => (
+                          <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                            <span style={{ color: '#7C5CFF', fontSize: 11, lineHeight: '18px', flexShrink: 0 }}>◈</span>
+                            <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.5 }}>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.4)', fontStyle: 'italic' }}>
+                      El modo Pro está en desarrollo. Los usuarios que se registren ahora tendrán acceso prioritario cuando llegue.
+                    </p>
+                  </div>
+                ),
               },
             ].map(({ q, a }, i) => (
               <FAQItem key={i} question={q} answer={a} />
