@@ -319,6 +319,43 @@ function ProductMockup({ isMobile }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   FAQ ITEM
+═══════════════════════════════════════════════════════════════ */
+function FAQItem({ question, answer }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      style={{
+        background: '#0D0F1A',
+        border: `1px solid ${open ? 'rgba(124,92,255,0.25)' : 'rgba(255,255,255,0.06)'}`,
+        borderRadius: 2, overflow: 'hidden',
+        transition: 'border-color 0.2s',
+      }}
+    >
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '20px 24px', background: 'none', border: 'none', cursor: 'pointer',
+          textAlign: 'left', gap: 16,
+        }}
+      >
+        <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15, color: '#F5F7FB', lineHeight: 1.4 }}>{question}</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, transition: 'transform 0.22s', transform: open ? 'rotate(45deg)' : 'none' }}>
+          <line x1="7" y1="1" x2="7" y2="13" stroke="rgba(160,174,203,0.45)" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="1" y1="7" x2="13" y2="7" stroke="rgba(160,174,203,0.45)" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{ padding: '0 24px 20px', fontFamily: 'var(--font-body)', fontSize: 14, color: 'rgba(160,174,203,0.72)', lineHeight: 1.75 }}>
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
    MAIN LANDING
 ═══════════════════════════════════════════════════════════════ */
 export default function Landing() {
@@ -364,7 +401,9 @@ export default function Landing() {
 
   const NAV = [
     { label: 'Cómo Funciona', href: '#how' },
-    { label: 'Leaderboard', href: '#ranking' },
+    { label: 'Misiones', href: '#missions' },
+    { label: 'Recompensas', href: '#rewards' },
+    { label: 'Ranking', href: '#ranking' },
   ];
 
   const BARLOW = "'Barlow', var(--font-ui), sans-serif";
@@ -416,9 +455,9 @@ export default function Landing() {
         height: 60,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: `0 ${px}`,
-        background: scrolled ? 'rgba(10,11,16,0.92)' : 'transparent',
+        background: scrolled ? 'rgba(10,11,16,0.94)' : 'transparent',
         backdropFilter: scrolled ? 'blur(24px) saturate(1.4)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : '1px solid transparent',
+        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
         transition: 'background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease',
       }}>
         {/* Scroll progress */}
@@ -461,13 +500,14 @@ export default function Landing() {
                 <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)', margin: '0 6px' }} />
                 <Link to="/dashboard"
                   style={{
-                    fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: 14,
-                    color: '#7C5CFF', padding: '6px 14px', borderRadius: 4,
-                    border: '1px solid rgba(124,92,255,0.3)', textDecoration: 'none',
-                    background: 'rgba(124,92,255,0.07)', transition: 'all 0.18s',
+                    fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: 13,
+                    color: '#F5F7FB', padding: '7px 16px', borderRadius: 4,
+                    border: '1px solid rgba(255,255,255,0.4)', textDecoration: 'none',
+                    background: 'rgba(255,255,255,0.12)', transition: 'all 0.18s',
+                    display: 'flex', alignItems: 'center', gap: 6, letterSpacing: '0.02em',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.15)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.55)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(124,92,255,0.07)'; e.currentTarget.style.borderColor = 'rgba(124,92,255,0.3)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.22)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.65)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; }}
                 >
                   Dashboard
                 </Link>
@@ -686,6 +726,13 @@ export default function Landing() {
             type="video/mp4"
           />
         </video>
+
+        {/* Top gradient for nav readability */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 140,
+          background: 'linear-gradient(to bottom, rgba(10,11,16,0.55) 0%, transparent 100%)',
+          pointerEvents: 'none', zIndex: 2,
+        }} />
 
         {/* Bottom transition to page background */}
         <div style={{
@@ -928,6 +975,125 @@ export default function Landing() {
       <Divider />
 
       {/* ═══════════════════════════════════════════════════════
+          MISIONES
+      ═══════════════════════════════════════════════════════ */}
+      <Section id="missions" style={{ padding: sectionPad }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <Eyebrow color="#33E6A1">Catálogo de misiones</Eyebrow>
+            <h2 style={{
+              fontFamily: 'var(--font-body)', fontWeight: 300,
+              fontSize: 'clamp(40px, 5vw, 68px)',
+              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
+            }}>
+              Retos reales.{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Recompensas reales.</em>
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-body)', fontSize: 16,
+              color: 'rgba(160,174,203,0.75)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
+            }}>
+              Más de 50 misiones en tres pilares. Cada acción que completas genera XP real que va directo a tu perfil.
+            </p>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden',
+          }}>
+            {[
+              {
+                attr: 'SALUD', color: '#33E6A1', gradient: 'linear-gradient(90deg, #1aad78, #33E6A1)',
+                icon: '⚡', desc: 'Entrena tu cuerpo. Mejora tu descanso. Cuida lo que comes.',
+                missions: [
+                  { name: 'Entrenamiento de fuerza', xp: 150, rarityColor: '#33D1FF', rarity: 'RARA' },
+                  { name: 'Cardio 30 minutos', xp: 100, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
+                  { name: 'Sin azúcar todo el día', xp: 200, rarityColor: '#7C5CFF', rarity: 'ÉPICA' },
+                  { name: 'Dormir 8 horas', xp: 80, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
+                  { name: 'Meditación 10 min', xp: 120, rarityColor: '#33D1FF', rarity: 'RARA' },
+                ],
+              },
+              {
+                attr: 'DINERO', color: '#F5C451', gradient: 'linear-gradient(90deg, #c49a30, #F5C451)',
+                icon: '💰', desc: 'Construye tu riqueza. Aprende finanzas. Sé dueño de tu tiempo.',
+                missions: [
+                  { name: 'Ahorro del día: $10+', xp: 120, rarityColor: '#33D1FF', rarity: 'RARA' },
+                  { name: 'Lectura: libro de finanzas', xp: 150, rarityColor: '#33D1FF', rarity: 'RARA' },
+                  { name: 'Revisar gastos mensuales', xp: 90, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
+                  { name: 'Inversión activa', xp: 250, rarityColor: '#7C5CFF', rarity: 'ÉPICA' },
+                  { name: 'Sin compras impulsivas', xp: 110, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
+                ],
+              },
+              {
+                attr: 'DISCIPLINA', color: '#7C5CFF', gradient: 'linear-gradient(90deg, #5a3fd4, #7C5CFF)',
+                icon: '🎯', desc: 'Forja tu mente. Completa lo que empiezas. Domina tu voluntad.',
+                missions: [
+                  { name: 'Racha perfecta del día', xp: 300, rarityColor: '#F5C451', rarity: 'LEGENDARIA' },
+                  { name: 'Lectura 30 min', xp: 100, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
+                  { name: 'Sin redes sociales 4h', xp: 180, rarityColor: '#7C5CFF', rarity: 'ÉPICA' },
+                  { name: 'Planificación del día', xp: 70, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
+                  { name: 'Aprendizaje técnico 1h', xp: 160, rarityColor: '#33D1FF', rarity: 'RARA' },
+                ],
+              },
+            ].map(({ attr, color, gradient, icon, desc, missions }, colIdx) => (
+              <div key={attr} style={{
+                background: '#0D0F1A',
+                borderRight: !isMobile && colIdx < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                borderBottom: isMobile && colIdx < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                padding: isMobile ? '32px 24px' : '40px 32px',
+                position: 'relative',
+                transition: 'background 0.2s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
+              >
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: gradient }} />
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 2,
+                    background: `${color}0F`, border: `1px solid ${color}28`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+                  }}>{icon}</div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color, letterSpacing: '0.1em', lineHeight: 1 }}>{attr}</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}70`, letterSpacing: '0.18em', marginTop: 3 }}>PILAR DE PROGRESO</div>
+                  </div>
+                </div>
+
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(160,174,203,0.65)', lineHeight: 1.65, marginBottom: 24 }}>{desc}</p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {missions.map((m, i) => (
+                    <div key={i} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '8px 12px', borderRadius: 4,
+                      background: 'rgba(10,11,16,0.55)',
+                      border: '1px solid rgba(42,51,82,0.7)',
+                      borderLeft: `2px solid ${m.rarityColor}`,
+                    }}>
+                      <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 12, color: 'rgba(245,247,251,0.85)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 8 }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: m.rarityColor, letterSpacing: '0.1em' }}>{m.rarity}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color, fontWeight: 700 }}>+{m.xp}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: 18, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.28)', letterSpacing: '0.1em' }}>
+                  +{missions.length * 8}+ MISIONES DISPONIBLES
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <Divider />
+
+      {/* ═══════════════════════════════════════════════════════
           APP SHOWCASE
       ═══════════════════════════════════════════════════════ */}
       <Section style={{ padding: sectionPad }}>
@@ -986,6 +1152,130 @@ export default function Landing() {
               animation: isMobile ? 'none' : 'float 6s ease-in-out infinite',
             }}>
               <ProductMockup isMobile={isMobile} />
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Divider />
+
+      {/* ═══════════════════════════════════════════════════════
+          RECOMPENSAS
+      ═══════════════════════════════════════════════════════ */}
+      <Section id="rewards" style={{ padding: sectionPad }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <Eyebrow color="#F5C451">Sistema de recompensas</Eyebrow>
+            <h2 style={{
+              fontFamily: 'var(--font-body)', fontWeight: 300,
+              fontSize: 'clamp(40px, 5vw, 68px)',
+              color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
+            }}>
+              Cada logro tiene{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>su trofeo.</em>
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-body)', fontSize: 16,
+              color: 'rgba(160,174,203,0.75)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
+            }}>
+              Desbloquea insignias, títulos y cosméticos únicos. Tu perfil es un récord de todo lo que has superado.
+            </p>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+            gap: isMobile ? 16 : 24,
+          }}>
+            {/* Badge rarity showcase */}
+            <div style={{
+              background: '#0D0F1A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, padding: isMobile ? 24 : 32,
+            }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 28 }}>INSIGNIAS</div>
+              {[
+                { rarity: 'COMÚN', color: '#8B9AB3', count: '12 insignias', desc: 'Para los primeros pasos del operador.' },
+                { rarity: 'RARO', color: '#33D1FF', count: '18 insignias', desc: 'Consistencia probada en los pilares.' },
+                { rarity: 'ÉPICO', color: '#7C5CFF', count: '14 insignias', desc: 'Dominio sostenido de los tres pilares.' },
+                { rarity: 'LEGENDARIO', color: '#F5C451', count: '6 insignias', desc: 'Solo para los operadores de élite.' },
+              ].map(({ rarity, color, count, desc }) => (
+                <div key={rarity} style={{
+                  display: 'flex', alignItems: 'center', gap: 16,
+                  padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
+                }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 2, flexShrink: 0,
+                    background: `${color}0C`, border: `1px solid ${color}25`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, boxShadow: `0 0 10px ${color}90` }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                      <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color, letterSpacing: '0.08em' }}>{rarity}</span>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.3)' }}>{count}</span>
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(160,174,203,0.5)', lineHeight: 1.5 }}>{desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Right column: titles + season */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{
+                background: '#0D0F1A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, padding: isMobile ? 24 : 28, flex: 1,
+              }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 20 }}>TÍTULOS DESBLOQUEABLES</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {[
+                    { name: 'NOVATO', color: '#8B9AB3' },
+                    { name: 'SOLDADO', color: '#33D1FF' },
+                    { name: 'GUERRERO', color: '#33D1FF' },
+                    { name: 'VETERANO', color: '#7C5CFF' },
+                    { name: 'ÉLITE', color: '#7C5CFF' },
+                    { name: 'LEYENDA', color: '#F5C451' },
+                    { name: 'MAESTRO ASCEND', color: '#F5C451' },
+                  ].map(({ name, color }) => (
+                    <span key={name} style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 9,
+                      color, padding: '5px 11px', letterSpacing: '0.14em',
+                      background: `${color}0A`, border: `1px solid ${color}22`, borderRadius: 2,
+                    }}>{name}</span>
+                  ))}
+                </div>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.45)', lineHeight: 1.6, marginTop: 16 }}>
+                  Los títulos se muestran en tu perfil y en el ranking global. Solo puedes ostentar uno a la vez.
+                </p>
+              </div>
+
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(245,196,81,0.07), rgba(10,11,16,0))',
+                border: '1px solid rgba(245,196,81,0.22)', borderRadius: 2,
+                padding: isMobile ? 24 : 28, position: 'relative', overflow: 'hidden',
+              }}>
+                <div style={{
+                  position: 'absolute', top: -30, right: -30,
+                  width: 130, height: 130,
+                  background: 'radial-gradient(circle, rgba(245,196,81,0.14) 0%, transparent 70%)',
+                  pointerEvents: 'none',
+                }} />
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,196,81,0.45)', letterSpacing: '0.22em', marginBottom: 12 }}>RECOMPENSAS DE TEMPORADA</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: '#F5C451', letterSpacing: '0.06em', marginBottom: 10, lineHeight: 1 }}>
+                  TEMPORADA I
+                </div>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(160,174,203,0.65)', lineHeight: 1.6, marginBottom: 18 }}>
+                  Los operadores del Top 100 al cierre de temporada desbloquean cosméticos legendarios exclusivos que no se vuelven a ofrecer.
+                </p>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {['Marco Dorado', 'Fondo Épico', 'Insignia T-I'].map(reward => (
+                    <span key={reward} style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 9,
+                      color: '#F5C451', padding: '4px 10px', letterSpacing: '0.1em',
+                      background: 'rgba(245,196,81,0.08)', border: '1px solid rgba(245,196,81,0.22)', borderRadius: 2,
+                    }}>{reward}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1197,6 +1487,54 @@ export default function Landing() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </Section>
+
+      <Divider />
+
+      {/* ═══════════════════════════════════════════════════════
+          FAQ
+      ═══════════════════════════════════════════════════════ */}
+      <Section style={{ padding: sectionPad }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <Eyebrow color="#33D1FF">Preguntas frecuentes</Eyebrow>
+            <h2 style={{
+              fontFamily: 'var(--font-body)', fontWeight: 300,
+              fontSize: 'clamp(38px, 5vw, 60px)',
+              color: '#F5F7FB', lineHeight: 1.08, letterSpacing: '-0.01em',
+            }}>
+              Lo que todos{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>se preguntan.</em>
+            </h2>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {[
+              {
+                q: '¿Cómo se calculan los XP?',
+                a: 'Cada misión tiene un valor fijo de XP según su rareza y dificultad. Común: 70–120 XP · Rara: 120–180 XP · Épica: 180–300 XP · Legendaria: 300+ XP. Al completar misiones también alimentas los atributos correspondientes (Salud, Dinero, Disciplina).',
+              },
+              {
+                q: '¿Puedo elegir qué misiones hacer?',
+                a: 'Sí. Cada día recibes un set de misiones asignadas de tu catálogo personalizado. Puedes configurar qué categorías quieres priorizar y el sistema adapta las misiones a tus objetivos.',
+              },
+              {
+                q: '¿Qué pasa si no completo todas las misiones de un día?',
+                a: 'Las misiones no completadas se resetean al día siguiente. Si rompes tu racha, el contador vuelve a 0. ASCEND no castiga — pero el ranking sí refleja tu consistencia real.',
+              },
+              {
+                q: '¿Cómo sé que el ranking es justo?',
+                a: 'El ranking se calcula en base al XP total, que solo se acumula completando misiones verificadas. No hay XP de compra ni formas de inflar el sistema. Si estás arriba, lo ganaste.',
+              },
+              {
+                q: '¿Es completamente gratuito?',
+                a: 'Sí. El acceso completo a misiones, XP, ranking y recompensas es gratuito. ASCEND cree que el progreso no debería estar detrás de un paywall.',
+              },
+            ].map(({ q, a }, i) => (
+              <FAQItem key={i} question={q} answer={a} />
+            ))}
           </div>
         </div>
       </Section>
