@@ -1,10 +1,18 @@
 import { supabase } from '../supabase';
 
-// ─── Get today's missions ─────────────────────────────────────
+// Returns Monday (ISO week start) for the given date as YYYY-MM-DD
+function getWeekStart(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun, 1=Mon…
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+}
+
+// ─── Daily missions ───────────────────────────────────────────
 // Lazily assigns missions for today if not yet done (idempotent RPC),
 // then fetches the full list with mission details joined.
 export async function getDailyMissions() {
-  // Ensure missions are assigned (no-op if already done today)
   const { error: assignError } = await supabase.rpc('ensure_daily_missions');
   if (assignError) return { data: null, error: assignError };
 
@@ -28,10 +36,8 @@ export async function getDailyMissions() {
   return { data, error };
 }
 
-// ─── Complete a mission ───────────────────────────────────────
+// ─── Complete a daily mission ─────────────────────────────────
 // Calls the complete_mission() SECURITY DEFINER RPC.
-// The RPC validates, awards XP, updates streak, unlocks rewards.
-//
 // Returns { data, error } where data is:
 //   {
 //     success, xp_awarded, streak_bonus, new_total_xp,
@@ -40,6 +46,43 @@ export async function getDailyMissions() {
 //   }
 export async function completeMission(missionId) {
   const { data, error } = await supabase.rpc('complete_mission', {
+    p_mission_id: missionId,
+  });
+  return { data, error };
+}
+
+// ─── Weekly missions ──────────────────────────────────────────
+// Lazily assigns weekly missions for the current week (idempotent),
+// then fetches them with mission details joined.
+export async function getWeeklyMissions() {
+  const { error: assignError } = await supabase.rpc('ensure_weekly_missions');
+  if (assignError) return { data: null, error: assignError };
+
+  const weekStart = getWeekStart();
+
+  const { data, error } = await supabase
+    .from('user_weekly_missions')
+    .select(`
+      id,
+      completed,
+      completed_at,
+      xp_awarded,
+      week_start,
+      mission:missions (
+        id, name, description, xp, attribute, rarity, icon
+      )
+    `)
+    .eq('week_start', weekStart)
+    .order('id');
+
+  return { data, error };
+}
+
+// ─── Complete a weekly mission ────────────────────────────────
+// Calls the complete_weekly_mission() SECURITY DEFINER RPC.
+// Returns the same shape as completeMission.
+export async function completeWeeklyMission(missionId) {
+  const { data, error } = await supabase.rpc('complete_weekly_mission', {
     p_mission_id: missionId,
   });
   return { data, error };

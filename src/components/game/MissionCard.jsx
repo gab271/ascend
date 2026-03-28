@@ -1,9 +1,10 @@
-import { CheckCircle2, Zap } from 'lucide-react';
+import { CheckCircle2, Zap, Calendar } from 'lucide-react';
 import { RARITY_CONFIG } from '../../config/rarities';
 import { ATTR_CONFIG } from '../../config/attributes';
 
-// Full mission card — used in the Missions catalog page
-export default function MissionCard({ mission, onComplete }) {
+// Full mission card — used in the Missions catalog page.
+// isWeekly: renders a gold "SEMANAL" badge and Calendar icon on the XP line.
+export default function MissionCard({ mission, onComplete, isWeekly = false }) {
   const rarity = RARITY_CONFIG[mission.rarity];
   const attr = ATTR_CONFIG[mission.attribute];
   const isLegendary = mission.rarity === 'legendary';
@@ -14,7 +15,9 @@ export default function MissionCard({ mission, onComplete }) {
         position: 'relative',
         background: mission.completed
           ? 'rgba(51,230,161,0.04)'
-          : isLegendary ? 'linear-gradient(135deg, #1A1600, #131722)' : 'var(--panel)',
+          : isLegendary
+            ? 'linear-gradient(135deg, #1A1600, #131722)'
+            : 'var(--panel)',
         border: `1px solid ${mission.completed ? 'rgba(51,230,161,0.25)' : rarity.color + '55'}`,
         borderRadius: 14, padding: '22px',
         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -46,6 +49,15 @@ export default function MissionCard({ mission, onComplete }) {
         }} />
       )}
 
+      {/* Weekly shimmer */}
+      {isWeekly && !mission.completed && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(135deg, rgba(245,196,81,0.04) 0%, transparent 50%)',
+          pointerEvents: 'none',
+        }} />
+      )}
+
       {/* Corner glow */}
       <div style={{
         position: 'absolute', top: -20, right: -20, width: 80, height: 80, borderRadius: '50%',
@@ -57,15 +69,31 @@ export default function MissionCard({ mission, onComplete }) {
       <div style={{ position: 'absolute', top: 8, left: 8, width: 14, height: 14, borderTop: `2px solid ${rarity.color}`, borderLeft: `2px solid ${rarity.color}`, opacity: 0.5 }} />
       <div style={{ position: 'absolute', bottom: 8, right: 8, width: 14, height: 14, borderBottom: `2px solid ${rarity.color}`, borderRight: `2px solid ${rarity.color}`, opacity: 0.5 }} />
 
-      {/* Rarity + attribute badges */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <div style={{
-          fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.12em',
-          color: rarity.color, background: `${rarity.color}18`, border: `1px solid ${rarity.color}44`,
-          borderRadius: 4, padding: '3px 8px',
-        }}>
-          {isLegendary ? '⭐ ' : ''}{rarity.label}
+      {/* Rarity + attribute + weekly badges */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 6, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{
+            fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.12em',
+            color: rarity.color, background: `${rarity.color}18`, border: `1px solid ${rarity.color}44`,
+            borderRadius: 4, padding: '3px 8px',
+          }}>
+            {isLegendary ? '⭐ ' : ''}{rarity.label}
+          </div>
+
+          {/* Weekly duration badge */}
+          {isWeekly && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.1em',
+              color: 'var(--gold)', background: 'rgba(245,196,81,0.12)', border: '1px solid rgba(245,196,81,0.35)',
+              borderRadius: 4, padding: '3px 8px',
+            }}>
+              <Calendar size={9} />
+              7D
+            </div>
+          )}
         </div>
+
         <div style={{
           display: 'flex', alignItems: 'center', gap: 5,
           fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.1em',
@@ -97,14 +125,17 @@ export default function MissionCard({ mission, onComplete }) {
         </div>
       </div>
 
-      {/* XP + button */}
+      {/* XP + complete button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: 6,
           fontFamily: 'var(--font-display)', fontSize: 24,
-          color: isLegendary ? 'var(--gold)' : 'var(--violet)',
+          color: isWeekly || isLegendary ? 'var(--gold)' : 'var(--violet)',
         }}>
-          <Zap size={16} color="var(--violet)" />
+          {isWeekly
+            ? <Calendar size={14} color="var(--gold)" />
+            : <Zap size={16} color="var(--violet)" />
+          }
           +{mission.xp}
           <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: 'var(--text-muted)' }}>XP</span>
         </div>
@@ -114,7 +145,7 @@ export default function MissionCard({ mission, onComplete }) {
           disabled={mission.completed}
           style={{
             background: mission.completed ? 'transparent' : rarity.color,
-            color: mission.completed ? 'var(--green)' : rarity.color === 'var(--rarity-legendary)' ? 'var(--void)' : 'white',
+            color: mission.completed ? 'var(--green)' : 'white',
             border: `1px solid ${mission.completed ? 'var(--green)' : rarity.color}`,
             borderRadius: 8, padding: '9px 18px',
             fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, letterSpacing: '0.1em',
