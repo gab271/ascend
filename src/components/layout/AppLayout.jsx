@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import NotificationBell from './NotificationBell';
 
 const pageTitles = {
   '/dashboard': 'Dashboard',
@@ -43,18 +44,25 @@ export default function AppLayout() {
             {title}
           </div>
 
-          {/* Today's date */}
-          <div style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 12,
-            color: 'var(--text-muted)',
-          }}>
-            {new Date().toLocaleDateString('es-ES', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            }).toUpperCase()}
+          {/* Right side: date + notifications */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 12,
+              color: 'var(--text-muted)',
+            }}>
+              {new Date().toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              }).toUpperCase()}
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
+
+            <NotificationBell />
           </div>
         </div>
 

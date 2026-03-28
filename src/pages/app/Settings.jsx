@@ -312,13 +312,13 @@ function TabSeguridad() {
 /* ─── Tab: Notificaciones ────────────────────────────────────── */
 function TabNotificaciones() {
   const [notifs, setNotifs] = useState({
-    missionComplete: true,
-    levelUp:         true,
-    streakReminder:  true,
+    missionComplete: false,
+    levelUp:         false,
+    streakReminder:  false,
     xpGained:        false,
     rankingUpdate:   false,
-    weeklyReport:    true,
-    newReward:       true,
+    weeklyReport:    false,
+    newReward:       false,
     systemAlerts:    false,
   });
   const [saved, setSaved] = useState(false);

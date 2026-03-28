@@ -58,7 +58,7 @@ function renderPreview(item, rarity) {
   return null;
 }
 
-export default function RewardCard({ item }) {
+export default function RewardCard({ item, onEquip, isEquipped }) {
   const rarity = RARITY_CONFIG[item.rarity];
   const [hovered, setHovered] = useState(false);
   const isLegendary = item.rarity === 'legendary';
@@ -144,18 +144,23 @@ export default function RewardCard({ item }) {
         {item.name}
       </div>
 
-      {/* Equip button */}
-      {item.unlocked && (
-        <button style={{
-          background: 'transparent', border: `1px solid ${rarity.color}55`,
-          borderRadius: 6, padding: '6px 16px',
-          fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em',
-          color: rarity.color, cursor: 'pointer', transition: 'var(--transition)', width: '100%',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.background = rarity.bg; e.currentTarget.style.borderColor = rarity.color; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = `${rarity.color}55`; }}
+      {/* Equip button — only for equippable types (titles, frames, backgrounds) */}
+      {item.unlocked && onEquip && (
+        <button
+          onClick={isEquipped ? undefined : onEquip}
+          style={{
+            background: isEquipped ? 'var(--green-dim)' : 'transparent',
+            border: `1px solid ${isEquipped ? 'var(--green)' : rarity.color + '55'}`,
+            borderRadius: 6, padding: '6px 16px',
+            fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em',
+            color: isEquipped ? 'var(--green)' : rarity.color,
+            cursor: isEquipped ? 'default' : 'pointer',
+            transition: 'var(--transition)', width: '100%',
+          }}
+          onMouseEnter={e => { if (!isEquipped) { e.currentTarget.style.background = rarity.bg; e.currentTarget.style.borderColor = rarity.color; }}}
+          onMouseLeave={e => { if (!isEquipped) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = `${rarity.color}55`; }}}
         >
-          EQUIPAR
+          {isEquipped ? 'EQUIPADO' : 'EQUIPAR'}
         </button>
       )}
     </div>

@@ -220,6 +220,19 @@ img {
   to { transform: rotate(360deg); }
 }
 
+@keyframes notif-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes bell-ring {
+  0%, 88%, 100% { transform: rotate(0deg); }
+  90%  { transform: rotate(12deg); }
+  93%  { transform: rotate(-10deg); }
+  96%  { transform: rotate(7deg); }
+  98%  { transform: rotate(-4deg); }
+}
+
 @keyframes grid-flow {
   0% { background-position: 0 0; }
   100% { background-position: 40px 40px; }

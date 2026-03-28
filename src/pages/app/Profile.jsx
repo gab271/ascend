@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import { getMyProfile } from '../../lib/api/profile';
-import { getRewardsCatalog } from '../../lib/api/profile';
+import { useState, useEffect, useRef } from 'react';
+import { getMyProfile, getRewardsCatalog, uploadAvatar } from '../../lib/api/profile';
 import { RARITY_CONFIG } from '../../config/rarities';
-import { Shield, DollarSign, Zap, Edit3, Lock } from 'lucide-react';
+import { Shield, DollarSign, Zap, Edit3, Lock, Loader2 } from 'lucide-react';
 
 function ProfileStat({ label, value, max = 100, color, icon: Icon }) {
   return (
@@ -101,18 +100,34 @@ function BadgeCard({ badge }) {
 }
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState('badges');
-  const [profile,   setProfile]   = useState(null);
-  const [badges,    setBadges]    = useState([]);
-  const [loading,   setLoading]   = useState(true);
+  const [activeTab,  setActiveTab]  = useState('badges');
+  const [profile,    setProfile]    = useState(null);
+  const [badges,     setBadges]     = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [avatarUrl,  setAvatarUrl]  = useState(null);
+  const [uploading,  setUploading]  = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     Promise.all([getMyProfile(), getRewardsCatalog()]).then(([{ data: p }, { data: r }]) => {
-      if (p) setProfile(p);
+      if (p) {
+        setProfile(p);
+        setAvatarUrl(p.avatar_url ?? null);
+      }
       if (r) setBadges(r.badges ?? []);
       setLoading(false);
     });
   }, []);
+
+  async function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const { data: url, error } = await uploadAvatar(file);
+    if (!error && url) setAvatarUrl(url);
+    setUploading(false);
+    e.target.value = '';
+  }
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
@@ -145,20 +160,37 @@ export default function Profile() {
               background: 'linear-gradient(135deg, var(--violet), var(--cyan))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-display)', fontSize: 40, color: 'white', position: 'relative',
+              overflow: 'hidden',
             }}>
-              {profile.username.slice(0, 2)}
+              {avatarUrl
+                ? <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : profile.username.slice(0, 2)
+              }
             </div>
-            <button style={{
-              position: 'absolute', bottom: 0, right: 0,
-              width: 28, height: 28, borderRadius: '50%',
-              background: 'var(--void)', border: '2px solid var(--border-bright)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', transition: 'var(--transition)',
-            }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--violet)'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-bright)'}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: 'none' }}
+              onChange={handleAvatarChange}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              style={{
+                position: 'absolute', bottom: 0, right: 0,
+                width: 28, height: 28, borderRadius: '50%',
+                background: 'var(--void)', border: '2px solid var(--border-bright)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: uploading ? 'default' : 'pointer', transition: 'var(--transition)',
+              }}
+              onMouseEnter={e => { if (!uploading) e.currentTarget.style.borderColor = 'var(--violet)'; }}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-bright)'}
             >
-              <Edit3 size={12} color="var(--text-muted)" />
+              {uploading
+                ? <Loader2 size={12} color="var(--violet)" style={{ animation: 'spin-slow 1s linear infinite' }} />
+                : <Edit3 size={12} color="var(--text-muted)" />
+              }
             </button>
           </div>
 

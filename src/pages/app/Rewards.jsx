@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMyProfile, getRewardsCatalog } from '../../lib/api/profile';
+import { getMyProfile, getRewardsCatalog, setActiveCosmetic } from '../../lib/api/profile';
 import RewardCard from '../../components/game/RewardCard';
 
 const CATEGORIES = ['badges', 'titles', 'frames', 'backgrounds'];
@@ -10,19 +10,37 @@ const CATEGORY_LABELS = {
   backgrounds: 'Fondos',
 };
 
+// Maps Rewards tab category → RPC type. Badges are not equippable.
+const CATEGORY_TYPE = { titles: 'title', frames: 'frame', backgrounds: 'background' };
+
 export default function Rewards() {
   const [activeCategory, setActiveCategory] = useState('badges');
   const [rewards,        setRewards]        = useState({ badges: [], titles: [], frames: [], backgrounds: [] });
   const [totalXP,        setTotalXP]        = useState(0);
   const [loading,        setLoading]        = useState(true);
+  const [activeIds,      setActiveIds]      = useState({ title: null, frame: null, background: null });
 
   useEffect(() => {
     Promise.all([getRewardsCatalog(), getMyProfile()]).then(([{ data: r }, { data: p }]) => {
       if (r) setRewards(r);
-      if (p) setTotalXP(p.total_xp ?? 0);
+      if (p) {
+        setTotalXP(p.total_xp ?? 0);
+        setActiveIds({
+          title:      p.active_title?.id      ?? null,
+          frame:      p.active_frame?.id      ?? null,
+          background: p.active_background?.id ?? null,
+        });
+      }
       setLoading(false);
     });
   }, []);
+
+  async function handleEquip(item) {
+    const type = CATEGORY_TYPE[activeCategory];
+    if (!type) return;
+    const { error } = await setActiveCosmetic(type, item.id);
+    if (!error) setActiveIds(prev => ({ ...prev, [type]: item.id }));
+  }
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
@@ -112,9 +130,17 @@ export default function Rewards() {
 
       {/* Reward grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
-        {items.map(item => (
-          <RewardCard key={item.id} item={item} />
-        ))}
+        {items.map(item => {
+          const type = CATEGORY_TYPE[activeCategory];
+          return (
+            <RewardCard
+              key={item.id}
+              item={item}
+              onEquip={type ? () => handleEquip(item) : undefined}
+              isEquipped={type ? activeIds[type] === item.id : false}
+            />
+          );
+        })}
       </div>
     </div>
   );
