@@ -9,6 +9,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import Dashboard from './pages/app/Dashboard';
 import Missions from './pages/app/Missions';
+import Shop from './pages/app/Shop';
 import Profile from './pages/app/Profile';
 import Ranking from './pages/app/Ranking';
 import Rewards from './pages/app/Rewards';
@@ -56,6 +57,7 @@ export default function App() {
         <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/missions"  element={<Missions />} />
+          <Route path="/shop"      element={<Shop />} />
           <Route path="/profile"   element={<Profile />} />
           <Route path="/ranking"   element={<Ranking />} />
           <Route path="/rewards"   element={<Rewards />} />

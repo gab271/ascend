@@ -19,6 +19,7 @@ export async function getMyProfile() {
       stat_health,
       stat_money,
       stat_discipline,
+      coins,
       created_at,
       active_title:titles!active_title_id (
         id, name, rarity

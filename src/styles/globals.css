@@ -979,3 +979,82 @@ img {
   85%  { opacity: 0.8; }
   100% { top: 110%; opacity: 0; }
 }
+
+/* ============================================
+   Shop — Item Preview Animations
+   ============================================ */
+
+/* Animated frame — pulse */
+@keyframes frame-pulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 16px currentColor; opacity: 1; }
+  50%       { transform: scale(1.06); box-shadow: 0 0 32px currentColor; opacity: 0.8; }
+}
+
+/* Animated frame — rotate */
+@keyframes frame-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Animated frame — scan (border dash animation) */
+@keyframes frame-scan {
+  0%, 100% { opacity: 1; box-shadow: 0 0 12px currentColor, inset 0 0 8px currentColor; }
+  50%       { opacity: 0.4; box-shadow: 0 0 4px currentColor, inset 0 0 2px currentColor; }
+}
+
+/* Animated frame — glitch */
+@keyframes frame-glitch {
+  0%   { transform: translate(0, 0) scaleX(1); }
+  20%  { transform: translate(-3px, 1px) scaleX(1.02); }
+  40%  { transform: translate(3px, -1px) scaleX(0.98); }
+  60%  { transform: translate(-2px, 2px) scaleX(1.01); }
+  80%  { transform: translate(2px, -2px) scaleX(0.99); }
+  100% { transform: translate(0, 0) scaleX(1); }
+}
+
+/* Animated frame — wave */
+@keyframes frame-wave {
+  0%, 100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+  25%       { transform: scale(1.08) rotate(2deg);  opacity: 0.85; }
+  75%       { transform: scale(0.94) rotate(-2deg); opacity: 0.9; }
+}
+
+/* Emote — bounce */
+@keyframes emote-bounce {
+  0%, 100% { transform: translateY(0); }
+  40%       { transform: translateY(-14px); }
+  60%       { transform: translateY(-8px); }
+}
+
+/* Emote — spin */
+@keyframes emote-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Emote — float */
+@keyframes emote-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+/* Emote — flash */
+@keyframes emote-flash {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(1.15); filter: brightness(1.8); }
+}
+
+/* Emote — shake */
+@keyframes emote-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20%       { transform: rotate(-12deg); }
+  40%       { transform: rotate(12deg); }
+  60%       { transform: rotate(-8deg); }
+  80%       { transform: rotate(8deg); }
+}
+
+/* Toast slide-in */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}

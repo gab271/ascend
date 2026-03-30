@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap } from 'lucide-react';
+import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap, Store } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { signOut } from '../../lib/api/auth';
 import { getMyProfile } from '../../lib/api/profile';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/missions', icon: Target, label: 'Misiones' },
-  { to: '/ranking', icon: Trophy, label: 'Ranking' },
-  { to: '/profile', icon: User, label: 'Perfil' },
-  { to: '/rewards', icon: Gift, label: 'Inventario' },
+  { to: '/missions',  icon: Target,          label: 'Misiones' },
+  { to: '/shop',      icon: Store,           label: 'Tienda' },
+  { to: '/ranking',   icon: Trophy,          label: 'Ranking' },
+  { to: '/profile',   icon: User,            label: 'Perfil' },
+  { to: '/rewards',   icon: Gift,            label: 'Inventario' },
 ];
 
 // Mini avatar with initials
@@ -52,6 +53,7 @@ export default function Sidebar() {
   const title       = profile?.active_title?.name ?? null;
   const streak      = profile?.streak ?? 0;
   const totalXP     = profile?.total_xp ?? 0;
+  const coins       = profile?.coins ?? 0;
   const xpPercent   = (xp / xpNext) * 100;
 
   const handleSignOut = async () => {
@@ -229,6 +231,31 @@ export default function Sidebar() {
               style={{ width: `${xpPercent}%` }}
             />
           </div>
+        </div>
+
+        {/* Coin balance */}
+        <div style={{
+          marginTop: 10,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: 'rgba(245,196,81,0.07)',
+          border: '1px solid rgba(245,196,81,0.18)',
+          borderRadius: 6, padding: '6px 10px',
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ fontSize: 12, lineHeight: 1 }}>🪙</span>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10,
+              color: 'rgba(245,196,81,0.6)', letterSpacing: '0.12em',
+            }}>
+              MONEDAS
+            </span>
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-display)', fontSize: 16,
+            color: 'var(--gold)', letterSpacing: '0.06em',
+          }}>
+            {coins.toLocaleString()}
+          </span>
         </div>
       </div>
 
