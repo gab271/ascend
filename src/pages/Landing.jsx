@@ -977,8 +977,28 @@ export default function Landing() {
       {/* ═══════════════════════════════════════════════════════
           MISIONES
       ═══════════════════════════════════════════════════════ */}
-      <Section id="missions" style={{ padding: sectionPad }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+      <Section id="missions" style={{ padding: sectionPad, position: 'relative', overflow: 'hidden' }}>
+        {/* ── Video background ── */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute', top: 0, left: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', zIndex: 0,
+          }}
+        >
+          <source src="/animacionPirata.mp4" type="video/mp4" />
+        </video>
+        {/* ── Dark overlay — keeps text readable ── */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 1,
+          background: 'linear-gradient(to bottom, rgba(10,11,16,0.82) 0%, rgba(10,11,16,0.70) 40%, rgba(10,11,16,0.88) 100%)',
+        }} />
+
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <Eyebrow color="#33E6A1">Catálogo de misiones</Eyebrow>
             <h2 style={{
