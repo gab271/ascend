@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Lock, Bell, AlertTriangle, Eye, EyeOff, Check, Shield, Zap } from 'lucide-react';
+import { User, Lock, Bell, AlertTriangle, Eye, EyeOff, Check, Shield, Zap, Crown, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { signOut } from '../../lib/api/auth';
@@ -169,21 +169,34 @@ const TABS = [
   { id: 'cuenta',         label: 'Cuenta',         icon: User,          moduleId: 'SYS.01' },
   { id: 'seguridad',      label: 'Seguridad',       icon: Lock,          moduleId: 'SYS.02' },
   { id: 'notificaciones', label: 'Notificaciones',  icon: Bell,          moduleId: 'SYS.03' },
-  { id: 'peligro',        label: 'Zona peligrosa',  icon: AlertTriangle, moduleId: 'SYS.04' },
+  { id: 'plan',           label: 'Plan',            icon: Crown,         moduleId: 'SYS.04' },
+  { id: 'salida',         label: 'Salida',          icon: LogOut,        moduleId: 'SYS.05' },
 ];
 
 /* ─── Tab: Cuenta ─────────────────────────────────────────────── */
 function TabCuenta({ user }) {
-  const [username, setUsername] = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [success, setSuccess]   = useState(false);
-  const [error, setError]       = useState('');
+  const [username,  setUsername]  = useState('');
+  const [loading,   setLoading]   = useState(false);
+  const [success,   setSuccess]   = useState(false);
+  const [error,     setError]     = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [privSaving, setPrivSaving] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('profiles').select('username').eq('id', user.id).single()
-      .then(({ data }) => { if (data?.username) setUsername(data.username); });
+    supabase.from('profiles').select('username, is_private').eq('id', user.id).single()
+      .then(({ data }) => {
+        if (data?.username)  setUsername(data.username);
+        if (data?.is_private != null) setIsPrivate(data.is_private);
+      });
   }, [user]);
+
+  const handlePrivacyToggle = async (newValue) => {
+    setIsPrivate(newValue);
+    setPrivSaving(true);
+    await supabase.rpc('set_profile_private', { p_is_private: newValue });
+    setPrivSaving(false);
+  };
 
   const handleSave = async () => {
     const clean = username.trim().toUpperCase();
@@ -233,6 +246,25 @@ function TabCuenta({ user }) {
             </div>
           </SettingRow>
         </div>
+      </SectionCard>
+
+      <SectionCard
+        moduleId="SYS.01.C"
+        title="Privacidad"
+        status={privSaving ? 'GUARDANDO...' : isPrivate ? 'PERFIL PRIVADO' : 'PERFIL PÚBLICO'}
+        statusColor={privSaving ? 'var(--text-muted)' : isPrivate ? 'var(--violet)' : 'var(--cyan)'}
+      >
+        <SettingRow
+          label="Perfil privado"
+          description={
+            isPrivate
+              ? 'Tu nombre no aparece en el ranking global. Tus datos siguen registrándose con normalidad.'
+              : 'Tu perfil es visible en el ranking global. Actívalo si prefieres progresar en privado.'
+          }
+          last
+        >
+          <Toggle value={isPrivate} onChange={handlePrivacyToggle} />
+        </SettingRow>
       </SectionCard>
     </div>
   );
@@ -360,7 +392,228 @@ function TabNotificaciones() {
   );
 }
 
-/* ─── Tab: Zona peligrosa ────────────────────────────────────── */
+/* ─── Tab: Plan ──────────────────────────────────────────────── */
+const OPERADOR_FEATURES = [
+  'Misiones diarias (5 por día)',
+  'Ranking global',
+  'Perfil personalizable',
+  'Racha diaria',
+  'Cosméticos básicos',
+  'Badges de logros',
+];
+
+const PRO_FEATURES = [
+  'Todo lo incluido en Operador',
+  'Misiones diarias ampliadas (10 por día)',
+  'Misiones semanales exclusivas',
+  'Analytics de progreso avanzados',
+  'Cosméticos y frames premium',
+  'Badge exclusivo PRO en el ranking',
+  'Acceso prioritario a nuevas funciones',
+];
+
+function PlanCard({ name, price, priceLabel, features, current, accent, badge, disabled }) {
+  return (
+    <div style={{
+      flex: 1, borderRadius: 'var(--radius-lg)',
+      border: `1px solid ${current ? accent : 'var(--border)'}`,
+      background: current
+        ? `linear-gradient(160deg, ${accent}0D 0%, var(--panel) 100%)`
+        : 'var(--panel)',
+      overflow: 'hidden',
+      position: 'relative',
+      transition: 'border-color 0.2s',
+    }}>
+      {/* Top accent line */}
+      <div style={{
+        height: 3,
+        background: current
+          ? `linear-gradient(90deg, transparent, ${accent}, transparent)`
+          : 'var(--border)',
+      }} />
+
+      <div style={{ padding: '24px 24px 28px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+          <div>
+            <div style={{
+              fontFamily: 'var(--font-display)', fontSize: 28, letterSpacing: '0.08em',
+              color: current ? accent : 'var(--text)', lineHeight: 1,
+              textShadow: current ? `0 0 24px ${accent}44` : 'none',
+            }}>
+              {name}
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-body)', fontSize: 13,
+              color: 'var(--text-muted)', marginTop: 4,
+            }}>
+              {priceLabel}
+            </div>
+          </div>
+          {badge && (
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.16em',
+              color: current ? accent : 'var(--text-muted)',
+              background: current ? `${accent}18` : 'var(--surface)',
+              border: `1px solid ${current ? accent + '44' : 'var(--border)'}`,
+              borderRadius: 4, padding: '4px 10px',
+              textTransform: 'uppercase',
+            }}>
+              {badge}
+            </div>
+          )}
+        </div>
+
+        {/* Price */}
+        <div style={{ marginBottom: 24 }}>
+          <span style={{
+            fontFamily: 'var(--font-display)', fontSize: 48,
+            color: current ? accent : 'var(--text-muted)',
+            lineHeight: 1,
+          }}>
+            {price}
+          </span>
+        </div>
+
+        {/* Features */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {features.map((f, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <div style={{
+                width: 16, height: 16, borderRadius: '50%', flexShrink: 0, marginTop: 1,
+                background: current ? `${accent}22` : 'var(--surface)',
+                border: `1px solid ${current ? accent + '55' : 'var(--border)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Check size={9} color={current ? accent : 'var(--text-muted)'} strokeWidth={3} />
+              </div>
+              <span style={{
+                fontFamily: 'var(--font-body)', fontSize: 13,
+                color: current ? 'var(--text-secondary)' : 'var(--text-muted)',
+                lineHeight: 1.4,
+              }}>
+                {f}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div style={{ marginTop: 28 }}>
+          {current ? (
+            <div style={{
+              width: '100%', padding: '11px',
+              fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12,
+              letterSpacing: '0.14em', textTransform: 'uppercase',
+              color: accent, background: `${accent}14`,
+              border: `1px solid ${accent}44`,
+              borderRadius: 'var(--radius-md)',
+              textAlign: 'center',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            }}>
+              <Check size={13} strokeWidth={3} /> Plan actual
+            </div>
+          ) : (
+            <button
+              disabled={disabled}
+              style={{
+                width: '100%', padding: '11px',
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12,
+                letterSpacing: '0.14em', textTransform: 'uppercase',
+                color: disabled ? 'var(--text-muted)' : '#0A0B10',
+                background: disabled ? 'var(--surface)' : accent,
+                border: `1px solid ${disabled ? 'var(--border)' : accent}`,
+                borderRadius: 'var(--radius-md)',
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              {disabled ? 'Próximamente' : `Mejorar a ${name}`}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabPlan() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+      {/* Current plan banner */}
+      <SectionCard moduleId="SYS.04.A" title="Tu suscripción" status="ACTIVA" statusColor="var(--violet)">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{
+              fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: '0.08em',
+              color: 'var(--gold)', marginBottom: 4,
+              textShadow: '0 0 20px rgba(245,196,81,0.3)',
+            }}>
+              OPERADOR
+            </div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)' }}>
+              Plan gratuito — acceso completo a las funciones base de ASCEND.
+            </div>
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.16em',
+            color: 'var(--gold)', background: 'var(--gold-dim)',
+            border: '1px solid rgba(245,196,81,0.25)',
+            borderRadius: 4, padding: '5px 12px',
+          }}>
+            ACTIVO
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Plan comparison */}
+      <div>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.22em',
+          color: 'var(--text-muted)', marginBottom: 16, textTransform: 'uppercase',
+        }}>
+          // Comparar planes
+        </div>
+        <div style={{ display: 'flex', gap: 16 }}>
+          <PlanCard
+            name="OPERADOR"
+            price="Gratis"
+            priceLabel="Sin límite de tiempo"
+            features={OPERADOR_FEATURES}
+            current
+            accent="var(--gold)"
+            badge="Tu plan"
+          />
+          <PlanCard
+            name="PRO"
+            price="—"
+            priceLabel="Precio por definir"
+            features={PRO_FEATURES}
+            accent="var(--violet)"
+            badge="Próximamente"
+            disabled
+          />
+        </div>
+      </div>
+
+      {/* FAQ note */}
+      <div style={{
+        padding: '14px 18px', borderRadius: 'var(--radius-md)',
+        background: 'rgba(124,92,255,0.04)',
+        border: '1px solid rgba(124,92,255,0.15)',
+        fontFamily: 'var(--font-body)', fontSize: 13,
+        color: 'var(--text-muted)', lineHeight: 1.6,
+      }}>
+        <strong style={{ color: 'var(--violet)', fontFamily: 'var(--font-ui)', fontSize: 12, letterSpacing: '0.08em' }}>
+          ASCEND PRO
+        </strong>{' '}está en desarrollo. Cuando esté disponible, los usuarios en lista de espera tendrán acceso prioritario y precio especial.
+      </div>
+    </div>
+  );
+}
+
+/* ─── Tab: Salida ─────────────────────────────────────────────── */
 function TabPeligro({ onSignOut }) {
   const [showDelete, setShowDelete] = useState(false);
   const [confirmText, setConfirmText] = useState('');
@@ -370,19 +623,19 @@ function TabPeligro({ onSignOut }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <SectionCard moduleId="SYS.04.A" title="Sesión activa" status="EN LÍNEA" statusColor="var(--green)">
+      <SectionCard moduleId="SYS.05.A" title="Sesión activa" status="EN LÍNEA" statusColor="var(--green)">
         <SettingRow label="Cerrar sesión" description="Salir de tu cuenta en este dispositivo. Tu progreso y datos se conservan." last>
           <ActionBtn onClick={onSignOut} label="CERRAR SESIÓN" variant="ghost" />
         </SettingRow>
       </SectionCard>
 
-      <SectionCard moduleId="SYS.04.B" title="Reiniciar progreso" status="NO DISPONIBLE" statusColor="var(--text-muted)">
+      <SectionCard moduleId="SYS.05.B" title="Reiniciar progreso" status="NO DISPONIBLE" statusColor="var(--text-muted)">
         <SettingRow label="Resetear cuenta" description="Elimina todo tu XP, nivel y misiones completadas, manteniendo tu cuenta activa. Operación no disponible en esta versión." last>
           <ActionBtn label="REINICIAR" variant="danger" disabled />
         </SettingRow>
       </SectionCard>
 
-      <SectionCard moduleId="SYS.04.C" title="Eliminar cuenta" status="PELIGRO" statusColor="var(--red)" style={{ border: '1px solid rgba(255,77,106,0.2)' }}>
+      <SectionCard moduleId="SYS.05.C" title="Eliminar cuenta" status="PELIGRO" statusColor="var(--red)" style={{ border: '1px solid rgba(255,77,106,0.2)' }}>
         <div style={{
           display: 'flex', gap: 12, alignItems: 'flex-start',
           padding: '12px 14px',
@@ -462,7 +715,8 @@ export default function Settings() {
     cuenta:         <TabCuenta user={user} />,
     seguridad:      <TabSeguridad />,
     notificaciones: <TabNotificaciones />,
-    peligro:        <TabPeligro onSignOut={handleSignOut} />,
+    plan:           <TabPlan />,
+    salida:         <TabPeligro onSignOut={handleSignOut} />,
   };
 
   return (
@@ -482,7 +736,7 @@ export default function Settings() {
 
         {TABS.map(({ id, label, icon: Icon, moduleId }) => {
           const isActive     = activeTab === id;
-          const isDanger     = id === 'peligro';
+          const isDanger     = id === 'salida';
           const accentColor  = isDanger ? 'var(--red)' : 'var(--violet)';
           const accentDim    = isDanger ? 'rgba(255,77,106,0.08)' : 'var(--violet-dim)';
 
