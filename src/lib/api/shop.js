@@ -11,6 +11,20 @@ export async function getShopRotation() {
   return { data, error };
 }
 
+// ─── Get all shop items owned by the user ────────────────────
+export async function getMyShopItems() {
+  const { data, error } = await supabase
+    .from('user_shop_items')
+    .select(`
+      purchased_at,
+      item:shop_items (
+        id, name, description, item_type, rarity, price, config
+      )
+    `)
+    .order('purchased_at', { ascending: false });
+  return { data, error };
+}
+
 // ─── Purchase a shop item ─────────────────────────────────────
 // Returns { data: { success, item_name, coins_spent, coins_remaining, ... }, error }
 export async function purchaseShopItem(itemId) {

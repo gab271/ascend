@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap, Store } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { signOut } from '../../lib/api/auth';
@@ -40,11 +40,12 @@ function Avatar({ username, size = 40 }) {
 export default function Sidebar() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     getMyProfile().then(({ data }) => { if (data) setProfile(data); });
-  }, []);
+  }, [location.pathname]);
 
   const displayName = profile?.username ?? user?.user_metadata?.username ?? '...';
   const level       = profile?.level ?? '—';

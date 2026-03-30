@@ -27,7 +27,7 @@ export async function getDailyMissions() {
       xp_awarded,
       assigned_date,
       mission:missions (
-        id, name, description, xp, attribute, rarity, icon
+        id, name, description, xp, coins_reward, attribute, rarity, icon
       )
     `)
     .eq('assigned_date', today)
@@ -69,7 +69,7 @@ export async function getWeeklyMissions() {
       xp_awarded,
       week_start,
       mission:missions (
-        id, name, description, xp, attribute, rarity, icon
+        id, name, description, xp, coins_reward, attribute, rarity, icon
       )
     `)
     .eq('week_start', weekStart)

@@ -125,19 +125,40 @@ export default function MissionCard({ mission, onComplete, isWeekly = false }) {
         </div>
       </div>
 
-      {/* XP + complete button */}
+      {/* XP + coins + complete button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          fontFamily: 'var(--font-display)', fontSize: 24,
-          color: isWeekly || isLegendary ? 'var(--gold)' : 'var(--violet)',
-        }}>
-          {isWeekly
-            ? <Calendar size={14} color="var(--gold)" />
-            : <Zap size={16} color="var(--violet)" />
-          }
-          +{mission.xp}
-          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: 'var(--text-muted)' }}>XP</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* XP reward */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontFamily: 'var(--font-display)', fontSize: 24,
+            color: isWeekly || isLegendary ? 'var(--gold)' : 'var(--violet)',
+          }}>
+            {isWeekly
+              ? <Calendar size={14} color="var(--gold)" />
+              : <Zap size={16} color="var(--violet)" />
+            }
+            +{mission.xp}
+            <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', color: 'var(--text-muted)' }}>XP</span>
+          </div>
+
+          {/* Coin reward */}
+          {mission.coins_reward > 0 && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              background: 'rgba(245,196,81,0.08)',
+              border: '1px solid rgba(245,196,81,0.22)',
+              borderRadius: 6, padding: '3px 8px',
+            }}>
+              <span style={{ fontSize: 11, lineHeight: 1 }}>🪙</span>
+              <span style={{
+                fontFamily: 'var(--font-display)', fontSize: 16,
+                color: 'var(--gold)', letterSpacing: '0.05em',
+              }}>
+                +{mission.coins_reward}
+              </span>
+            </div>
+          )}
         </div>
 
         <button
