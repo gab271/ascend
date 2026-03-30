@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getMyProfile, getRewardsCatalog, setActiveCosmetic } from '../../lib/api/profile';
-import { getMyShopItems } from '../../lib/api/shop';
+import { getMyShopItems, setActiveShopItem } from '../../lib/api/shop';
 import RewardCard from '../../components/game/RewardCard';
 
 const CATEGORIES = ['badges', 'titles', 'frames', 'backgrounds', 'shop'];
@@ -26,10 +26,11 @@ const TYPE_LABEL = {
   nameplate: 'Chapa', profile_banner: 'Banner de Perfil',
 };
 
-function ShopItemCard({ item }) {
+function ShopItemCard({ item, isEquipped, onEquip }) {
   const color = RARITY_COLOR[item.rarity] || '#8B9AB3';
   const cfg   = item.config || {};
-  // Simple emoji/color preview
+  const [loading, setLoading] = useState(false);
+
   const preview = item.item_type === 'emote'
     ? cfg.emoji || '✨'
     : item.item_type === 'nameplate'
@@ -38,23 +39,42 @@ function ShopItemCard({ item }) {
         ? '🖼️'
         : '🔮';
 
+  const handleEquip = async () => {
+    setLoading(true);
+    await onEquip(item.id);
+    setLoading(false);
+  };
+
   return (
     <div style={{
       background: 'var(--panel)',
-      border: `1px solid ${color}44`,
+      border: `1px solid ${isEquipped ? color : color + '44'}`,
       borderRadius: 12, overflow: 'hidden',
       display: 'flex', flexDirection: 'column',
+      boxShadow: isEquipped ? `0 0 16px ${color}33` : 'none',
     }}>
       <div style={{ height: 3, background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
       <div style={{
-        height: 80,
+        height: 80, position: 'relative',
         background: `radial-gradient(ellipse at center, ${color}18 0%, transparent 70%)`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 36,
       }}>
         {preview}
+        {isEquipped && (
+          <div style={{
+            position: 'absolute', top: 8, right: 8,
+            background: 'rgba(51,230,161,0.15)',
+            border: '1px solid rgba(51,230,161,0.4)',
+            borderRadius: 4, padding: '2px 7px',
+            fontFamily: 'var(--font-mono)', fontSize: 8,
+            color: 'var(--green)', letterSpacing: '0.1em',
+          }}>
+            ✓ EQUIPADO
+          </div>
+        )}
       </div>
-      <div style={{ padding: '10px 14px 14px' }}>
+      <div style={{ padding: '10px 14px 14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{
           fontFamily: 'var(--font-mono)', fontSize: 9,
           color: color, letterSpacing: '0.12em', marginBottom: 4,
@@ -69,16 +89,27 @@ function ShopItemCard({ item }) {
         </div>
         <div style={{
           fontFamily: 'var(--font-body)', fontSize: 11,
-          color: 'var(--text-muted)', lineHeight: 1.4,
+          color: 'var(--text-muted)', lineHeight: 1.4, flex: 1, marginBottom: 10,
         }}>
           {item.description}
         </div>
-        <div style={{
-          marginTop: 10, display: 'flex', alignItems: 'center', gap: 5,
-          fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--gold)',
-        }}>
-          🪙 {item.price.toLocaleString()} monedas
-        </div>
+        <button
+          onClick={handleEquip}
+          disabled={isEquipped || loading}
+          style={{
+            width: '100%', padding: '7px 0',
+            borderRadius: 7, border: `1px solid ${isEquipped ? 'rgba(51,230,161,0.3)' : color + '66'}`,
+            background: isEquipped ? 'rgba(51,230,161,0.08)' : `${color}18`,
+            color: isEquipped ? 'var(--green)' : color,
+            fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
+            letterSpacing: '0.1em', cursor: isEquipped ? 'default' : 'pointer',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { if (!isEquipped) e.currentTarget.style.background = `${color}30`; }}
+          onMouseLeave={e => { if (!isEquipped) e.currentTarget.style.background = `${color}18`; }}
+        >
+          {loading ? '...' : isEquipped ? '✓ EQUIPADO' : 'EQUIPAR'}
+        </button>
       </div>
     </div>
   );
@@ -91,6 +122,9 @@ export default function Rewards() {
   const [totalXP,        setTotalXP]        = useState(0);
   const [loading,        setLoading]        = useState(true);
   const [activeIds,      setActiveIds]      = useState({ title: null, frame: null, background: null });
+  const [activeShopIds,  setActiveShopIds]  = useState({
+    animated_frame: null, emote: null, nameplate: null, profile_banner: null,
+  });
 
   useEffect(() => {
     Promise.all([getRewardsCatalog(), getMyProfile(), getMyShopItems()]).then(
@@ -104,6 +138,12 @@ export default function Rewards() {
             frame:      p.active_frame?.id      ?? null,
             background: p.active_background?.id ?? null,
           });
+          setActiveShopIds({
+            animated_frame: p.active_shop_frame?.id     ?? null,
+            emote:          p.active_shop_emote?.id     ?? null,
+            nameplate:      p.active_shop_nameplate?.id ?? null,
+            profile_banner: p.active_shop_banner?.id    ?? null,
+          });
         }
         setLoading(false);
       }
@@ -115,6 +155,16 @@ export default function Rewards() {
     if (!type) return;
     const { error } = await setActiveCosmetic(type, item.id);
     if (!error) setActiveIds(prev => ({ ...prev, [type]: item.id }));
+  }
+
+  async function handleShopEquip(itemId) {
+    const { error } = await setActiveShopItem(itemId);
+    if (!error) {
+      const equipped = shopItems.find(i => i.id === itemId);
+      if (equipped) {
+        setActiveShopIds(prev => ({ ...prev, [equipped.item_type]: itemId }));
+      }
+    }
   }
 
   if (loading) return (
@@ -207,7 +257,14 @@ export default function Rewards() {
       {/* Reward grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
         {isShopTab
-          ? items.map(item => <ShopItemCard key={item.id} item={item} />)
+          ? items.map(item => (
+              <ShopItemCard
+                key={item.id}
+                item={item}
+                isEquipped={activeShopIds[item.item_type] === item.id}
+                onEquip={handleShopEquip}
+              />
+            ))
           : items.map(item => {
               const type = CATEGORY_TYPE[activeCategory];
               return (

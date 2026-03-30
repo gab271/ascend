@@ -168,7 +168,26 @@ export default function Profile() {
         <div style={{ position: 'relative', display: 'flex', gap: 32, alignItems: 'flex-start' }}>
           {/* Avatar */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: '2px solid var(--violet)', boxShadow: '0 0 20px var(--violet-glow), inset 0 0 20px rgba(124,92,255,0.1)', animation: 'breathe 3s ease-in-out infinite' }} />
+            {(() => {
+              const frame = profile.active_shop_frame;
+              if (frame) {
+                const animMap = {
+                  pulse:  'frame-pulse 2s ease-in-out infinite',
+                  rotate: 'frame-rotate 4s linear infinite',
+                  scan:   'frame-scan 2s ease-in-out infinite',
+                  glitch: 'frame-glitch 1.5s steps(2) infinite',
+                  wave:   'frame-wave 3s ease-in-out infinite',
+                };
+                const anim = frame.config?.animation || 'pulse';
+                const color = frame.config?.color || 'var(--violet)';
+                const secondaryColor = frame.config?.secondary_color;
+                return (<>
+                  <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: `3px solid ${color}`, boxShadow: `0 0 20px ${color}, inset 0 0 16px ${color}40`, animation: animMap[anim] || animMap.pulse }} />
+                  {secondaryColor && <div style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: `1px solid ${secondaryColor}` }} />}
+                </>);
+              }
+              return <div style={{ position: 'absolute', inset: -6, borderRadius: '50%', border: '2px solid var(--violet)', boxShadow: '0 0 20px var(--violet-glow), inset 0 0 20px rgba(124,92,255,0.1)', animation: 'breathe 3s ease-in-out infinite' }} />;
+            })()}
             <div style={{
               width: 100, height: 100, borderRadius: '50%',
               background: 'linear-gradient(135deg, var(--violet), var(--cyan))',

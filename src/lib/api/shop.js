@@ -25,6 +25,14 @@ export async function getMyShopItems() {
   return { data, error };
 }
 
+// ─── Equip an owned shop item ─────────────────────────────────
+export async function setActiveShopItem(itemId) {
+  const { error } = await supabase.rpc('set_active_shop_item', {
+    p_item_id: itemId,
+  });
+  return { error };
+}
+
 // ─── Purchase a shop item ─────────────────────────────────────
 // Returns { data: { success, item_name, coins_spent, coins_remaining, ... }, error }
 export async function purchaseShopItem(itemId) {

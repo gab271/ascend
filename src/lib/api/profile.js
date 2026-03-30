@@ -29,6 +29,18 @@ export async function getMyProfile() {
       ),
       active_background:cosmetics!active_background_id (
         id, name, rarity, config
+      ),
+      active_shop_frame:shop_items!active_shop_frame_id (
+        id, name, rarity, config, item_type
+      ),
+      active_shop_emote:shop_items!active_shop_emote_id (
+        id, name, rarity, config, item_type
+      ),
+      active_shop_nameplate:shop_items!active_shop_nameplate_id (
+        id, name, rarity, config, item_type
+      ),
+      active_shop_banner:shop_items!active_shop_banner_id (
+        id, name, rarity, config, item_type
       )
     `)
     .single();
