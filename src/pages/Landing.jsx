@@ -691,10 +691,9 @@ export default function Landing() {
         minHeight: 600,
         overflow: 'hidden',
       }}>
-        {/* GIF background — always visible, with parallax */}
-        <img
-          src="/heroAscend.gif"
-          alt=""
+        {/* MP4 background — always visible, with parallax */}
+        <video
+          autoPlay muted loop playsInline
           style={{
             position: 'absolute', left: 0, right: 0,
             top: '-12%', width: '100%', height: '124%',
@@ -702,6 +701,7 @@ export default function Landing() {
             transform: `translateY(${scrollY * 0.32}px)`,
             willChange: 'transform',
           }}
+          src="/heroAscend.mp4"
         />
 
         {/* Video overlay — parallax matching gif, fades in once ready */}
@@ -1614,10 +1614,9 @@ export default function Landing() {
         position: 'relative', overflow: 'hidden',
         textAlign: 'center',
       }}>
-        {/* GIF background */}
-        <img
-          src="/prefooteranimationAscend.gif"
-          alt=""
+        {/* MP4 background */}
+        <video
+          autoPlay muted loop playsInline
           aria-hidden="true"
           style={{
             position: 'absolute', inset: 0,
@@ -1625,6 +1624,7 @@ export default function Landing() {
             objectFit: 'cover', objectPosition: 'center',
             pointerEvents: 'none',
           }}
+          src="/prefooteranimationAscend.mp4"
         />
 
         {/* Dark overlay for readability */}

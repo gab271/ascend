@@ -36,10 +36,9 @@ export default function LeftPanel({ variant = 'login' }) {
       overflow: 'hidden',
     }}>
 
-      {/* ── GIF background ───────────────────────────────────────── */}
-      <img
-        src="/loginvideoascend.gif"
-        alt=""
+      {/* ── MP4 background ───────────────────────────────────────── */}
+      <video
+        autoPlay muted loop playsInline
         aria-hidden="true"
         style={{
           position: 'absolute', inset: 0,
@@ -47,6 +46,7 @@ export default function LeftPanel({ variant = 'login' }) {
           objectFit: 'cover', objectPosition: 'center',
           pointerEvents: 'none',
         }}
+        src="/loginvideoascend.mp4"
       />
 
 
