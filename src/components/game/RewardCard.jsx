@@ -2,9 +2,41 @@ import { useState } from 'react';
 import { Lock, Check } from 'lucide-react';
 import { RARITY_CONFIG } from '../../config/rarities';
 
+const RUNA_VIDEO = '/Animación_de_Runa_con_Loop_Bonito.mp4';
+
 function renderPreview(item, rarity) {
   if (item.type === 'badge') {
-    return <div style={{ fontSize: 40, filter: item.unlocked ? 'none' : 'grayscale(1) opacity(0.4)' }}>{item.icon}</div>;
+    return (
+      <div style={{
+        position: 'relative',
+        width: 72, height: 72,
+        borderRadius: 12,
+        overflow: 'hidden',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        border: `1px solid ${item.unlocked ? rarity.color + '44' : 'var(--border)'}`,
+      }}>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            opacity: item.unlocked ? 0.72 : 0.22,
+          }}
+          src={RUNA_VIDEO}
+        />
+        <div style={{
+          position: 'relative', zIndex: 1,
+          fontSize: 36,
+          filter: item.unlocked ? 'drop-shadow(0 0 8px rgba(255,255,255,0.4))' : 'grayscale(1) opacity(0.5)',
+        }}>
+          {item.icon}
+        </div>
+      </div>
+    );
   }
   if (item.type === 'title') {
     return (

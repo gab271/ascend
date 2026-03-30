@@ -1189,35 +1189,49 @@ export default function Landing() {
           }}>
             {/* Badge rarity showcase */}
             <div style={{
-              background: '#0D0F1A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, padding: isMobile ? 24 : 32,
+              border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, padding: isMobile ? 24 : 32,
+              position: 'relative', overflow: 'hidden',
             }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 28 }}>INSIGNIAS</div>
-              {[
-                { rarity: 'COMÚN', color: '#8B9AB3', count: '12 insignias', desc: 'Para los primeros pasos del operador.' },
-                { rarity: 'RARO', color: '#33D1FF', count: '18 insignias', desc: 'Consistencia probada en los pilares.' },
-                { rarity: 'ÉPICO', color: '#7C5CFF', count: '14 insignias', desc: 'Dominio sostenido de los tres pilares.' },
-                { rarity: 'LEGENDARIO', color: '#F5C451', count: '6 insignias', desc: 'Solo para los operadores de élite.' },
-              ].map(({ rarity, color, count, desc }) => (
-                <div key={rarity} style={{
-                  display: 'flex', alignItems: 'center', gap: 16,
-                  padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
-                }}>
-                  <div style={{
-                    width: 42, height: 42, borderRadius: 2, flexShrink: 0,
-                    background: `${color}0C`, border: `1px solid ${color}25`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+              <video
+                autoPlay muted loop playsInline
+                style={{
+                  position: 'absolute', inset: 0,
+                  width: '100%', height: '100%',
+                  objectFit: 'cover',
+                  opacity: 0.18,
+                  pointerEvents: 'none',
+                }}
+                src="/Animación_de_Runa_con_Loop_Bonito.mp4"
+              />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 28 }}>INSIGNIAS</div>
+                {[
+                  { rarity: 'COMÚN', color: '#8B9AB3', count: '12 insignias', desc: 'Para los primeros pasos del operador.' },
+                  { rarity: 'RARO', color: '#33D1FF', count: '18 insignias', desc: 'Consistencia probada en los pilares.' },
+                  { rarity: 'ÉPICO', color: '#7C5CFF', count: '14 insignias', desc: 'Dominio sostenido de los tres pilares.' },
+                  { rarity: 'LEGENDARIO', color: '#F5C451', count: '6 insignias', desc: 'Solo para los operadores de élite.' },
+                ].map(({ rarity, color, count, desc }) => (
+                  <div key={rarity} style={{
+                    display: 'flex', alignItems: 'center', gap: 16,
+                    padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
                   }}>
-                    <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, boxShadow: `0 0 10px ${color}90` }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                      <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color, letterSpacing: '0.08em' }}>{rarity}</span>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.3)' }}>{count}</span>
+                    <div style={{
+                      width: 42, height: 42, borderRadius: 2, flexShrink: 0,
+                      background: `${color}0C`, border: `1px solid ${color}25`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <div style={{ width: 16, height: 16, borderRadius: '50%', background: color, boxShadow: `0 0 10px ${color}90` }} />
                     </div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(160,174,203,0.5)', lineHeight: 1.5 }}>{desc}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                        <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color, letterSpacing: '0.08em' }}>{rarity}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.3)' }}>{count}</span>
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'rgba(160,174,203,0.5)', lineHeight: 1.5 }}>{desc}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             {/* Right column: titles + season */}
