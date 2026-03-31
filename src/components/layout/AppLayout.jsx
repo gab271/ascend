@@ -1,19 +1,51 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import NotificationBell from './NotificationBell';
+import { useLanguage } from '../../context/LanguageContext';
 
-const pageTitles = {
-  '/dashboard': 'Dashboard',
-  '/missions': 'Misiones',
-  '/profile': 'Perfil',
-  '/ranking': 'Ranking',
-  '/rewards': 'Inventario',
-  '/settings': 'Configuración',
-};
+function LangToggle() {
+  const { lang, setLang } = useLanguage();
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      background: 'var(--surface)',
+      border: '1px solid var(--border)',
+      borderRadius: 6,
+      overflow: 'hidden',
+      flexShrink: 0,
+    }}>
+      {['en', 'es'].map((l) => (
+        <button
+          key={l}
+          onClick={() => setLang(l)}
+          style={{
+            padding: '4px 10px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            color: lang === l ? 'var(--void)' : 'var(--text-muted)',
+            background: lang === l ? 'var(--violet)' : 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.18s',
+            textTransform: 'uppercase',
+          }}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function AppLayout() {
   const location = useLocation();
-  const title = pageTitles[location.pathname] || 'ASCEND';
+  const { t, lang } = useLanguage();
+  const title = t(`pages.${location.pathname}`) || 'ASCEND';
+
+  const dateLocale = lang === 'es' ? 'es-ES' : 'en-US';
 
   return (
     <div className="app-layout">
@@ -44,14 +76,18 @@ export default function AppLayout() {
             {title}
           </div>
 
-          {/* Right side: date + notifications */}
+          {/* Right side: lang toggle + date + notifications */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <LangToggle />
+
+            <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
+
             <div style={{
               fontFamily: 'var(--font-mono)',
               fontSize: 12,
               color: 'var(--text-muted)',
             }}>
-              {new Date().toLocaleDateString('es-ES', {
+              {new Date().toLocaleDateString(dateLocale, {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',

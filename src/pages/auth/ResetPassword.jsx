@@ -4,6 +4,7 @@ import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, ShieldAlert } 
 import AuthLayout, { AuthInput, AuthButton } from '../../components/layout/auth/AuthLayout';
 import { updatePassword } from '../../lib/api/auth';
 import { supabase } from '../../lib/supabase';
+import { useLanguage } from '../../context/LanguageContext';
 
 function getStrength(pw) {
   if (!pw) return 0;
@@ -16,10 +17,9 @@ function getStrength(pw) {
   return Math.min(s, 5);
 }
 
-const STRENGTH_LABELS = ['', 'MUY DÉBIL', 'DÉBIL', 'MEDIA', 'FUERTE', 'MUY FUERTE'];
 const STRENGTH_COLORS = ['', '#FF4D6A', '#FF8A3D', '#F5C451', '#33D1FF', '#33E6A1'];
 
-function PasswordStrength({ password }) {
+function PasswordStrength({ password, strengthLabels }) {
   const s = getStrength(password);
   if (!password) return null;
   return (
@@ -35,15 +35,15 @@ function PasswordStrength({ password }) {
         ))}
       </div>
       <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.14em', color: STRENGTH_COLORS[s], transition: 'color 0.3s' }}>
-        {STRENGTH_LABELS[s]}
+        {strengthLabels[s]}
       </span>
     </div>
   );
 }
 
 export default function ResetPassword() {
-  const [ready, setReady]         = useState(false); // recovery session confirmed
-  const [invalid, setInvalid]     = useState(false); // link expired / already used
+  const [ready, setReady]         = useState(false);
+  const [invalid, setInvalid]     = useState(false);
   const [form, setForm]           = useState({ password: '', confirm: '' });
   const [showPass, setShowPass]   = useState(false);
   const [showConf, setShowConf]   = useState(false);
@@ -52,18 +52,15 @@ export default function ResetPassword() {
   const [done, setDone]           = useState(false);
   const [error, setError]         = useState('');
   const navigate                  = useNavigate();
+  const { t, translations }       = useLanguage();
 
   useEffect(() => {
-    // Supabase fires PASSWORD_RECOVERY when it processes the link's token.
-    // We wait for it before showing the form — if it never fires the link is bad.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setReady(true);
     });
 
-    // Give Supabase ~3 s to process the token; if nothing happens, flag invalid.
     const timeout = setTimeout(() => {
       setInvalid(prev => {
-        // Only mark invalid if we haven't gone ready yet
         if (!ready) return true;
         return prev;
       });
@@ -76,11 +73,10 @@ export default function ResetPassword() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Redirect to dashboard 3 s after success
   useEffect(() => {
     if (!done) return;
-    const t = setTimeout(() => navigate('/dashboard', { replace: true }), 3000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => navigate('/dashboard', { replace: true }), 3000);
+    return () => clearTimeout(timer);
   }, [done, navigate]);
 
   const mismatch = form.confirm && form.password !== form.confirm;
@@ -108,14 +104,14 @@ export default function ResetPassword() {
           <CheckCircle size={30} color="var(--green)" strokeWidth={1.5} />
         </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(52px, 5vw, 80px)', lineHeight: 0.88, letterSpacing: '0.02em', marginBottom: 24, animation: 'entry-up 0.55s ease 0.08s forwards', opacity: 0, animationFillMode: 'forwards' }}>
-          <span style={{ color: 'var(--text)' }}>ACCESO</span><br />
-          <span style={{ color: 'var(--green)', textShadow: '0 0 30px rgba(51,230,161,0.35)' }}>RESTAURADO</span>
+          <span style={{ color: 'var(--text)' }}>{t('auth.reset.restoredLine1')}</span><br />
+          <span style={{ color: 'var(--green)', textShadow: '0 0 30px rgba(51,230,161,0.35)' }}>{t('auth.reset.restoredLine2')}</span>
         </div>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 380, marginBottom: 16, animation: 'entry-up 0.55s ease 0.14s forwards', opacity: 0, animationFillMode: 'forwards' }}>
-          Tu contraseña ha sido actualizada. Redirigiendo al dashboard...
+          {t('auth.reset.restoredDesc')}
         </p>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.15em', animation: 'entry-up 0.5s ease 0.18s forwards', opacity: 0, animationFillMode: 'forwards' }}>
-          // SESIÓN REINICIADA
+          // {t('auth.reset.sessionReset')}
         </div>
       </AuthLayout>
     );
@@ -129,11 +125,11 @@ export default function ResetPassword() {
           <ShieldAlert size={30} color="#FF4D6A" strokeWidth={1.5} />
         </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(52px, 5vw, 80px)', lineHeight: 0.88, letterSpacing: '0.02em', marginBottom: 24, animation: 'entry-up 0.55s ease 0.08s forwards', opacity: 0, animationFillMode: 'forwards' }}>
-          <span style={{ color: 'var(--text)' }}>ENLACE</span><br />
-          <span style={{ color: '#FF4D6A' }}>INVÁLIDO</span>
+          <span style={{ color: 'var(--text)' }}>{t('auth.reset.invalidLine1')}</span><br />
+          <span style={{ color: '#FF4D6A' }}>{t('auth.reset.invalidLine2')}</span>
         </div>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 380, marginBottom: 40, animation: 'entry-up 0.55s ease 0.14s forwards', opacity: 0, animationFillMode: 'forwards' }}>
-          El enlace expiró o ya fue utilizado. Solicita uno nuevo desde la pantalla de recuperación.
+          {t('auth.reset.invalidDesc')}
         </p>
         <button
           type="button"
@@ -142,7 +138,7 @@ export default function ResetPassword() {
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,196,81,0.08)'; e.currentTarget.style.borderColor = 'rgba(245,196,81,0.7)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(245,196,81,0.4)'; }}
         >
-          <ArrowRight size={14} /> Solicitar nuevo enlace
+          <ArrowRight size={14} /> {t('auth.reset.requestNew')}
         </button>
       </AuthLayout>
     );
@@ -153,7 +149,7 @@ export default function ResetPassword() {
     return (
       <AuthLayout>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.2em', animation: 'pulse-glow 2s ease-in-out infinite' }}>
-          // VERIFICANDO ENLACE...
+          // {t('auth.reset.verifying')}
         </div>
       </AuthLayout>
     );
@@ -163,26 +159,26 @@ export default function ResetPassword() {
   return (
     <AuthLayout>
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.2em', color: 'var(--gold)', marginBottom: 32, animation: 'entry-left 0.5s ease forwards', opacity: 0, animationFillMode: 'forwards' }}>
-        <span style={{ color: 'var(--text-muted)'}}>//</span> NUEVA CONTRASEÑA
+        <span style={{ color: 'var(--text-muted)'}}>//</span> {t('auth.reset.heading')}
       </div>
 
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(52px, 5vw, 80px)', lineHeight: 0.88, letterSpacing: '0.02em', marginBottom: 14, animation: 'entry-up 0.55s ease 0.06s forwards', opacity: 0, animationFillMode: 'forwards' }}>
-        <span style={{ color: 'var(--text)' }}>RESTABLECER</span><br />
-        <span style={{ color: 'transparent', WebkitTextStroke: '1px rgba(255,255,255,0.22)' }}>ACCESO</span>
+        <span style={{ color: 'var(--text)' }}>{t('auth.reset.titleLine1')}</span><br/>
+        <span style={{ color: 'transparent', WebkitTextStroke: '1px rgba(255,255,255,0.22)' }}>{t('auth.reset.titleLine2')}</span>
       </div>
 
       <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-muted)', marginBottom: 52, lineHeight: 1.65, maxWidth: 360, animation: 'entry-up 0.55s ease 0.1s forwards', opacity: 0, animationFillMode: 'forwards' }}>
-        Elige una contraseña nueva y segura para tu cuenta.
+        {t('auth.reset.subtitle')}
       </p>
 
       <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 420 }}>
         <AuthInput
-          label="Nueva contraseña"
+          label={t('auth.reset.newPassword')}
           type={showPass ? 'text' : 'password'}
           value={form.password}
           onChange={v => setForm({ ...form, password: v })}
           icon={<Lock size={15} />}
-          placeholder="Mín. 8 caracteres"
+          placeholder={t('auth.register.passwordPlaceholder')}
           focused={focused === 'pass'}
           onFocus={() => setFocused('pass')}
           onBlur={() => setFocused(null)}
@@ -196,15 +192,15 @@ export default function ResetPassword() {
             </button>
           }
         />
-        <PasswordStrength password={form.password} />
+        <PasswordStrength password={form.password} strengthLabels={translations.auth.register.strengthLabels} />
 
         <AuthInput
-          label={mismatch ? 'Confirmar contraseña — ✗ no coincide' : match ? 'Confirmar contraseña — ✓ coincide' : 'Confirmar contraseña'}
+          label={mismatch ? t('auth.register.confirmMismatch') : match ? t('auth.register.confirmMatch') : t('auth.register.confirmPassword')}
           type={showConf ? 'text' : 'password'}
           value={form.confirm}
           onChange={v => setForm({ ...form, confirm: v })}
           icon={<Lock size={15} />}
-          placeholder="Repite la contraseña"
+          placeholder={t('auth.register.repeatPassword')}
           focused={focused === 'confirm'}
           onFocus={() => setFocused('confirm')}
           onBlur={() => setFocused(null)}
@@ -228,7 +224,7 @@ export default function ResetPassword() {
         )}
 
         <AuthButton loading={loading} delay={0.3}>
-          {loading ? 'GUARDANDO...' : <><span>GUARDAR CONTRASEÑA</span><ArrowRight size={16} /></>}
+          {loading ? t('auth.reset.saving') : <><span>{t('auth.reset.save')}</span><ArrowRight size={16} /></>}
         </AuthButton>
       </form>
     </AuthLayout>

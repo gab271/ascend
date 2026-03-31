@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { User, Lock, Bell, AlertTriangle, Eye, EyeOff, Check, Shield, Zap, Crown, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { signOut } from '../../lib/api/auth';
 import { supabase } from '../../lib/supabase';
 import Toggle from '../../components/ui/Toggle';
@@ -84,7 +85,7 @@ function SettingRow({ label, description, last, children }) {
   );
 }
 
-function ActionBtn({ onClick, loading, success, label, successLabel = 'GUARDADO', variant = 'primary', disabled }) {
+function ActionBtn({ onClick, loading, success, label, successLabel, variant = 'primary', disabled, t }) {
   const colors = {
     primary: {
       bg:     success ? 'var(--green)' : 'var(--violet)',
@@ -125,12 +126,12 @@ function ActionBtn({ onClick, loading, success, label, successLabel = 'GUARDADO'
       }}
     >
       {success ? <Check size={13} /> : loading ? <Zap size={13} style={{ animation: 'pulse-glow 0.8s infinite' }} /> : null}
-      {success ? successLabel : loading ? 'PROCESANDO...' : label}
+      {success ? (successLabel ?? (t ? t('common.saved') : 'SAVED')) : loading ? (t ? t('common.processing') : 'PROCESSING...') : label}
     </button>
   );
 }
 
-function PasswordStrength({ password }) {
+function PasswordStrength({ password, t }) {
   const score = [
     password.length >= 8,
     /[A-Z]/.test(password),
@@ -139,7 +140,7 @@ function PasswordStrength({ password }) {
   ].filter(Boolean).length;
 
   const segColors = ['var(--red)', 'var(--red)', '#F59E0B', 'var(--green)'];
-  const labels    = ['MUY DÉBIL', 'DÉBIL', 'MEDIA', 'FUERTE'];
+  const labels    = t('settings.security.strengthLabels');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -166,15 +167,15 @@ function PasswordStrength({ password }) {
 ═══════════════════════════════════════════════════════════════ */
 
 const TABS = [
-  { id: 'cuenta',         label: 'Cuenta',         icon: User,          moduleId: 'SYS.01' },
-  { id: 'seguridad',      label: 'Seguridad',       icon: Lock,          moduleId: 'SYS.02' },
-  { id: 'notificaciones', label: 'Notificaciones',  icon: Bell,          moduleId: 'SYS.03' },
-  { id: 'plan',           label: 'Plan',            icon: Crown,         moduleId: 'SYS.04' },
-  { id: 'salida',         label: 'Salida',          icon: LogOut,        moduleId: 'SYS.05' },
+  { id: 'cuenta',         tKey: 'settings.tabs.cuenta',         icon: User,   moduleId: 'SYS.01' },
+  { id: 'seguridad',      tKey: 'settings.tabs.seguridad',      icon: Lock,   moduleId: 'SYS.02' },
+  { id: 'notificaciones', tKey: 'settings.tabs.notificaciones', icon: Bell,   moduleId: 'SYS.03' },
+  { id: 'plan',           tKey: 'settings.tabs.plan',           icon: Crown,  moduleId: 'SYS.04' },
+  { id: 'salida',         tKey: 'settings.tabs.salida',         icon: LogOut, moduleId: 'SYS.05' },
 ];
 
 /* ─── Tab: Cuenta ─────────────────────────────────────────────── */
-function TabCuenta({ user }) {
+function TabCuenta({ user, t }) {
   const [username,  setUsername]  = useState('');
   const [loading,   setLoading]   = useState(false);
   const [success,   setSuccess]   = useState(false);
@@ -211,7 +212,7 @@ function TabCuenta({ user }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <SectionCard moduleId="SYS.01.A" title="Identidad del operador">
+      <SectionCard moduleId="SYS.01.A" title={t('settings.account.operatorIdentity')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <CyberInput
             label="// USERNAME"
@@ -219,28 +220,28 @@ function TabCuenta({ user }) {
             onChange={e => { setUsername(e.target.value); setError(''); setSuccess(false); }}
             placeholder="OPERADOR_01"
             error={error}
-            hint="Visible en el ranking global y tu perfil público."
+            hint={t('settings.account.visibleInRanking')}
           />
           <CyberInput
             label="// EMAIL"
             value={user?.email ?? ''}
             readOnly
-            hint="El email no puede cambiarse desde aquí. Contacta soporte."
+            hint={t('settings.account.emailReadOnly')}
           />
           <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 4 }}>
-            <ActionBtn onClick={handleSave} loading={loading} success={success} label="GUARDAR CAMBIOS" />
+            <ActionBtn onClick={handleSave} loading={loading} success={success} label={t('settings.account.saveChanges')} t={t} />
           </div>
         </div>
       </SectionCard>
 
-      <SectionCard moduleId="SYS.01.B" title="Estado de la cuenta" status="VERIFICADO" statusColor="var(--cyan)">
+      <SectionCard moduleId="SYS.01.B" title={t('settings.account.accountStatus')} status="VERIFICADO" statusColor="var(--cyan)">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          <SettingRow label="Plan actual" description="Acceso completo a todas las funciones de ASCEND.">
+          <SettingRow label={t('settings.account.currentPlan')} description={t('settings.account.fullAccess')}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--gold)', letterSpacing: '0.14em', background: 'var(--gold-dim)', border: '1px solid rgba(245,196,81,0.2)', padding: '4px 10px', borderRadius: 4 }}>
               OPERADOR
             </div>
           </SettingRow>
-          <SettingRow label="Email verificado" description="Tu dirección de correo ha sido confirmada." last>
+          <SettingRow label={t('settings.account.emailVerified')} description={t('settings.account.emailConfirmed')} last>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--green)', letterSpacing: '0.12em' }}>
               <Check size={12} /> VERIFICADO
             </div>
@@ -250,17 +251,13 @@ function TabCuenta({ user }) {
 
       <SectionCard
         moduleId="SYS.01.C"
-        title="Privacidad"
-        status={privSaving ? 'GUARDANDO...' : isPrivate ? 'PERFIL PRIVADO' : 'PERFIL PÚBLICO'}
+        title={t('settings.account.privacy')}
+        status={privSaving ? t('settings.account.savingStatus') : isPrivate ? t('settings.account.privateStatus') : t('settings.account.publicStatus')}
         statusColor={privSaving ? 'var(--text-muted)' : isPrivate ? 'var(--violet)' : 'var(--cyan)'}
       >
         <SettingRow
-          label="Perfil privado"
-          description={
-            isPrivate
-              ? 'Tu nombre no aparece en el ranking global. Tus datos siguen registrándose con normalidad.'
-              : 'Tu perfil es visible en el ranking global. Actívalo si prefieres progresar en privado.'
-          }
+          label={t('settings.account.profilePrivate')}
+          description={isPrivate ? t('settings.account.privateDesc') : t('settings.account.publicDesc')}
           last
         >
           <Toggle value={isPrivate} onChange={handlePrivacyToggle} />
@@ -271,7 +268,7 @@ function TabCuenta({ user }) {
 }
 
 /* ─── Tab: Seguridad ─────────────────────────────────────────── */
-function TabSeguridad() {
+function TabSeguridad({ t }) {
   const [newPwd, setNewPwd]         = useState('');
   const [confirm, setConfirm]       = useState('');
   const [showNew, setShowNew]       = useState(false);
@@ -281,8 +278,8 @@ function TabSeguridad() {
   const [error, setError]           = useState('');
 
   const handleChange = async () => {
-    if (newPwd.length < 8) { setError('La contraseña debe tener al menos 8 caracteres.'); return; }
-    if (newPwd !== confirm) { setError('Las contraseñas no coinciden.'); return; }
+    if (newPwd.length < 8) { setError(t('settings.security.passwordTooShort')); return; }
+    if (newPwd !== confirm) { setError(t('settings.security.passwordMismatch')); return; }
     setLoading(true); setError('');
     const { error: err } = await supabase.auth.updateUser({ password: newPwd });
     setLoading(false);
@@ -294,15 +291,15 @@ function TabSeguridad() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <SectionCard moduleId="SYS.02.A" title="Cambiar contraseña" status="PROTEGIDO" statusColor="var(--cyan)">
+      <SectionCard moduleId="SYS.02.A" title={t('settings.security.changePassword')} status={t('settings.security.protected')} statusColor="var(--cyan)">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <CyberInput
-            label="// NUEVA CONTRASEÑA"
+            label={t('settings.security.newPassword')}
             type={showNew ? 'text' : 'password'}
             value={newPwd}
             onChange={e => { setNewPwd(e.target.value); setError(''); }}
             placeholder="••••••••••••"
-            hint="Mínimo 8 caracteres."
+            hint={t('settings.security.minChars')}
             error={error}
             rightElement={
               <div onClick={() => setShowNew(v => !v)} style={{ cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
@@ -310,14 +307,14 @@ function TabSeguridad() {
               </div>
             }
           />
-          {newPwd.length > 0 && <PasswordStrength password={newPwd} />}
+          {newPwd.length > 0 && <PasswordStrength password={newPwd} t={t} />}
           <CyberInput
-            label="// CONFIRMAR CONTRASEÑA"
+            label={t('settings.security.confirmPassword')}
             type={showConfirm ? 'text' : 'password'}
             value={confirm}
             onChange={e => { setConfirm(e.target.value); setError(''); }}
             placeholder="••••••••••••"
-            error={confirm.length > 0 && confirm !== newPwd ? 'Las contraseñas no coinciden.' : ''}
+            error={confirm.length > 0 && confirm !== newPwd ? t('settings.security.passwordMismatch') : ''}
             rightElement={
               <div onClick={() => setShowConf(v => !v)} style={{ cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}>
                 {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -325,15 +322,15 @@ function TabSeguridad() {
             }
           />
           <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 4 }}>
-            <ActionBtn onClick={handleChange} loading={loading} success={success} label="ACTUALIZAR CONTRASEÑA" successLabel="CONTRASEÑA ACTUALIZADA" />
+            <ActionBtn onClick={handleChange} loading={loading} success={success} label={t('settings.security.updatePassword')} successLabel={t('settings.security.passwordUpdated')} t={t} />
           </div>
         </div>
       </SectionCard>
 
-      <SectionCard moduleId="SYS.02.B" title="Sesiones activas" status="1 ACTIVA" statusColor="var(--green)">
-        <SettingRow label="Este dispositivo" description="Sesión actual — iniciada con PKCE flow seguro." last>
+      <SectionCard moduleId="SYS.02.B" title={t('settings.security.activeSessions')} status={t('settings.security.oneActive')} statusColor="var(--green)">
+        <SettingRow label={t('settings.security.thisDevice')} description={t('settings.security.currentSession')} last>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--green)', letterSpacing: '0.12em', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Shield size={11} /> ACTIVA
+            <Shield size={11} /> {t('settings.security.active')}
           </div>
         </SettingRow>
       </SectionCard>
@@ -342,7 +339,7 @@ function TabSeguridad() {
 }
 
 /* ─── Tab: Notificaciones ────────────────────────────────────── */
-function TabNotificaciones() {
+function TabNotificaciones({ t }) {
   const [notifs, setNotifs] = useState({
     missionComplete: false,
     levelUp:         false,
@@ -358,16 +355,16 @@ function TabNotificaciones() {
   const toggle = key => setNotifs(s => ({ ...s, [key]: !s[key] }));
 
   const ROWS_PROGRESO = [
-    { key: 'missionComplete', label: 'Misión completada',  description: 'Al completar una misión diaria' },
-    { key: 'xpGained',        label: 'XP ganado',          description: 'Confirmación de XP recibido en cada acción' },
-    { key: 'levelUp',         label: 'Subida de nivel',    description: 'Cuando alcances un nuevo nivel' },
-    { key: 'newReward',       label: 'Nueva recompensa',   description: 'Al desbloquear título, frame o fondo' },
+    { key: 'missionComplete', label: t('settings.notifications.missionComplete'),  description: t('settings.notifications.missionCompleteDesc') },
+    { key: 'xpGained',        label: t('settings.notifications.xpGained'),         description: t('settings.notifications.xpGainedDesc') },
+    { key: 'levelUp',         label: t('settings.notifications.levelUp'),           description: t('settings.notifications.levelUpDesc') },
+    { key: 'newReward',       label: t('settings.notifications.newReward'),         description: t('settings.notifications.newRewardDesc') },
   ];
   const ROWS_SISTEMA = [
-    { key: 'streakReminder', label: 'Recordatorio de racha', description: 'Si llevas +20h sin completar misiones' },
-    { key: 'rankingUpdate',  label: 'Cambio en ranking',     description: 'Cuando tu posición en el ranking cambie' },
-    { key: 'weeklyReport',   label: 'Reporte semanal',       description: 'Resumen de progreso cada lunes' },
-    { key: 'systemAlerts',   label: 'Alertas del sistema',   description: 'Mantenimiento y actualizaciones de ASCEND' },
+    { key: 'streakReminder', label: t('settings.notifications.streakReminder'), description: t('settings.notifications.streakReminderDesc') },
+    { key: 'rankingUpdate',  label: t('settings.notifications.rankingUpdate'),  description: t('settings.notifications.rankingUpdateDesc') },
+    { key: 'weeklyReport',   label: t('settings.notifications.weeklyReport'),   description: t('settings.notifications.weeklyReportDesc') },
+    { key: 'systemAlerts',   label: t('settings.notifications.systemAlerts'),   description: t('settings.notifications.systemAlertsDesc') },
   ];
 
   const renderRows = (rows) => rows.map(({ key, label, description }, i) => (
@@ -378,14 +375,15 @@ function TabNotificaciones() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <SectionCard moduleId="SYS.03.A" title="Progreso y logros">{renderRows(ROWS_PROGRESO)}</SectionCard>
-      <SectionCard moduleId="SYS.03.B" title="Sistema y alertas">{renderRows(ROWS_SISTEMA)}</SectionCard>
+      <SectionCard moduleId="SYS.03.A" title={t('settings.notifications.progressTitle')}>{renderRows(ROWS_PROGRESO)}</SectionCard>
+      <SectionCard moduleId="SYS.03.B" title={t('settings.notifications.systemTitle')}>{renderRows(ROWS_SISTEMA)}</SectionCard>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <ActionBtn
           onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2500); }}
           success={saved}
-          label="GUARDAR PREFERENCIAS"
-          successLabel="PREFERENCIAS GUARDADAS"
+          label={t('settings.notifications.savePreferences')}
+          successLabel={t('settings.notifications.preferencesSaved')}
+          t={t}
         />
       </div>
     </div>
@@ -393,26 +391,8 @@ function TabNotificaciones() {
 }
 
 /* ─── Tab: Plan ──────────────────────────────────────────────── */
-const OPERADOR_FEATURES = [
-  'Misiones diarias (5 por día)',
-  'Ranking global',
-  'Perfil personalizable',
-  'Racha diaria',
-  'Cosméticos básicos',
-  'Badges de logros',
-];
 
-const PRO_FEATURES = [
-  'Todo lo incluido en Operador',
-  'Misiones diarias ampliadas (10 por día)',
-  'Misiones semanales exclusivas',
-  'Analytics de progreso avanzados',
-  'Cosméticos y frames premium',
-  'Badge exclusivo PRO en el ranking',
-  'Acceso prioritario a nuevas funciones',
-];
-
-function PlanCard({ name, price, priceLabel, features, current, accent, badge, disabled }) {
+function PlanCard({ name, price, priceLabel, features, current, accent, badge, disabled, t }) {
   return (
     <div style={{
       flex: 1, borderRadius: 'var(--radius-lg)',
@@ -511,7 +491,7 @@ function PlanCard({ name, price, priceLabel, features, current, accent, badge, d
               textAlign: 'center',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
             }}>
-              <Check size={13} strokeWidth={3} /> Plan actual
+              <Check size={13} strokeWidth={3} /> {t('settings.plan.currentPlan')}
             </div>
           ) : (
             <button
@@ -528,7 +508,7 @@ function PlanCard({ name, price, priceLabel, features, current, accent, badge, d
                 transition: 'all 0.2s',
               }}
             >
-              {disabled ? 'Próximamente' : `Mejorar a ${name}`}
+              {disabled ? t('settings.plan.comingSoon') : t('settings.plan.upgradeTo')(name)}
             </button>
           )}
         </div>
@@ -537,12 +517,13 @@ function PlanCard({ name, price, priceLabel, features, current, accent, badge, d
   );
 }
 
-function TabPlan() {
+function TabPlan({ t }) {
+  const translations = useLanguage().translations;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
       {/* Current plan banner */}
-      <SectionCard moduleId="SYS.04.A" title="Tu suscripción" status="ACTIVA" statusColor="var(--violet)">
+      <SectionCard moduleId="SYS.04.A" title={t('settings.plan.subscription')} status={t('settings.plan.active')} statusColor="var(--violet)">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{
@@ -553,7 +534,7 @@ function TabPlan() {
               OPERADOR
             </div>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)' }}>
-              Plan gratuito — acceso completo a las funciones base de ASCEND.
+              {t('settings.plan.operatorDesc')}
             </div>
           </div>
           <div style={{
@@ -562,7 +543,7 @@ function TabPlan() {
             border: '1px solid rgba(245,196,81,0.25)',
             borderRadius: 4, padding: '5px 12px',
           }}>
-            ACTIVO
+            {t('settings.plan.active')}
           </div>
         </div>
       </SectionCard>
@@ -573,26 +554,28 @@ function TabPlan() {
           fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.22em',
           color: 'var(--text-muted)', marginBottom: 16, textTransform: 'uppercase',
         }}>
-          // Comparar planes
+          {t('settings.plan.comparePlans')}
         </div>
         <div style={{ display: 'flex', gap: 16 }}>
           <PlanCard
             name="OPERADOR"
-            price="Gratis"
-            priceLabel="Sin límite de tiempo"
-            features={OPERADOR_FEATURES}
+            price={t('settings.plan.free')}
+            priceLabel={t('settings.plan.noTimeLimit')}
+            features={translations.settings.plan.operatorFeatures}
             current
             accent="var(--gold)"
-            badge="Tu plan"
+            badge={t('settings.plan.yourPlan')}
+            t={t}
           />
           <PlanCard
             name="PRO"
             price="—"
-            priceLabel="Precio por definir"
-            features={PRO_FEATURES}
+            priceLabel={t('settings.plan.priceTBD')}
+            features={translations.settings.plan.proFeatures}
             accent="var(--violet)"
-            badge="Próximamente"
+            badge={t('settings.plan.comingSoon')}
             disabled
+            t={t}
           />
         </div>
       </div>
@@ -607,14 +590,14 @@ function TabPlan() {
       }}>
         <strong style={{ color: 'var(--violet)', fontFamily: 'var(--font-ui)', fontSize: 12, letterSpacing: '0.08em' }}>
           ASCEND PRO
-        </strong>{' '}está en desarrollo. Cuando esté disponible, los usuarios en lista de espera tendrán acceso prioritario y precio especial.
+        </strong>{' '}{t('settings.plan.proNote')}
       </div>
     </div>
   );
 }
 
 /* ─── Tab: Salida ─────────────────────────────────────────────── */
-function TabPeligro({ onSignOut }) {
+function TabPeligro({ onSignOut, t }) {
   const [showDelete, setShowDelete] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const { user } = useAuth();
@@ -623,19 +606,19 @@ function TabPeligro({ onSignOut }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <SectionCard moduleId="SYS.05.A" title="Sesión activa" status="EN LÍNEA" statusColor="var(--green)">
-        <SettingRow label="Cerrar sesión" description="Salir de tu cuenta en este dispositivo. Tu progreso y datos se conservan." last>
-          <ActionBtn onClick={onSignOut} label="CERRAR SESIÓN" variant="ghost" />
+      <SectionCard moduleId="SYS.05.A" title={t('settings.exit.activeSession')} status={t('settings.exit.online')} statusColor="var(--green)">
+        <SettingRow label={t('settings.exit.signOutLabel')} description={t('settings.exit.signOutDesc')} last>
+          <ActionBtn onClick={onSignOut} label={t('settings.exit.signOutBtn')} variant="ghost" t={t} />
         </SettingRow>
       </SectionCard>
 
-      <SectionCard moduleId="SYS.05.B" title="Reiniciar progreso" status="NO DISPONIBLE" statusColor="var(--text-muted)">
-        <SettingRow label="Resetear cuenta" description="Elimina todo tu XP, nivel y misiones completadas, manteniendo tu cuenta activa. Operación no disponible en esta versión." last>
-          <ActionBtn label="REINICIAR" variant="danger" disabled />
+      <SectionCard moduleId="SYS.05.B" title={t('settings.exit.resetTitle')} status={t('settings.exit.notAvailable')} statusColor="var(--text-muted)">
+        <SettingRow label={t('settings.exit.resetLabel')} description={t('settings.exit.resetDesc')} last>
+          <ActionBtn label={t('settings.exit.resetBtn')} variant="danger" disabled t={t} />
         </SettingRow>
       </SectionCard>
 
-      <SectionCard moduleId="SYS.05.C" title="Eliminar cuenta" status="PELIGRO" statusColor="var(--red)" style={{ border: '1px solid rgba(255,77,106,0.2)' }}>
+      <SectionCard moduleId="SYS.05.C" title={t('settings.exit.deleteTitle')} status={t('settings.exit.danger')} statusColor="var(--red)" style={{ border: '1px solid rgba(255,77,106,0.2)' }}>
         <div style={{
           display: 'flex', gap: 12, alignItems: 'flex-start',
           padding: '12px 14px',
@@ -645,22 +628,23 @@ function TabPeligro({ onSignOut }) {
         }}>
           <AlertTriangle size={15} color="var(--red)" style={{ flexShrink: 0, marginTop: 2 }} />
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
-            Esta acción es <strong style={{ color: '#fff' }}>permanente e irreversible</strong>.
-            {' '}Todo tu progreso, XP, misiones, badges y cosméticos serán eliminados para siempre.
+            {t('settings.exit.deleteWarning')}
+            <strong style={{ color: '#fff' }}>{t('settings.exit.deleteWarningBold')}</strong>
+            {t('settings.exit.deleteWarningEnd')}
           </p>
         </div>
 
         {!showDelete ? (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-            <ActionBtn onClick={() => setShowDelete(true)} label="ELIMINAR MI CUENTA" variant="danger" />
+            <ActionBtn onClick={() => setShowDelete(true)} label={t('settings.exit.deleteBtn')} variant="danger" t={t} />
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <CyberInput
-              label={`// ESCRIBE TU EMAIL PARA CONFIRMAR: ${user?.email ?? ''}`}
+              label={t('settings.exit.confirmLabel')(user?.email ?? '')}
               value={confirmText}
               onChange={e => setConfirmText(e.target.value)}
-              placeholder={user?.email ?? 'tu@email.com'}
+              placeholder={user?.email ?? 'email@example.com'}
             />
             <div style={{ display: 'flex', gap: 10 }}>
               <button
@@ -673,7 +657,7 @@ function TabPeligro({ onSignOut }) {
                   border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', cursor: 'pointer',
                 }}
               >
-                Cancelar
+                {t('settings.exit.cancel')}
               </button>
               <button
                 disabled={!canDelete}
@@ -688,7 +672,7 @@ function TabPeligro({ onSignOut }) {
                   transition: 'all 0.2s',
                 }}
               >
-                Confirmar eliminación
+                {t('settings.exit.confirmDelete')}
               </button>
             </div>
           </div>
@@ -703,6 +687,7 @@ function TabPeligro({ onSignOut }) {
 ═══════════════════════════════════════════════════════════════ */
 export default function Settings() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('cuenta');
 
@@ -712,11 +697,11 @@ export default function Settings() {
   };
 
   const content = {
-    cuenta:         <TabCuenta user={user} />,
-    seguridad:      <TabSeguridad />,
-    notificaciones: <TabNotificaciones />,
-    plan:           <TabPlan />,
-    salida:         <TabPeligro onSignOut={handleSignOut} />,
+    cuenta:         <TabCuenta user={user} t={t} />,
+    seguridad:      <TabSeguridad t={t} />,
+    notificaciones: <TabNotificaciones t={t} />,
+    plan:           <TabPlan t={t} />,
+    salida:         <TabPeligro onSignOut={handleSignOut} t={t} />,
   };
 
   return (
@@ -734,7 +719,7 @@ export default function Settings() {
           </span>
         </div>
 
-        {TABS.map(({ id, label, icon: Icon, moduleId }) => {
+        {TABS.map(({ id, tKey, icon: Icon, moduleId }) => {
           const isActive     = activeTab === id;
           const isDanger     = id === 'salida';
           const accentColor  = isDanger ? 'var(--red)' : 'var(--violet)';
@@ -759,7 +744,7 @@ export default function Settings() {
               <Icon size={14} color={isActive ? accentColor : 'var(--text-muted)'} strokeWidth={isActive ? 2.5 : 2} />
               <div>
                 <div style={{ fontFamily: 'var(--font-ui)', fontWeight: isActive ? 700 : 600, fontSize: 13, color: isActive ? (isDanger ? 'var(--red)' : 'var(--text)') : 'var(--text-secondary)', letterSpacing: '0.04em' }}>
-                  {label}
+                  {t(tKey)}
                 </div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: isActive ? (isDanger ? 'rgba(255,77,106,0.55)' : 'rgba(124,92,255,0.6)') : 'var(--text-muted)', letterSpacing: '0.12em', marginTop: 1 }}>
                   {moduleId}

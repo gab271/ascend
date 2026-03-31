@@ -1,16 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { getMyProfile, getRewardsCatalog, setActiveCosmetic } from '../../lib/api/profile';
 import { getMyShopItems, setActiveShopItem } from '../../lib/api/shop';
 import RewardCard from '../../components/game/RewardCard';
 
 const CATEGORIES = ['badges', 'titles', 'frames', 'backgrounds', 'shop'];
-const CATEGORY_LABELS = {
-  badges:      'Insignias',
-  titles:      'Títulos',
-  frames:      'Marcos',
-  backgrounds: 'Fondos',
-  shop:        'Tienda',
-};
 
 // Maps Rewards tab category → RPC type. Badges are not equippable.
 const CATEGORY_TYPE = { titles: 'title', frames: 'frame', backgrounds: 'background' };
@@ -18,15 +12,8 @@ const CATEGORY_TYPE = { titles: 'title', frames: 'frame', backgrounds: 'backgrou
 const RARITY_COLOR = {
   common: '#8B9AB3', rare: '#33D1FF', epic: '#7C5CFF', legendary: '#F5C451',
 };
-const RARITY_LABEL = {
-  common: 'COMÚN', rare: 'RARA', epic: 'ÉPICA', legendary: 'LEGENDARIA',
-};
-const TYPE_LABEL = {
-  animated_frame: 'Marco Animado', emote: 'Emote',
-  nameplate: 'Chapa', profile_banner: 'Banner de Perfil',
-};
 
-function ShopItemCard({ item, isEquipped, onEquip }) {
+function ShopItemCard({ item, isEquipped, onEquip, t }) {
   const color = RARITY_COLOR[item.rarity] || '#8B9AB3';
   const cfg   = item.config || {};
   const [loading, setLoading] = useState(false);
@@ -70,7 +57,7 @@ function ShopItemCard({ item, isEquipped, onEquip }) {
             fontFamily: 'var(--font-mono)', fontSize: 8,
             color: 'var(--green)', letterSpacing: '0.1em',
           }}>
-            ✓ EQUIPADO
+            {t('rewards.equipped')}
           </div>
         )}
       </div>
@@ -79,7 +66,7 @@ function ShopItemCard({ item, isEquipped, onEquip }) {
           fontFamily: 'var(--font-mono)', fontSize: 9,
           color: color, letterSpacing: '0.12em', marginBottom: 4,
         }}>
-          {RARITY_LABEL[item.rarity]} · {TYPE_LABEL[item.item_type]}
+          {t(`rewards.rarities.${item.rarity}`)} · {t(`rewards.types.${item.item_type}`)}
         </div>
         <div style={{
           fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
@@ -108,7 +95,7 @@ function ShopItemCard({ item, isEquipped, onEquip }) {
           onMouseEnter={e => { if (!isEquipped) e.currentTarget.style.background = `${color}30`; }}
           onMouseLeave={e => { if (!isEquipped) e.currentTarget.style.background = `${color}18`; }}
         >
-          {loading ? '...' : isEquipped ? '✓ EQUIPADO' : 'EQUIPAR'}
+          {loading ? '...' : isEquipped ? t('rewards.equipped') : t('rewards.equip')}
         </button>
       </div>
     </div>
@@ -116,6 +103,7 @@ function ShopItemCard({ item, isEquipped, onEquip }) {
 }
 
 export default function Rewards() {
+  const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState('badges');
   const [rewards,        setRewards]        = useState({ badges: [], titles: [], frames: [], backgrounds: [] });
   const [shopItems,      setShopItems]      = useState([]);
@@ -169,7 +157,7 @@ export default function Rewards() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>{t('common.loading')}</div>
     </div>
   );
 
@@ -186,21 +174,21 @@ export default function Rewards() {
       <div style={{ display: 'flex', gap: 16, marginBottom: 28 }}>
         <div className="card" style={{ flex: 1, textAlign: 'center', background: 'linear-gradient(135deg, var(--panel), #1A1030)' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 40, color: 'var(--violet)' }}>{totalUnlocked}</div>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)' }}>DESBLOQUEADOS</div>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)' }}>{t('rewards.unlocked')}</div>
         </div>
         <div className="card" style={{ flex: 1, textAlign: 'center' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 40, color: 'var(--text-muted)' }}>{totalItems - totalUnlocked}</div>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)' }}>BLOQUEADOS</div>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)' }}>{t('rewards.locked')}</div>
         </div>
         <div className="card" style={{ flex: 1, textAlign: 'center', background: 'linear-gradient(135deg, var(--panel), #1A1600)' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 40, color: 'var(--gold)' }}>
             {Math.round((totalUnlocked / totalItems) * 100)}%
           </div>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)' }}>COMPLETADO</div>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)' }}>{t('rewards.completed')}</div>
         </div>
         <div className="card" style={{ flex: 2 }}>
           <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)', marginBottom: 10 }}>
-            PROGRESO DEL INVENTARIO
+            {t('rewards.inventoryProgress')}
           </div>
           <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
             {Array.from({ length: totalItems }).map((_, i) => (
@@ -212,7 +200,7 @@ export default function Rewards() {
             ))}
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
-            {totalXP.toLocaleString()} XP total · Sigue completando misiones para desbloquear más
+            {totalXP.toLocaleString()} XP total · {t('rewards.keepCompleting')}
           </div>
         </div>
       </div>
@@ -239,7 +227,7 @@ export default function Rewards() {
                 textTransform: 'uppercase',
               }}
             >
-              {CATEGORY_LABELS[cat]}
+              {t(`rewards.categories.${cat}`)}
               <span style={{
                 fontFamily: 'var(--font-mono)', fontSize: 10,
                 color: isActive ? 'var(--violet)' : 'var(--text-muted)',
@@ -263,6 +251,7 @@ export default function Rewards() {
                 item={item}
                 isEquipped={activeShopIds[item.item_type] === item.id}
                 onEquip={handleShopEquip}
+                t={t}
               />
             ))
           : items.map(item => {
@@ -286,7 +275,7 @@ export default function Rewards() {
           fontFamily: 'var(--font-ui)', fontSize: 14,
           color: 'var(--text-muted)', letterSpacing: '0.08em',
         }}>
-          Aún no has comprado nada en la tienda.
+          {t('rewards.noPurchases')}
         </div>
       )}
     </div>

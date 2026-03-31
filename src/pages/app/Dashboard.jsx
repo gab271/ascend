@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Shield, DollarSign, Zap, ChevronRight, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 import { getMyProfile, getWeeklyXP } from '../../lib/api/profile';
 import { getDailyMissions, completeMission as completeMissionAPI } from '../../lib/api/missions';
 import { getRanking } from '../../lib/api/ranking';
@@ -179,6 +180,7 @@ function normalizeRanking(rows) {
 
 // ─── Main Dashboard ───────────────────────────────────────────
 export default function Dashboard() {
+  const { t } = useLanguage();
   const [profile,  setProfile]  = useState(null);
   const [weeklyXP, setWeeklyXP] = useState([0, 0, 0, 0, 0, 0, 0]);
   const [missions, setMissions] = useState([]);
@@ -240,7 +242,7 @@ export default function Dashboard() {
             fontFamily: 'var(--font-mono)', fontSize: 10,
             color: 'var(--text-muted)', letterSpacing: '0.28em',
           }}>
-            CARGANDO SISTEMA
+            {t('dashboard.loadingSystem')}
           </div>
         </div>
       </div>
@@ -250,7 +252,7 @@ export default function Dashboard() {
   const completedCount = missions.filter(m => m.completed).length;
   const topRankUsers   = rankData.slice(0, 4);
   const hour           = new Date().getHours();
-  const greeting       = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
+  const greeting       = hour < 12 ? t('dashboard.greetingMorning') : hour < 18 ? t('dashboard.greetingAfternoon') : t('dashboard.greetingEvening');
 
   return (
     <div style={{ position: 'relative' }}>
@@ -374,7 +376,7 @@ export default function Dashboard() {
                   fontFamily: 'var(--font-mono)', fontSize: 10,
                   letterSpacing: '0.18em', color: 'var(--text-muted)',
                 }}>
-                  XP TOTAL
+                  {t('common.totalXP')}
                 </span>
                 <span style={{
                   fontFamily: 'var(--font-display)', fontSize: 44, color: 'var(--violet)',
@@ -422,18 +424,18 @@ export default function Dashboard() {
               letterSpacing: '0.26em', color: 'rgba(245,196,81,0.55)', marginTop: 6,
               textTransform: 'uppercase',
             }}>
-              Días de racha
+              {t('dashboard.streakDays')}
             </div>
           </div>
         </div>
 
         {/* ═══ ROW 2: Attributes ══════════════════════════════ */}
         <div style={{ ...entryStyle(attrsEntered) }}>
-          <Eyebrow>Atributos</Eyebrow>
+          <Eyebrow>{t('dashboard.attributes')}</Eyebrow>
           <div style={{ display: 'flex', gap: 16 }}>
-            <StatCard label="SALUD"      value={profile.stats.health.value}     max={100} color="var(--green)"  icon={Shield}     />
-            <StatCard label="DINERO"     value={profile.stats.money.value}      max={100} color="var(--gold)"   icon={DollarSign} />
-            <StatCard label="DISCIPLINA" value={profile.stats.discipline.value} max={100} color="var(--violet)" icon={Zap}        />
+            <StatCard label={t('common.health')}     value={profile.stats.health.value}     max={100} color="var(--green)"  icon={Shield}     />
+            <StatCard label={t('common.money')}      value={profile.stats.money.value}      max={100} color="var(--gold)"   icon={DollarSign} />
+            <StatCard label={t('common.discipline')} value={profile.stats.discipline.value} max={100} color="var(--violet)" icon={Zap}        />
           </div>
         </div>
 
@@ -470,7 +472,7 @@ export default function Dashboard() {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                 <div>
-                  <Eyebrow color="var(--cyan)">Misiones del Día</Eyebrow>
+                  <Eyebrow color="var(--cyan)">{t('dashboard.dailyMissions')}</Eyebrow>
                   <div style={{
                     fontFamily: 'var(--font-mono)', fontSize: 11,
                     color: 'var(--text-muted)', marginTop: -8, marginBottom: 16,
@@ -479,7 +481,7 @@ export default function Dashboard() {
                       {completedCount}
                     </span>
                     <span style={{ color: 'var(--border-bright)' }}>/</span>
-                    {missions.length} completadas
+                    {missions.length} {t('dashboard.completed')}
                   </div>
                 </div>
                 <Link
@@ -493,7 +495,7 @@ export default function Dashboard() {
                   onMouseEnter={e => e.currentTarget.style.opacity = '1'}
                   onMouseLeave={e => e.currentTarget.style.opacity = '0.75'}
                 >
-                  VER TODAS <ChevronRight size={12} />
+                  {t('dashboard.seeAll')} <ChevronRight size={12} />
                 </Link>
               </div>
 
@@ -545,7 +547,7 @@ export default function Dashboard() {
 
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <Eyebrow color="var(--gold)">Ranking</Eyebrow>
+                  <Eyebrow color="var(--gold)">{t('dashboard.ranking')}</Eyebrow>
                   <Link
                     to="/ranking"
                     style={{
@@ -558,7 +560,7 @@ export default function Dashboard() {
                     onMouseEnter={e => e.currentTarget.style.opacity = '1'}
                     onMouseLeave={e => e.currentTarget.style.opacity = '0.65'}
                   >
-                    VER <ChevronRight size={11} />
+                    {t('dashboard.see')} <ChevronRight size={11} />
                   </Link>
                 </div>
 
@@ -675,7 +677,7 @@ export default function Dashboard() {
 
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <Eyebrow color="var(--cyan)">XP Semanal</Eyebrow>
+                  <Eyebrow color="var(--cyan)">{t('dashboard.weeklyXP')}</Eyebrow>
                   <div style={{
                     fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--cyan)',
                     marginTop: -14,

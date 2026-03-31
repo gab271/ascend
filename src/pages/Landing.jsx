@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { signOut } from '../lib/api/auth';
 import {
   ArrowRight, Zap, TrendingUp, Trophy,
   Menu, X, CheckCircle2, Star,
-  ChevronRight, Users, Crosshair, Play
+  ChevronRight, Users, Crosshair, Play, Globe
 } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -136,17 +137,11 @@ function Divider({ accent }) {
 /* ═══════════════════════════════════════════════════════════════
    PRODUCT MOCKUP — Dashboard card
 ═══════════════════════════════════════════════════════════════ */
-function ProductMockup({ isMobile }) {
-  const MISSIONS = [
-    { name: 'Entrenamiento de fuerza', xp: 150, color: '#33D1FF', badge: 'RARA', done: false },
-    { name: 'Lectura 30 min · Finanzas', xp: 100, color: '#8B9AB3', badge: 'COMÚN', done: true },
-    { name: 'Sin azúcar todo el día', xp: 200, color: '#7C5CFF', badge: 'ÉPICA', done: false },
-  ];
-  const ATTRS = [
-    { label: 'SALUD', val: 78, color: '#33E6A1', grad: 'linear-gradient(90deg, #1aad78, #33E6A1)' },
-    { label: 'DINERO', val: 62, color: '#F5C451', grad: 'linear-gradient(90deg, #c49a30, #F5C451)' },
-    { label: 'DISCIPLINA', val: 91, color: '#7C5CFF', grad: 'linear-gradient(90deg, #5a3fd4, #7C5CFF)' },
-  ];
+function ProductMockup({ isMobile, mockup }) {
+  const { t } = useLanguage();
+  const MISSIONS = mockup.missions;
+  const ATTR_LABELS = [t('common.health'), t('common.money'), t('common.discipline')];
+  const ATTRS = mockup.attrs.map((a, i) => ({ ...a, label: ATTR_LABELS[i] }));
 
   return (
     <div style={{
@@ -193,29 +188,29 @@ function ProductMockup({ isMobile }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#33E6A1', boxShadow: '0 0 5px #33E6A1', animation: 'pulse-glow 2s ease-in-out infinite' }} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#33E6A1', letterSpacing: '0.18em' }}>ASCEND OS · ACTIVO</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#33E6A1', letterSpacing: '0.18em' }}>{mockup.active}</span>
         </div>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.5)', letterSpacing: '0.08em' }}>OPERADOR: DARKSTAR</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.5)', letterSpacing: '0.08em' }}>{mockup.operator}</span>
       </div>
 
       <div style={{ padding: '18px 18px 16px' }}>
         {/* Level + Streak row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', letterSpacing: '0.22em', marginBottom: 3 }}>NIVEL GLOBAL</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', letterSpacing: '0.22em', marginBottom: 3 }}>{mockup.level}</div>
             <div style={{
               fontFamily: 'var(--font-display)', fontSize: 68, lineHeight: 1,
               color: '#F5F7FB', textShadow: '0 0 40px rgba(124,92,255,0.45)',
             }}>24</div>
           </div>
           <div style={{ textAlign: 'right', paddingBottom: 4 }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', letterSpacing: '0.18em', marginBottom: 4 }}>RACHA</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', letterSpacing: '0.18em', marginBottom: 4 }}>{mockup.streak}</div>
             <div style={{
               fontFamily: 'var(--font-display)', fontSize: 30, color: '#F5C451',
               lineHeight: 1, textShadow: '0 0 18px rgba(245,196,81,0.5)',
               animation: 'streak-pulse 2.5s ease-in-out infinite',
             }}>🔥 14</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(245,196,81,0.55)', marginTop: 3, letterSpacing: '0.1em' }}>DÍAS</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(245,196,81,0.55)', marginTop: 3, letterSpacing: '0.1em' }}>{mockup.days}</div>
           </div>
         </div>
 
@@ -268,7 +263,7 @@ function ProductMockup({ isMobile }) {
 
         {/* Mission list */}
         <div style={{ marginBottom: 12 }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', letterSpacing: '0.22em', marginBottom: 8 }}>MISIONES DE HOY</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(74,90,122,1)', letterSpacing: '0.22em', marginBottom: 8 }}>{mockup.todayMissions}</div>
           {MISSIONS.map((m, i) => (
             <div key={i} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -306,7 +301,7 @@ function ProductMockup({ isMobile }) {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
             <Trophy size={12} color="#F5C451" />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(245,196,81,0.8)', letterSpacing: '0.12em' }}>RANKING GLOBAL</span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(245,196,81,0.8)', letterSpacing: '0.12em' }}>{mockup.ranking}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: '#F5C451', textShadow: '0 0 14px rgba(245,196,81,0.45)' }}>#12</span>
@@ -360,15 +355,18 @@ function FAQItem({ question, answer }) {
 ═══════════════════════════════════════════════════════════════ */
 export default function Landing() {
   const { user } = useAuth();
+  const { t, translations, lang, setLang } = useLanguage();
   const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [progress, setProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hovNav, setHovNav] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [langOpen,     setLangOpen]     = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [heroEmail, setHeroEmail] = useState('');
   const dropdownRef = useRef(null);
+  const langRef     = useRef(null);
   const isMobile = useBreakpoint(768);
 
   useEffect(() => {
@@ -381,6 +379,17 @@ export default function Landing() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [dropdownOpen]);
+
+  useEffect(() => {
+    if (!langOpen) return;
+    const handler = (e) => {
+      if (langRef.current && !langRef.current.contains(e.target)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [langOpen]);
 
   const handleSignOut = async () => {
     setDropdownOpen(false);
@@ -400,10 +409,10 @@ export default function Landing() {
   }, []);
 
   const NAV = [
-    { label: 'Cómo Funciona', href: '#how' },
-    { label: 'Misiones', href: '#missions' },
-    { label: 'Recompensas', href: '#rewards' },
-    { label: 'Ranking', href: '#ranking' },
+    { label: t('landing.nav.howItWorks'), href: '#how' },
+    { label: t('landing.nav.missions'), href: '#missions' },
+    { label: t('landing.nav.rewards'), href: '#rewards' },
+    { label: t('landing.nav.ranking'), href: '#ranking' },
   ];
 
   const BARLOW = "'Barlow', var(--font-ui), sans-serif";
@@ -445,6 +454,21 @@ export default function Landing() {
   const sectionPad = isMobile ? '80px 20px' : '128px 48px';
 
   const scrolled = scrollY > 32;
+
+  const STEP_META = [
+    { step: '01', icon: <Crosshair size={20} color="#33D1FF" />, color: '#33D1FF' },
+    { step: '02', icon: <CheckCircle2 size={20} color="#33E6A1" />, color: '#33E6A1' },
+    { step: '03', icon: <Zap size={20} color="#7C5CFF" />, color: '#7C5CFF' },
+    { step: '04', icon: <TrendingUp size={20} color="#F5C451" />, color: '#F5C451' },
+  ];
+
+  const RANKING_ICONS = [
+    <Trophy size={16} color="#F5C451" />,
+    <Users size={16} color="#33D1FF" />,
+    <Zap size={16} color="#7C5CFF" />,
+    <Star size={16} color="#33E6A1" />,
+  ];
+  const RANKING_ICON_COLORS = ['#F5C451', '#33D1FF', '#7C5CFF', '#33E6A1'];
 
   return (
     <div style={{ background: '#0A0B10', minHeight: '100vh', overflowX: 'hidden' }}>
@@ -514,6 +538,108 @@ export default function Landing() {
               </>
             )}
 
+            {/* Language toggle — globe button + dropdown */}
+            <div ref={langRef} style={{ position: 'relative', flexShrink: 0 }}>
+              <button
+                onClick={() => setLangOpen(o => !o)}
+                style={{
+                  width: 34, height: 34, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: langOpen
+                    ? 'linear-gradient(135deg, rgba(124,92,255,0.25), rgba(51,209,255,0.15))'
+                    : 'rgba(255,255,255,0.06)',
+                  border: `1px solid ${langOpen ? 'rgba(124,92,255,0.5)' : 'rgba(255,255,255,0.13)'}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+                  boxShadow: langOpen ? '0 0 14px rgba(124,92,255,0.35)' : 'none',
+                }}
+                onMouseEnter={e => {
+                  if (!langOpen) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!langOpen) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.13)';
+                  }
+                }}
+              >
+                <Globe
+                  size={14}
+                  strokeWidth={1.6}
+                  color={langOpen ? 'rgba(124,92,255,0.9)' : 'rgba(255,255,255,0.6)'}
+                />
+              </button>
+
+              {langOpen && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+                  background: 'rgba(13,15,26,0.96)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(124,92,255,0.2)',
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,92,255,0.06)',
+                  minWidth: 110,
+                  animation: 'lang-drop 0.18s cubic-bezier(0.4,0,0.2,1)',
+                }}>
+                  {/* Glowing top edge */}
+                  <div style={{
+                    height: 1,
+                    background: 'linear-gradient(90deg, transparent, rgba(124,92,255,0.6), rgba(51,209,255,0.4), transparent)',
+                  }} />
+
+                  {[
+                    { code: 'en', flag: '🇬🇧', label: 'English' },
+                    { code: 'es', flag: '🇪🇸', label: 'Español' },
+                  ].map(({ code, flag, label }) => (
+                    <button
+                      key={code}
+                      onClick={() => { setLang(code); setLangOpen(false); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        width: '100%', padding: '10px 14px',
+                        background: lang === code
+                          ? 'linear-gradient(90deg, rgba(124,92,255,0.12), rgba(51,209,255,0.06))'
+                          : 'transparent',
+                        border: 'none',
+                        borderLeft: `2px solid ${lang === code ? 'rgba(124,92,255,0.7)' : 'transparent'}`,
+                        cursor: 'pointer',
+                        transition: 'background 0.15s',
+                        textAlign: 'left',
+                      }}
+                      onMouseEnter={e => {
+                        if (lang !== code) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                      }}
+                      onMouseLeave={e => {
+                        if (lang !== code) e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <span style={{ fontSize: 14, lineHeight: 1 }}>{flag}</span>
+                      <span style={{
+                        fontFamily: 'var(--font-ui)', fontSize: 12, fontWeight: 600,
+                        letterSpacing: '0.03em',
+                        color: lang === code ? '#fff' : 'rgba(160,174,203,0.75)',
+                      }}>
+                        {label}
+                      </span>
+                      {lang === code && (
+                        <span style={{
+                          marginLeft: 'auto',
+                          width: 5, height: 5, borderRadius: '50%',
+                          background: 'var(--violet)',
+                          boxShadow: '0 0 6px rgba(124,92,255,0.8)',
+                          flexShrink: 0,
+                        }} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)', margin: '0 8px' }} />
 
             {user ? (
@@ -561,7 +687,7 @@ export default function Landing() {
                     }}>
                       {user.email}
                     </div>
-                    {[{ label: 'Perfil', to: '/profile' }, { label: 'Configuración', to: '/settings' }].map(({ label, to }) => (
+                    {[{ label: t('landing.dropdown.profile'), to: '/profile' }, { label: t('landing.dropdown.settings'), to: '/settings' }].map(({ label, to }) => (
                       <Link key={to} to={to} onClick={() => setDropdownOpen(false)} style={{
                         display: 'block', padding: '10px 14px',
                         fontFamily: 'var(--font-body)', fontSize: 13,
@@ -585,7 +711,7 @@ export default function Landing() {
                       onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,77,106,0.08)'; e.currentTarget.style.color = '#FF4D6A'; }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,77,106,0.75)'; }}
                     >
-                      Cerrar sesión
+                      {t('landing.dropdown.signOut')}
                     </button>
                   </div>
                 )}
@@ -601,12 +727,12 @@ export default function Landing() {
                   }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-                >Entrar</Link>
+                >{t('landing.nav.signIn')}</Link>
                 <Link to="/register"
                   style={{ ...bBtn, fontSize: 13, padding: '8px 22px', marginLeft: 6 }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
-                >Comenzar</Link>
+                >{t('landing.nav.getStarted')}</Link>
               </>
             )}
           </div>
@@ -639,6 +765,48 @@ export default function Landing() {
               {label} <ChevronRight size={14} color="rgba(255,255,255,0.25)" />
             </a>
           ))}
+          {/* Mobile lang options — always expanded in drawer */}
+          <div style={{
+            display: 'flex', gap: 8, marginTop: 16, marginBottom: 4,
+          }}>
+            {[
+              { code: 'en', flag: '🇬🇧', label: 'English' },
+              { code: 'es', flag: '🇪🇸', label: 'Español' },
+            ].map(({ code, flag, label }) => (
+              <button
+                key={code}
+                onClick={() => setLang(code)}
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '10px 14px', borderRadius: 8,
+                  background: lang === code
+                    ? 'linear-gradient(135deg, rgba(124,92,255,0.18), rgba(51,209,255,0.08))'
+                    : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${lang === code ? 'rgba(124,92,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  cursor: 'pointer', transition: 'all 0.18s',
+                }}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1 }}>{flag}</span>
+                <span style={{
+                  fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600,
+                  color: lang === code ? '#fff' : 'rgba(160,174,203,0.6)',
+                  letterSpacing: '0.02em',
+                }}>
+                  {label}
+                </span>
+                {lang === code && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    width: 5, height: 5, borderRadius: '50%',
+                    background: 'var(--violet)',
+                    boxShadow: '0 0 6px rgba(124,92,255,0.8)',
+                    flexShrink: 0,
+                  }} />
+                )}
+              </button>
+            ))}
+          </div>
+
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {user ? (
               <>
@@ -665,16 +833,16 @@ export default function Landing() {
                   ...bBtnGhost, padding: '12px', width: '100%',
                   color: 'rgba(255,77,106,0.8)', borderColor: 'rgba(255,77,106,0.3)',
                 }}>
-                  Cerrar sesión
+                  {t('landing.mobile.signOut')}
                 </button>
               </>
             ) : (
               <>
                 <Link to="/register" onClick={() => setMenuOpen(false)} style={{ ...bBtn, padding: '14px', width: '100%' }}>
-                  Empezar gratis
+                  {t('landing.mobile.startFree')}
                 </Link>
                 <Link to="/login" onClick={() => setMenuOpen(false)} style={{ ...bBtnGhost, padding: '13px', width: '100%' }}>
-                  Ya tengo cuenta
+                  {t('landing.mobile.haveAccount')}
                 </Link>
               </>
             )}
@@ -763,7 +931,7 @@ export default function Landing() {
             {/* Badge */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: isMobile ? 24 : 32, animation: 'hero-fade-up 0.6s ease 0.05s both' }}>
               <span className="hero-badge-glass">
-                Tu vida. Tu aventura.
+                {t('landing.hero.badge')}
               </span>
             </div>
 
@@ -782,7 +950,7 @@ export default function Landing() {
                 color: '#FFFFFF',
                 letterSpacing: '-0.01em',
               }}>
-                Transforma tu vida en
+                {t('landing.hero.line1')}
               </span>
               <span style={{
                 display: 'block',
@@ -794,7 +962,7 @@ export default function Landing() {
                 color: '#FFFFFF',
                 letterSpacing: '-0.02em',
               }}>
-                la aventura más épica
+                {t('landing.hero.line2')}
               </span>
             </h1>
 
@@ -809,8 +977,9 @@ export default function Landing() {
               textShadow: '0 1px 14px rgba(0,0,0,0.8)',
               animation: 'hero-fade-up 0.7s ease 0.28s both',
             }}>
-              Misiones diarias. Puntos de experiencia. Rankings globales.<br />
-              Tu mejor versión te espera al siguiente nivel.
+              {t('landing.hero.subtitle').split('\n').map((line, i, arr) => (
+                <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+              ))}
             </p>
 
             {/* CTAs */}
@@ -822,13 +991,13 @@ export default function Landing() {
                 to="/register"
                 className="hero-btn-glass hero-btn-glass-primary"
               >
-                Empezar Gratis
+                {t('landing.hero.ctaPrimary')}
               </Link>
               <a
                 href="#how"
                 className="hero-btn-glass hero-btn-glass-secondary"
               >
-                Ver Demo
+                {t('landing.hero.ctaSecondary')}
               </a>
             </div>
 
@@ -850,19 +1019,19 @@ export default function Landing() {
                   ))}
                 </div>
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
-                  <strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>2.400+</strong> ya suben de nivel
+                  {t('landing.hero.socialProof')}
                 </span>
               </div>
               <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 {[1,2,3,4,5].map(s => <Star key={s} size={10} color="#F5C451" fill="#F5C451" />)}
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)', marginLeft: 4 }}>
-                  <strong style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>4.9</strong> valoración
+                  {t('landing.hero.rating')}
                 </span>
               </div>
               <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
               <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
-                Gratis para siempre
+                {t('landing.hero.free')}
               </span>
             </div>
           </div>
@@ -878,7 +1047,7 @@ export default function Landing() {
       <Section id="how" style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <Eyebrow color="#33D1FF">Sistema de progreso</Eyebrow>
+            <Eyebrow color="#33D1FF">{t('landing.how.eyebrow')}</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-body)',
               fontWeight: 300,
@@ -886,14 +1055,14 @@ export default function Landing() {
               color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em',
               marginBottom: 14,
             }}>
-              Cuatro pasos.{' '}
-              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Progreso de por vida.</em>
+              {t('landing.how.title')}{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>{t('landing.how.titleItalic')}</em>
             </h2>
             <p style={{
               fontFamily: 'var(--font-body)', fontSize: 16,
               color: 'rgba(160,174,203,0.75)', maxWidth: 480, margin: '0 auto', lineHeight: 1.65,
             }}>
-              El sistema convierte acciones reales en progreso medible. Sin ambigüedad.
+              {t('landing.how.subtitle')}
             </p>
           </div>
 
@@ -904,70 +1073,52 @@ export default function Landing() {
             borderRadius: 2,
             overflow: 'hidden',
           }}>
-            {[
-              {
-                step: '01', icon: <Crosshair size={20} color="#33D1FF" />, color: '#33D1FF',
-                title: 'Elige tus misiones',
-                body: 'Configura retos diarios que encajen con tus metas: entrenamiento, ahorro, lectura, descanso.',
-              },
-              {
-                step: '02', icon: <CheckCircle2 size={20} color="#33E6A1" />, color: '#33E6A1',
-                title: 'Ejecuta en la vida real',
-                body: 'Haz la acción en el mundo real. Marca el progreso en ASCEND. El sistema lo registra sin trampa.',
-              },
-              {
-                step: '03', icon: <Zap size={20} color="#7C5CFF" />, color: '#7C5CFF',
-                title: 'Gana XP, sube de nivel',
-                body: 'Cada misión completada suma XP. Cuando llegas al tope, subes de nivel. El número sube porque tú subiste primero.',
-              },
-              {
-                step: '04', icon: <TrendingUp size={20} color="#F5C451" />, color: '#F5C451',
-                title: 'Fortalece tus pilares',
-                body: 'Tus acciones alimentan Salud, Dinero y Disciplina. Un perfil que muestra exactamente en qué eres fuerte.',
-              },
-            ].map(({ step, icon, color, title, body }, i) => (
-              <div key={step} style={{
-                padding: isMobile ? '32px 24px' : '44px 32px',
-                background: '#0D0F1A',
-                borderRight: !isMobile && i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                borderBottom: isMobile && i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                transition: 'background 0.2s',
-                position: 'relative',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
-              >
-                {/* Large watermark step number */}
-                <div style={{
-                  position: 'absolute', top: -8, right: 16,
-                  fontFamily: 'var(--font-display)', fontSize: isMobile ? 96 : 112,
-                  lineHeight: 1, color: `${color}09`,
-                  userSelect: 'none', pointerEvents: 'none',
-                  letterSpacing: '-0.02em',
-                }}>{step}</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}80`, letterSpacing: '0.24em', marginBottom: 24 }}>
-                  — {step}
+            {STEP_META.map(({ step, icon, color }, i) => {
+              const { title, body } = translations.landing.how.steps[i];
+              return (
+                <div key={step} style={{
+                  padding: isMobile ? '32px 24px' : '44px 32px',
+                  background: '#0D0F1A',
+                  borderRight: !isMobile && i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                  borderBottom: isMobile && i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                  transition: 'background 0.2s',
+                  position: 'relative',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#111420'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#0D0F1A'; }}
+                >
+                  {/* Large watermark step number */}
+                  <div style={{
+                    position: 'absolute', top: -8, right: 16,
+                    fontFamily: 'var(--font-display)', fontSize: isMobile ? 96 : 112,
+                    lineHeight: 1, color: `${color}09`,
+                    userSelect: 'none', pointerEvents: 'none',
+                    letterSpacing: '-0.02em',
+                  }}>{step}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}80`, letterSpacing: '0.24em', marginBottom: 24 }}>
+                    — {step}
+                  </div>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 2, marginBottom: 22,
+                    background: `${color}0C`, border: `1px solid ${color}20`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>{icon}</div>
+                  <h3 style={{
+                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15,
+                    color: '#F5F7FB', letterSpacing: '0.02em', marginBottom: 10, lineHeight: 1.3,
+                  }}>{title}</h3>
+                  <p style={{
+                    fontFamily: 'var(--font-body)', fontSize: 13,
+                    color: 'rgba(160,174,203,0.7)', lineHeight: 1.65,
+                  }}>{body}</p>
+                  {/* Bottom accent line on hover */}
+                  <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
+                    background: `linear-gradient(90deg, ${color}40, transparent)`,
+                  }} />
                 </div>
-                <div style={{
-                  width: 44, height: 44, borderRadius: 2, marginBottom: 22,
-                  background: `${color}0C`, border: `1px solid ${color}20`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>{icon}</div>
-                <h3 style={{
-                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15,
-                  color: '#F5F7FB', letterSpacing: '0.02em', marginBottom: 10, lineHeight: 1.3,
-                }}>{title}</h3>
-                <p style={{
-                  fontFamily: 'var(--font-body)', fontSize: 13,
-                  color: 'rgba(160,174,203,0.7)', lineHeight: 1.65,
-                }}>{body}</p>
-                {/* Bottom accent line on hover */}
-                <div style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
-                  background: `linear-gradient(90deg, ${color}40, transparent)`,
-                }} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </Section>
@@ -1000,20 +1151,20 @@ export default function Landing() {
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <Eyebrow color="#33E6A1">Catálogo de misiones</Eyebrow>
+            <Eyebrow color="#33E6A1">{t('landing.missions.eyebrow')}</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-body)', fontWeight: 300,
               fontSize: 'clamp(40px, 5vw, 68px)',
               color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
             }}>
-              Retos reales.{' '}
-              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>Recompensas reales.</em>
+              {t('landing.missions.title')}{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>{t('landing.missions.titleItalic')}</em>
             </h2>
             <p style={{
               fontFamily: 'var(--font-body)', fontSize: 16,
               color: 'rgba(160,174,203,0.75)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
             }}>
-              Más de 50 misiones en tres pilares. Cada acción que completas genera XP real que va directo a tu perfil.
+              {t('landing.missions.subtitle')}
             </p>
           </div>
 
@@ -1022,41 +1173,7 @@ export default function Landing() {
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
             border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, overflow: 'hidden',
           }}>
-            {[
-              {
-                attr: 'SALUD', color: '#33E6A1', gradient: 'linear-gradient(90deg, #1aad78, #33E6A1)',
-                icon: '⚡', desc: 'Entrena tu cuerpo. Mejora tu descanso. Cuida lo que comes.',
-                missions: [
-                  { name: 'Entrenamiento de fuerza', xp: 150, rarityColor: '#33D1FF', rarity: 'RARA' },
-                  { name: 'Cardio 30 minutos', xp: 100, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
-                  { name: 'Sin azúcar todo el día', xp: 200, rarityColor: '#7C5CFF', rarity: 'ÉPICA' },
-                  { name: 'Dormir 8 horas', xp: 80, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
-                  { name: 'Meditación 10 min', xp: 120, rarityColor: '#33D1FF', rarity: 'RARA' },
-                ],
-              },
-              {
-                attr: 'DINERO', color: '#F5C451', gradient: 'linear-gradient(90deg, #c49a30, #F5C451)',
-                icon: '💰', desc: 'Construye tu riqueza. Aprende finanzas. Sé dueño de tu tiempo.',
-                missions: [
-                  { name: 'Ahorro del día: $10+', xp: 120, rarityColor: '#33D1FF', rarity: 'RARA' },
-                  { name: 'Lectura: libro de finanzas', xp: 150, rarityColor: '#33D1FF', rarity: 'RARA' },
-                  { name: 'Revisar gastos mensuales', xp: 90, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
-                  { name: 'Inversión activa', xp: 250, rarityColor: '#7C5CFF', rarity: 'ÉPICA' },
-                  { name: 'Sin compras impulsivas', xp: 110, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
-                ],
-              },
-              {
-                attr: 'DISCIPLINA', color: '#7C5CFF', gradient: 'linear-gradient(90deg, #5a3fd4, #7C5CFF)',
-                icon: '🎯', desc: 'Forja tu mente. Completa lo que empiezas. Domina tu voluntad.',
-                missions: [
-                  { name: 'Racha perfecta del día', xp: 300, rarityColor: '#F5C451', rarity: 'LEGENDARIA' },
-                  { name: 'Lectura 30 min', xp: 100, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
-                  { name: 'Sin redes sociales 4h', xp: 180, rarityColor: '#7C5CFF', rarity: 'ÉPICA' },
-                  { name: 'Planificación del día', xp: 70, rarityColor: '#8B9AB3', rarity: 'COMÚN' },
-                  { name: 'Aprendizaje técnico 1h', xp: 160, rarityColor: '#33D1FF', rarity: 'RARA' },
-                ],
-              },
-            ].map(({ attr, color, gradient, icon, desc, missions }, colIdx) => (
+            {translations.landing.missions.columns.map(({ attr, color, gradient, icon, desc, missions }, colIdx) => (
               <div key={attr} style={{
                 background: '#0D0F1A',
                 borderRight: !isMobile && colIdx < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
@@ -1078,7 +1195,7 @@ export default function Landing() {
                   }}>{icon}</div>
                   <div>
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color, letterSpacing: '0.1em', lineHeight: 1 }}>{attr}</div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}70`, letterSpacing: '0.18em', marginTop: 3 }}>PILAR DE PROGRESO</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: `${color}70`, letterSpacing: '0.18em', marginTop: 3 }}>{t('landing.missions.pillar')}</div>
                   </div>
                 </div>
 
@@ -1103,7 +1220,7 @@ export default function Landing() {
                 </div>
 
                 <div style={{ marginTop: 18, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.28)', letterSpacing: '0.1em' }}>
-                  +{missions.length * 8}+ MISIONES DISPONIBLES
+                  {translations.landing.missions.missionsAvailable(missions.length * 8)}
                 </div>
               </div>
             ))}
@@ -1126,30 +1243,24 @@ export default function Landing() {
           }}>
             {/* Left copy */}
             <div>
-              <Eyebrow color="#7C5CFF">La aplicación</Eyebrow>
+              <Eyebrow color="#7C5CFF">{t('landing.app.eyebrow')}</Eyebrow>
               <h2 style={{
                 fontFamily: 'var(--font-body)',
                 fontWeight: 300,
                 fontSize: 'clamp(38px, 5vw, 62px)',
                 color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 18,
               }}>
-                Tu operación central{' '}
-                <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>en tiempo real.</em>
+                {t('landing.app.title')}{' '}
+                <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>{t('landing.app.titleItalic')}</em>
               </h2>
               <p style={{
                 fontFamily: 'var(--font-body)', fontSize: 15,
                 color: 'rgba(160,174,203,0.78)', lineHeight: 1.7, marginBottom: 28,
               }}>
-                Cada día arrancas con tus misiones asignadas. Las completas en el mundo real, las marcas aquí.
-                Tu nivel, tus atributos y tu posición en el ranking se actualizan al momento.
+                {t('landing.app.desc')}
               </p>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36 }}>
-                {[
-                  'Dashboard con XP, nivel y rachas en vivo',
-                  'Barras de atributo: Salud, Dinero, Disciplina',
-                  'Misiones diarias personalizadas',
-                  'Ranking global actualizado en tiempo real',
-                ].map(item => (
+                {translations.landing.app.bullets.map(item => (
                   <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <CheckCircle2 size={14} color="#33E6A1" style={{ flexShrink: 0 }} />
                     <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'rgba(160,174,203,0.82)' }}>{item}</span>
@@ -1162,7 +1273,7 @@ export default function Landing() {
                 onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
               >
-                Abrir mi dashboard <ArrowRight size={14} />
+                {t('landing.app.cta')} <ArrowRight size={14} />
               </Link>
             </div>
 
@@ -1171,7 +1282,7 @@ export default function Landing() {
               display: 'flex', justifyContent: 'center',
               animation: isMobile ? 'none' : 'float 6s ease-in-out infinite',
             }}>
-              <ProductMockup isMobile={isMobile} />
+              <ProductMockup isMobile={isMobile} mockup={translations.landing.mockup} />
             </div>
           </div>
         </div>
@@ -1185,20 +1296,20 @@ export default function Landing() {
       <Section id="rewards" style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <Eyebrow color="#F5C451">Sistema de recompensas</Eyebrow>
+            <Eyebrow color="#F5C451">{t('landing.rewards.eyebrow')}</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-body)', fontWeight: 300,
               fontSize: 'clamp(40px, 5vw, 68px)',
               color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
             }}>
-              Cada logro tiene{' '}
-              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>su trofeo.</em>
+              {t('landing.rewards.title')}{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>{t('landing.rewards.titleItalic')}</em>
             </h2>
             <p style={{
               fontFamily: 'var(--font-body)', fontSize: 16,
               color: 'rgba(160,174,203,0.75)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
             }}>
-              Desbloquea insignias, títulos y cosméticos únicos. Tu perfil es un récord de todo lo que has superado.
+              {t('landing.rewards.subtitle')}
             </p>
           </div>
 
@@ -1224,13 +1335,8 @@ export default function Landing() {
                 src="/Animación_de_Runa_con_Loop_Bonito.mp4"
               />
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 28 }}>INSIGNIAS</div>
-                {[
-                  { rarity: 'COMÚN', color: '#8B9AB3', count: '12 insignias', desc: 'Para los primeros pasos del operador.' },
-                  { rarity: 'RARO', color: '#33D1FF', count: '18 insignias', desc: 'Consistencia probada en los pilares.' },
-                  { rarity: 'ÉPICO', color: '#7C5CFF', count: '14 insignias', desc: 'Dominio sostenido de los tres pilares.' },
-                  { rarity: 'LEGENDARIO', color: '#F5C451', count: '6 insignias', desc: 'Solo para los operadores de élite.' },
-                ].map(({ rarity, color, count, desc }) => (
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 28 }}>{t('landing.rewards.badgesHeader')}</div>
+                {translations.landing.rewards.badges.map(({ rarity, color, count, desc }) => (
                   <div key={rarity} style={{
                     display: 'flex', alignItems: 'center', gap: 16,
                     padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
@@ -1259,17 +1365,9 @@ export default function Landing() {
               <div style={{
                 background: '#0D0F1A', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 2, padding: isMobile ? 24 : 28, flex: 1,
               }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 20 }}>TÍTULOS DESBLOQUEABLES</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,247,251,0.3)', letterSpacing: '0.22em', marginBottom: 20 }}>{t('landing.rewards.titlesHeader')}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {[
-                    { name: 'NOVATO', color: '#8B9AB3' },
-                    { name: 'SOLDADO', color: '#33D1FF' },
-                    { name: 'GUERRERO', color: '#33D1FF' },
-                    { name: 'VETERANO', color: '#7C5CFF' },
-                    { name: 'ÉLITE', color: '#7C5CFF' },
-                    { name: 'LEYENDA', color: '#F5C451' },
-                    { name: 'MAESTRO ASCEND', color: '#F5C451' },
-                  ].map(({ name, color }) => (
+                  {translations.landing.rewards.titles.map(({ name, color }) => (
                     <span key={name} style={{
                       fontFamily: 'var(--font-mono)', fontSize: 9,
                       color, padding: '5px 11px', letterSpacing: '0.14em',
@@ -1278,7 +1376,7 @@ export default function Landing() {
                   ))}
                 </div>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.45)', lineHeight: 1.6, marginTop: 16 }}>
-                  Los títulos se muestran en tu perfil y en el ranking global. Solo puedes ostentar uno a la vez.
+                  {t('landing.rewards.titlesDesc')}
                 </p>
               </div>
 
@@ -1293,15 +1391,15 @@ export default function Landing() {
                   background: 'radial-gradient(circle, rgba(245,196,81,0.14) 0%, transparent 70%)',
                   pointerEvents: 'none',
                 }} />
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,196,81,0.45)', letterSpacing: '0.22em', marginBottom: 12 }}>RECOMPENSAS DE TEMPORADA</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(245,196,81,0.45)', letterSpacing: '0.22em', marginBottom: 12 }}>{t('landing.rewards.seasonHeader')}</div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: '#F5C451', letterSpacing: '0.06em', marginBottom: 10, lineHeight: 1 }}>
-                  TEMPORADA I
+                  {t('landing.rewards.season')}
                 </div>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'rgba(160,174,203,0.65)', lineHeight: 1.6, marginBottom: 18 }}>
-                  Los operadores del Top 100 al cierre de temporada desbloquean cosméticos legendarios exclusivos que no se vuelven a ofrecer.
+                  {t('landing.rewards.seasonDesc')}
                 </p>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {['Marco Dorado', 'Fondo Épico', 'Insignia T-I'].map(reward => (
+                  {translations.landing.rewards.seasonRewards.map(reward => (
                     <span key={reward} style={{
                       fontFamily: 'var(--font-mono)', fontSize: 9,
                       color: '#F5C451', padding: '4px 10px', letterSpacing: '0.1em',
@@ -1324,23 +1422,22 @@ export default function Landing() {
       <Section id="ranking" style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <Eyebrow color="#F5C451">Liga de operadores</Eyebrow>
+            <Eyebrow color="#F5C451">{t('landing.ranking.eyebrow')}</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-body)',
               fontWeight: 300,
               fontSize: 'clamp(40px, 5vw, 68px)',
               color: '#F5F7FB', lineHeight: 1.05, letterSpacing: '-0.01em', marginBottom: 14,
             }}>
-              El ranking no es{' '}
-              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>un adorno.</em>
-              {' '}Es un espejo.
+              {t('landing.ranking.title')}{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>{t('landing.ranking.titleItalic')}</em>
+              {' '}{t('landing.ranking.titleEnd')}
             </h2>
             <p style={{
               fontFamily: 'var(--font-body)', fontSize: 16,
               color: 'rgba(160,174,203,0.75)', maxWidth: 520, margin: '0 auto', lineHeight: 1.65,
             }}>
-              Tu posición refleja cuánto trabajaste. No hay trampa.
-              Solo la suma de todo lo que hiciste cuando nadie te estaba mirando.
+              {t('landing.ranking.subtitle')}
             </p>
           </div>
 
@@ -1352,34 +1449,33 @@ export default function Landing() {
           }}>
             {/* Left */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {[
-                { icon: <Trophy size={16} color="#F5C451" />, color: '#F5C451', title: 'Estatus que se gana', desc: 'Cada XP que ves ahí fue el resultado de una acción real, no de cuánto llevas o cuánto pagas.' },
-                { icon: <Users size={16} color="#33D1FF" />, color: '#33D1FF', title: 'La liga más exigente', desc: 'No compites contra bots. Compites contra personas reales con los mismos objetivos. Si subes, lo mereciste.' },
-                { icon: <Zap size={16} color="#7C5CFF" />, color: '#7C5CFF', title: 'Presión que convierte', desc: 'Ver tu nombre bajar una posición duele más que cualquier recordatorio. Eso es accountability real.' },
-                { icon: <Star size={16} color="#33E6A1" />, color: '#33E6A1', title: 'Recompensas de temporada', desc: 'Los mejores operadores de cada temporada desbloquean insignias legendarias y misiones únicas.' },
-              ].map(({ icon, color, title, desc }) => (
-                <div key={title} style={{
-                  display: 'flex', gap: 14, alignItems: 'flex-start',
-                  padding: '18px 20px',
-                  background: '#0D0F1A',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: 2,
-                  transition: 'border-color 0.2s, background 0.2s',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = `${color}30`; e.currentTarget.style.background = '#111420'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = '#0D0F1A'; }}
-                >
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 2, flexShrink: 0,
-                    background: `${color}0A`, border: `1px solid ${color}1A`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>{icon}</div>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, color: '#F5F7FB', marginBottom: 4 }}>{title}</div>
-                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.6 }}>{desc}</div>
+              {translations.landing.ranking.cards.map(({ title, desc }, cardIdx) => {
+                const icon = RANKING_ICONS[cardIdx];
+                const color = RANKING_ICON_COLORS[cardIdx];
+                return (
+                  <div key={title} style={{
+                    display: 'flex', gap: 14, alignItems: 'flex-start',
+                    padding: '18px 20px',
+                    background: '#0D0F1A',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 2,
+                    transition: 'border-color 0.2s, background 0.2s',
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = `${color}30`; e.currentTarget.style.background = '#111420'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.background = '#0D0F1A'; }}
+                  >
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 2, flexShrink: 0,
+                      background: `${color}0A`, border: `1px solid ${color}1A`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>{icon}</div>
+                    <div>
+                      <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, color: '#F5F7FB', marginBottom: 4 }}>{title}</div>
+                      <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.6 }}>{desc}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div style={{ marginTop: 8 }}>
                 <Link
@@ -1388,7 +1484,7 @@ export default function Landing() {
                   onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; }}
                 >
-                  Entrar a la liga <Trophy size={14} />
+                  {t('landing.ranking.cta')} <Trophy size={14} />
                 </Link>
               </div>
             </div>
@@ -1408,24 +1504,24 @@ export default function Landing() {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Trophy size={13} color="#F5C451" />
-                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: '#F5C451', letterSpacing: '0.12em' }}>RANKING GLOBAL · TEMPORADA I</span>
+                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: '#F5C451', letterSpacing: '0.12em' }}>{t('landing.ranking.tableHeader')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#33E6A1', animation: 'pulse-glow 2s infinite' }} />
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.45)', letterSpacing: '0.1em' }}>EN VIVO</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.45)', letterSpacing: '0.1em' }}>{t('landing.ranking.live')}</span>
                 </div>
               </div>
 
               {/* Rows */}
               <div>
                 {[
-                  { rank: 1, name: 'ÉLITE_NOVA', level: 48, xp: '89.420', streak: 92, tier: 'LEGENDARIO', color: '#F5C451' },
-                  { rank: 2, name: 'PHANTOM_X', level: 44, xp: '82.100', streak: 78, tier: 'ÉPICO', color: '#7C5CFF' },
-                  { rank: 3, name: 'DARKSTAR_7', level: 42, xp: '79.650', streak: 61, tier: 'ÉPICO', color: '#7C5CFF' },
-                  { rank: 4, name: 'RYUU_ALPHA', level: 38, xp: '68.200', streak: 44, tier: 'RARO', color: '#33D1FF' },
-                  { rank: 5, name: 'VOID_ZERO', level: 35, xp: '59.800', streak: 31, tier: 'RARO', color: '#33D1FF' },
+                  { rank: 1, name: 'ÉLITE_NOVA', level: 48, xp: '89.420', streak: 92, tier: 'legendary', color: '#F5C451' },
+                  { rank: 2, name: 'PHANTOM_X',  level: 44, xp: '82.100', streak: 78, tier: 'epic',      color: '#7C5CFF' },
+                  { rank: 3, name: 'DARKSTAR_7', level: 42, xp: '79.650', streak: 61, tier: 'epic',      color: '#7C5CFF' },
+                  { rank: 4, name: 'RYUU_ALPHA', level: 38, xp: '68.200', streak: 44, tier: 'rare',      color: '#33D1FF' },
+                  { rank: 5, name: 'VOID_ZERO',  level: 35, xp: '59.800', streak: 31, tier: 'rare',      color: '#33D1FF' },
                   { rank: null, name: null },
-                  { rank: 12, name: 'TÚ', level: 24, xp: '34.980', streak: 14, tier: 'RARO', color: '#33D1FF', isUser: true },
+                  { rank: 12, name: t('landing.ranking.you'), level: 24, xp: '34.980', streak: 14, tier: 'rare', color: '#33D1FF', isUser: true },
                 ].map((row) => {
                   if (row.name === null) {
                     return (
@@ -1477,13 +1573,13 @@ export default function Landing() {
                             color: row.color, padding: '2px 6px',
                             background: `${row.color}0C`, border: `1px solid ${row.color}20`,
                             borderRadius: 2, letterSpacing: '0.1em',
-                          }}>{row.tier}</span>
+                          }}>{t(`rewards.rarities.${row.tier}`)}</span>
                           {row.isUser && (
-                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(51,209,255,0.5)', letterSpacing: '0.1em' }}>← ERES TÚ</span>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(51,209,255,0.5)', letterSpacing: '0.1em' }}>{t('landing.ranking.isYou')}</span>
                           )}
                         </div>
                         <div style={{ display: 'flex', gap: 10 }}>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.4)' }}>Nv {row.level}</span>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.4)' }}>{t('landing.ranking.level')} {row.level}</span>
                           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(124,92,255,0.7)' }}>{row.xp} XP</span>
                         </div>
                       </div>
@@ -1491,7 +1587,7 @@ export default function Landing() {
                       {/* Streak */}
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{ fontFamily: 'var(--font-display)', fontSize: 13, color: '#F5C451', lineHeight: 1 }}>🔥{row.streak}</div>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(160,174,203,0.3)', marginTop: 2 }}>DÍAS</div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'rgba(160,174,203,0.3)', marginTop: 2 }}>{t('landing.ranking.days')}</div>
                       </div>
                     </div>
                   );
@@ -1506,7 +1602,7 @@ export default function Landing() {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.35)', letterSpacing: '0.06em' }}>
-                  2.400+ operadores · actualizado en tiempo real
+                  {t('landing.ranking.footer')}
                 </span>
                 <Link to="/register" style={{
                   display: 'flex', alignItems: 'center', gap: 4,
@@ -1517,7 +1613,7 @@ export default function Landing() {
                   onMouseEnter={e => e.currentTarget.style.color = '#9370FF'}
                   onMouseLeave={e => e.currentTarget.style.color = 'rgba(124,92,255,0.7)'}
                 >
-                  Ver ranking completo <ChevronRight size={11} />
+                  {t('landing.ranking.viewFull')} <ChevronRight size={11} />
                 </Link>
               </div>
             </div>
@@ -1533,77 +1629,41 @@ export default function Landing() {
       <Section style={{ padding: sectionPad }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <Eyebrow color="#33D1FF">Preguntas frecuentes</Eyebrow>
+            <Eyebrow color="#33D1FF">{t('landing.faq.eyebrow')}</Eyebrow>
             <h2 style={{
               fontFamily: 'var(--font-body)', fontWeight: 300,
               fontSize: 'clamp(38px, 5vw, 60px)',
               color: '#F5F7FB', lineHeight: 1.08, letterSpacing: '-0.01em',
             }}>
-              Lo que todos{' '}
-              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>se preguntan.</em>
+              {t('landing.faq.title')}{' '}
+              <em style={{ fontFamily: "'Playfair Display', Georgia, serif", fontStyle: 'italic', fontWeight: 400 }}>{t('landing.faq.titleItalic')}</em>
             </h2>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {[
+              ...translations.landing.faq.questions,
               {
-                q: '¿Cómo se calculan los XP?',
-                a: 'Cada misión tiene un valor fijo de XP según su rareza y dificultad. Común: 70–120 XP · Rara: 120–180 XP · Épica: 180–300 XP · Legendaria: 300+ XP. Al completar misiones también alimentas los atributos correspondientes (Salud, Dinero, Disciplina).',
-              },
-              {
-                q: '¿Puedo elegir qué misiones hacer?',
-                a: 'Sí. Cada día recibes un set de misiones asignadas de tu catálogo personalizado. Puedes configurar qué categorías quieres priorizar y el sistema adapta las misiones a tus objetivos.',
-              },
-              {
-                q: '¿Qué pasa si no completo todas las misiones de un día?',
-                a: 'Las misiones no completadas se resetean al día siguiente. Si rompes tu racha, el contador vuelve a 0. ASCEND no castiga — pero el ranking sí refleja tu consistencia real.',
-              },
-              {
-                q: '¿Cómo sé que el ranking es justo?',
-                a: 'El ranking se calcula en base al XP total, que solo se acumula completando misiones verificadas. No hay XP de compra ni formas de inflar el sistema. Si estás arriba, lo ganaste.',
-              },
-              {
-                q: '¿Es completamente gratuito?',
+                q: t('landing.faq.freeTitle'),
                 a: (
                   <div>
                     <p style={{ marginBottom: 18 }}>
-                      Sí. El acceso completo a misiones, XP, ranking y recompensas es <strong style={{ color: '#F5F7FB' }}>100% gratuito</strong> y lo seguirá siendo.
-                      ASCEND cree que el progreso no debería estar detrás de un paywall.
+                      {t('landing.faq.freeAnswer')}{' '}<strong style={{ color: '#F5F7FB' }}>{t('landing.faq.freeAnswerBold')}</strong>{' '}{t('landing.faq.freeAnswerEnd')}
                     </p>
-                    <div style={{
-                      display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12,
-                    }}>
-                      {/* Free */}
-                      <div style={{
-                        padding: '14px 16px', borderRadius: 2,
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                      }}>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.4)', letterSpacing: '0.2em', marginBottom: 10 }}>GRATUITO</div>
-                        {['Misiones diarias esenciales', 'XP + niveles globales', 'Ranking y rachas', 'Insignias y títulos base'].map(f => (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                      <div style={{ padding: '14px 16px', borderRadius: 2, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(160,174,203,0.4)', letterSpacing: '0.2em', marginBottom: 10 }}>{t('landing.faq.freeHeader')}</div>
+                        {translations.landing.faq.freeFeatures.map(f => (
                           <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
                             <span style={{ color: '#33E6A1', fontSize: 11, lineHeight: '18px', flexShrink: 0 }}>✓</span>
                             <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.5 }}>{f}</span>
                           </div>
                         ))}
                       </div>
-                      {/* Pro */}
-                      <div style={{
-                        padding: '14px 16px', borderRadius: 2,
-                        background: 'linear-gradient(135deg, rgba(124,92,255,0.09), rgba(51,209,255,0.05))',
-                        border: '1px solid rgba(124,92,255,0.28)',
-                        position: 'relative', overflow: 'hidden',
-                      }}>
-                        <div style={{
-                          position: 'absolute', top: 0, right: 0,
-                          background: 'linear-gradient(90deg, #7C5CFF, #33D1FF)',
-                          padding: '3px 10px',
-                          fontFamily: 'var(--font-mono)', fontSize: 8,
-                          color: '#fff', letterSpacing: '0.16em',
-                          borderBottomLeftRadius: 4,
-                        }}>PRÓXIMO</div>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(124,92,255,0.7)', letterSpacing: '0.2em', marginBottom: 10 }}>PRO</div>
-                        {['Catálogo extendido de misiones', 'Misiones personalizadas', 'Análisis avanzado de progreso', 'Cosméticos y recompensas exclusivos'].map(f => (
+                      <div style={{ padding: '14px 16px', borderRadius: 2, background: 'linear-gradient(135deg, rgba(124,92,255,0.09), rgba(51,209,255,0.05))', border: '1px solid rgba(124,92,255,0.28)', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', top: 0, right: 0, background: 'linear-gradient(90deg, #7C5CFF, #33D1FF)', padding: '3px 10px', fontFamily: 'var(--font-mono)', fontSize: 8, color: '#fff', letterSpacing: '0.16em', borderBottomLeftRadius: 4 }}>{t('landing.faq.proNote')}</div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'rgba(124,92,255,0.7)', letterSpacing: '0.2em', marginBottom: 10 }}>{t('landing.faq.proHeader')}</div>
+                        {translations.landing.faq.proFeatures.map(f => (
                           <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
                             <span style={{ color: '#7C5CFF', fontSize: 11, lineHeight: '18px', flexShrink: 0 }}>◈</span>
                             <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.65)', lineHeight: 1.5 }}>{f}</span>
@@ -1611,9 +1671,7 @@ export default function Landing() {
                         ))}
                       </div>
                     </div>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.4)', fontStyle: 'italic' }}>
-                      El modo Pro está en desarrollo. Los usuarios que se registren ahora tendrán acceso prioritario cuando llegue.
-                    </p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.4)', fontStyle: 'italic' }}>{t('landing.faq.proComingNote')}</p>
                   </div>
                 ),
               },
@@ -1663,7 +1721,7 @@ export default function Landing() {
         }} />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto' }}>
-          <Eyebrow color="#7C5CFF">El momento es ahora</Eyebrow>
+          <Eyebrow color="#7C5CFF">{t('landing.cta.eyebrow')}</Eyebrow>
 
           <h2 style={{
             fontFamily: 'var(--font-display)',
@@ -1674,15 +1732,15 @@ export default function Landing() {
             <span style={{
               background: 'linear-gradient(95deg, #7C5CFF 0%, #33D1FF 55%, #33E6A1 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            }}>DEJA DE LEER</span>
+            }}>{t('landing.cta.line1')}</span>
             <br />
-            <GlitchText>SOBRE ESTO.</GlitchText>
+            <GlitchText>{t('landing.cta.line2')}</GlitchText>
             <br />
-            <span style={{ WebkitTextStroke: isMobile ? '1px rgba(255,255,255,0.2)' : '1.5px rgba(255,255,255,0.18)', color: 'transparent' }}>EMPIEZA </span>
+            <span style={{ WebkitTextStroke: isMobile ? '1px rgba(255,255,255,0.2)' : '1.5px rgba(255,255,255,0.18)', color: 'transparent' }}>{t('landing.cta.line3')}</span>
             <span style={{
               background: 'linear-gradient(90deg, #7C5CFF, #33D1FF)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            }}>HOY.</span>
+            }}>{t('landing.cta.line4')}</span>
           </h2>
 
           <p style={{
@@ -1692,8 +1750,8 @@ export default function Landing() {
             lineHeight: 1.7, marginBottom: 44,
             maxWidth: 540, margin: '0 auto 44px',
           }}>
-            Miles de operadores ya completan misiones y construyen la mejor versión de sí mismos.
-            {' '}<strong style={{ color: '#F5F7FB' }}>Tu progreso empieza cuando tú decides empezar.</strong>
+            {t('landing.cta.desc')}
+            {' '}<strong style={{ color: '#F5F7FB' }}>{t('landing.cta.descBold')}</strong>
           </p>
 
           {/* Email form */}
@@ -1712,7 +1770,7 @@ export default function Landing() {
               type="email"
               value={heroEmail}
               onChange={e => setHeroEmail(e.target.value)}
-              placeholder="tu@email.com"
+              placeholder={t('landing.cta.placeholder')}
               style={{
                 fontFamily: 'var(--font-body)', fontSize: 14,
                 background: 'rgba(255,255,255,0.05)',
@@ -1731,7 +1789,7 @@ export default function Landing() {
               onMouseEnter={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.animationPlayState = 'paused'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#f8f8f8'; e.currentTarget.style.animationPlayState = 'running'; }}
             >
-              Empezar gratis <ArrowRight size={14} />
+              {t('landing.cta.button')} <ArrowRight size={14} />
             </button>
           </form>
           <div style={{ marginBottom: 28 }}>
@@ -1741,16 +1799,16 @@ export default function Landing() {
               onMouseEnter={e => e.currentTarget.style.color = 'rgba(160,174,203,0.8)'}
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(160,174,203,0.45)'}
             >
-              Ya tengo cuenta →
+              {t('landing.cta.haveAccount')}
             </Link>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap' }}>
-            {['Sin tarjeta de crédito', 'Gratis para siempre', 'Progreso visible desde el día 1'].map((t, i) => (
-              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {translations.landing.cta.pills.map((pill, i) => (
+              <div key={pill} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {i > 0 && <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: 10 }}>·</span>}
                 <CheckCircle2 size={11} color="rgba(51,230,161,0.55)" />
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.45)', fontWeight: 400 }}>{t}</span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'rgba(160,174,203,0.45)', fontWeight: 400 }}>{pill}</span>
               </div>
             ))}
           </div>
@@ -1782,10 +1840,10 @@ export default function Landing() {
                 fontFamily: 'var(--font-body)', fontSize: 13,
                 color: 'rgba(160,174,203,0.45)', lineHeight: 1.7, maxWidth: 260, marginBottom: 20,
               }}>
-                El sistema que convierte disciplina, hábitos y metas en progreso visible y medible.
+                {t('landing.footer.tagline')}
               </p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {[['SALUD', '#33E6A1'], ['DINERO', '#F5C451'], ['DISCIPLINA', '#7C5CFF']].map(([label, color]) => (
+                {[[translations.landing.footer.pillars[0], '#33E6A1'], [translations.landing.footer.pillars[1], '#F5C451'], [translations.landing.footer.pillars[2], '#7C5CFF']].map(([label, color]) => (
                   <span key={label} style={{
                     fontFamily: 'var(--font-mono)', fontSize: 9,
                     color, padding: '3px 8px', letterSpacing: '0.15em',
@@ -1797,9 +1855,9 @@ export default function Landing() {
 
             {/* Nav cols */}
             {[
-              { title: 'Producto', links: ['Cómo funciona', 'Ranking', 'Misiones', 'Recompensas'] },
-              { title: 'Cuenta', links: ['Registrarse', 'Iniciar sesión', 'Perfil', 'Configuración'] },
-              { title: 'Legal', links: ['Términos de uso', 'Privacidad', 'Cookies'] },
+              { title: t('landing.footer.colProduct'), links: translations.landing.footer.colProductLinks },
+              { title: t('landing.footer.colAccount'), links: translations.landing.footer.colAccountLinks },
+              { title: t('landing.footer.colLegal'), links: translations.landing.footer.colLegalLinks },
             ].map(({ title, links }) => (
               <div key={title}>
                 <div style={{
@@ -1827,12 +1885,12 @@ export default function Landing() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10,
           }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(160,174,203,0.25)', letterSpacing: '0.06em' }}>
-              © 2026 ASCEND — Todos los derechos reservados
+              {t('landing.footer.copyright')}
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#33E6A1', animation: 'pulse-glow 2s infinite' }} />
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'rgba(160,174,203,0.25)', letterSpacing: '0.06em' }}>
-                Build <span style={{ color: 'rgba(124,92,255,0.6)' }}>v1.0.0</span> · Sistema operativo de progreso humano
+                Build <span style={{ color: 'rgba(124,92,255,0.6)' }}>v1.0.0</span> · {t('landing.footer.buildInfo')}
               </span>
             </div>
           </div>

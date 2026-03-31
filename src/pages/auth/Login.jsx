@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 import AuthLayout, { AuthInput, AuthButton } from '../../components/layout/auth/AuthLayout';
 import { signIn } from '../../lib/api/auth';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function Login() {
   const [form, setForm]         = useState({ email: '', password: '' });
@@ -11,6 +12,7 @@ export default function Login() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
   const navigate                = useNavigate();
+  const { t }                   = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,9 +22,9 @@ export default function Login() {
     if (error) {
       setError(
         error.message === 'Invalid login credentials'
-          ? 'Correo o contraseña incorrectos.'
+          ? t('auth.login.wrongCredentials')
           : error.message === 'Email not confirmed'
-          ? 'Debes verificar tu correo antes de iniciar sesión.'
+          ? t('auth.login.verifyEmail')
           : error.message
       );
       setLoading(false);
@@ -45,26 +47,26 @@ export default function Login() {
             lineHeight: 0.9, letterSpacing: '0.04em', color: '#F5F7FB',
             marginBottom: 10,
           }}>
-            INICIAR<br />SESIÓN
+            {t('auth.login.title')[0]}<br />{t('auth.login.title')[1]}
           </div>
           <p style={{
             fontFamily: 'var(--font-ui)', fontSize: 13,
             color: 'rgba(160,174,203,0.45)', fontWeight: 500,
           }}>
-            Bienvenido de vuelta.
+            {t('auth.login.subtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <AuthInput
-            label="Correo electrónico" type="email" value={form.email}
+            label={t('auth.login.email')} type="email" value={form.email}
             onChange={v => setForm({ ...form, email: v })}
-            icon={<Mail size={15} />} placeholder="tu@correo.com"
+            icon={<Mail size={15} />} placeholder={t('auth.login.emailPlaceholder')}
             focused={focused === 'email'} onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} delay={0.1}
           />
 
           <AuthInput
-            label="Contraseña" type={showPass ? 'text' : 'password'} value={form.password}
+            label={t('auth.login.password')} type={showPass ? 'text' : 'password'} value={form.password}
             onChange={v => setForm({ ...form, password: v })}
             icon={<Lock size={15} />} placeholder="••••••••••"
             focused={focused === 'pass'} onFocus={() => setFocused('pass')} onBlur={() => setFocused(null)} delay={0.16}
@@ -88,13 +90,13 @@ export default function Login() {
               onMouseEnter={e => e.currentTarget.style.color = 'rgba(160,174,203,0.85)'}
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(100,120,160,0.6)'}
             >
-              ¿Sin cuenta? Regístrate
+              {t('auth.login.noAccount')}
             </Link>
             <Link to="/forgot-password" style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(100,120,160,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
               onMouseEnter={e => e.currentTarget.style.color = 'rgba(160,174,203,0.85)'}
               onMouseLeave={e => e.currentTarget.style.color = 'rgba(100,120,160,0.6)'}
             >
-              ¿Olvidaste tu contraseña?
+              {t('auth.login.forgotPassword')}
             </Link>
           </div>
 
@@ -106,7 +108,7 @@ export default function Login() {
           )}
 
           <AuthButton loading={loading} delay={0.28}>
-            {loading ? 'Entrando...' : <><span>Iniciar sesión</span><ArrowRight size={15} style={{ flexShrink: 0 }} /></>}
+            {loading ? t('auth.login.signingIn') : <><span>{t('auth.login.signIn')}</span><ArrowRight size={15} style={{ flexShrink: 0 }} /></>}
           </AuthButton>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '24px 0', animation: 'entry-up 0.5s ease 0.34s forwards', opacity: 0, animationFillMode: 'forwards' }}>
@@ -133,7 +135,7 @@ export default function Login() {
               <path fill="#FBBC05" opacity="0.35" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" opacity="0.35" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            Continuar con Google (próximamente)
+            {t('auth.login.google')}
           </button>
         </form>
       </div>

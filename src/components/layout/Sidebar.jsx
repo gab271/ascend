@@ -2,17 +2,9 @@ import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Target, User, Trophy, Gift, Settings, LogOut, Zap, Store } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { signOut } from '../../lib/api/auth';
 import { getMyProfile } from '../../lib/api/profile';
-
-const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/missions',  icon: Target,          label: 'Misiones' },
-  { to: '/shop',      icon: Store,           label: 'Tienda' },
-  { to: '/ranking',   icon: Trophy,          label: 'Ranking' },
-  { to: '/profile',   icon: User,            label: 'Perfil' },
-  { to: '/rewards',   icon: Gift,            label: 'Inventario' },
-];
 
 // Mini avatar with initials
 function Avatar({ username, size = 40 }) {
@@ -39,6 +31,7 @@ function Avatar({ username, size = 40 }) {
 
 export default function Sidebar() {
   const { user } = useAuth();
+  const { t, translations } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [profile, setProfile] = useState(null);
@@ -57,10 +50,21 @@ export default function Sidebar() {
   const coins       = profile?.coins ?? 0;
   const xpPercent   = (xp / xpNext) * 100;
 
+  const navItems = [
+    { to: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
+    { to: '/missions',  icon: Target,          label: t('nav.missions') },
+    { to: '/shop',      icon: Store,           label: t('nav.shop') },
+    { to: '/ranking',   icon: Trophy,          label: t('nav.ranking') },
+    { to: '/profile',   icon: User,            label: t('nav.profile') },
+    { to: '/rewards',   icon: Gift,            label: t('nav.rewards') },
+  ];
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
+
+  const tickerFn = translations.ticker;
 
   return (
     <aside style={{
@@ -157,7 +161,7 @@ export default function Sidebar() {
           color: 'var(--text-muted)',
           paddingLeft: 14,
         }}>
-          SISTEMA v1.0
+          {t('nav.system')}
         </div>
       </div>
 
@@ -222,7 +226,7 @@ export default function Sidebar() {
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <Zap size={10} color="var(--violet)" />
-              XP
+              {t('common.xp')}
             </span>
             <span>{xp.toLocaleString()} / {xpNext.toLocaleString()}</span>
           </div>
@@ -248,7 +252,7 @@ export default function Sidebar() {
               fontFamily: 'var(--font-mono)', fontSize: 10,
               color: 'rgba(245,196,81,0.6)', letterSpacing: '0.12em',
             }}>
-              MONEDAS
+              {t('nav.coins')}
             </span>
           </span>
           <span style={{
@@ -271,7 +275,7 @@ export default function Sidebar() {
           padding: '0 12px',
           marginBottom: 8,
         }}>
-          MENÚ
+          {t('nav.menu')}
         </div>
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
@@ -339,7 +343,7 @@ export default function Sidebar() {
           display: 'inline-block',
           animation: 'ticker-scroll 18s linear infinite',
         }}>
-          {`// SISTEMA ACTIVO // XP: ${totalXP.toLocaleString()} // RACHA: ${streak} DÍAS //   `.repeat(3)}
+          {tickerFn(totalXP.toLocaleString(), streak).repeat(3)}
         </div>
       </div>
 
@@ -377,7 +381,7 @@ export default function Sidebar() {
           }}
         >
           <Settings size={18} />
-          Configuración
+          {t('nav.settings')}
         </button>
         <button
           onClick={handleSignOut}
@@ -408,7 +412,7 @@ export default function Sidebar() {
         }}
         >
           <LogOut size={18} />
-          Cerrar Sesión
+          {t('nav.signOut')}
         </button>
       </div>
     </aside>

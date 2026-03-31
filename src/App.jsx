@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import AuthGuard from './guards/AuthGuard';
 import GuestGuard from './guards/GuestGuard';
 import Landing from './pages/Landing';
@@ -22,6 +23,7 @@ const GRAIN_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' 
 export default function App() {
   return (
     <BrowserRouter>
+    <LanguageProvider>
     <AuthProvider>
       {/* Film grain overlay — gives an analog, crafted feel to the UI */}
       <div
@@ -68,6 +70,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
+    </LanguageProvider>
     </BrowserRouter>
   );
 }

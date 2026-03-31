@@ -6,16 +6,10 @@ import {
   completeWeeklyMission as completeWeeklyMissionAPI,
 } from '../../lib/api/missions';
 import MissionCard from '../../components/game/MissionCard';
+import { useLanguage } from '../../context/LanguageContext';
 
 // ─── Attribute filter config ──────────────────────────────────
 const FILTERS = ['all', 'health', 'money', 'discipline'];
-
-const FILTER_LABELS = {
-  all:        'Todas',
-  health:     'Salud',
-  money:      'Dinero',
-  discipline: 'Disciplina',
-};
 
 const FILTER_COLORS = {
   all:        'var(--text-secondary)',
@@ -57,7 +51,7 @@ function formatCountdown(ms) {
 
 // ─── Countdown display ────────────────────────────────────────
 
-function CountdownTimer({ isWeekly }) {
+function CountdownTimer({ isWeekly, t }) {
   const [display, setDisplay] = useState('');
 
   useEffect(() => {
@@ -84,7 +78,7 @@ function CountdownTimer({ isWeekly }) {
       }} />
       <div>
         <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', color: 'var(--text-muted)', marginBottom: 2 }}>
-          {isWeekly ? 'RESETEA EL LUNES' : 'RESETEA EN'}
+          {isWeekly ? t('missions.resetsMonday') : t('missions.resetsIn')}
         </div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, color: isWeekly ? 'var(--gold)' : 'var(--cyan)', letterSpacing: '0.1em' }}>
           {display}
@@ -96,13 +90,13 @@ function CountdownTimer({ isWeekly }) {
 
 // ─── Weekly progress bar ──────────────────────────────────────
 
-function WeekProgress() {
+function WeekProgress({ t }) {
   const day = new Date().getDay(); // 0=Sun…6=Sat
   // ISO week: Mon=1…Sun=7 → convert
   const isoDay = day === 0 ? 7 : day; // 1=Mon … 7=Sun
   const pct = Math.round((isoDay / 7) * 100);
 
-  const dayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const dayLabels = t('missions.dayLabels');
 
   return (
     <div style={{
@@ -110,7 +104,7 @@ function WeekProgress() {
       borderRadius: 10, padding: '12px 18px', minWidth: 220,
     }}>
       <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', color: 'var(--text-muted)', marginBottom: 8 }}>
-        PROGRESO SEMANAL
+        {t('missions.weeklyProgress')}
       </div>
       <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
         {dayLabels.map((label, i) => {
@@ -151,6 +145,7 @@ function WeekProgress() {
 // ─── Main component ───────────────────────────────────────────
 
 export default function Missions() {
+  const { t } = useLanguage();
   const [tab,          setTab]          = useState('daily');   // 'daily' | 'weekly'
   const [daily,        setDaily]        = useState([]);
   const [weekly,       setWeekly]       = useState([]);
@@ -201,7 +196,7 @@ export default function Missions() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>{t('common.loading')}</div>
     </div>
   );
 
@@ -211,41 +206,41 @@ export default function Missions() {
       {/* ── Type tab selector ── */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 28, alignItems: 'center', flexWrap: 'wrap' }}>
         {[
-          { id: 'daily',  label: 'DIARIAS',   badge: daily.length,  color: 'var(--cyan)' },
-          { id: 'weekly', label: 'SEMANALES', badge: weekly.length, color: 'var(--gold)' },
-        ].map(t => (
+          { id: 'daily',  label: t('missions.daily'),  badge: daily.length,  color: 'var(--cyan)' },
+          { id: 'weekly', label: t('missions.weekly'), badge: weekly.length, color: 'var(--gold)' },
+        ].map(tabItem => (
           <button
-            key={t.id}
-            onClick={() => { setTab(t.id); setActiveFilter('all'); }}
+            key={tabItem.id}
+            onClick={() => { setTab(tabItem.id); setActiveFilter('all'); }}
             style={{
               display: 'flex', alignItems: 'center', gap: 10,
               padding: '12px 24px', borderRadius: 12,
               fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, letterSpacing: '0.1em',
               cursor: 'pointer', transition: 'var(--transition)',
-              background: tab === t.id
-                ? `linear-gradient(135deg, ${t.color}22, ${t.color}10)`
+              background: tab === tabItem.id
+                ? `linear-gradient(135deg, ${tabItem.color}22, ${tabItem.color}10)`
                 : 'var(--panel)',
-              border: `1px solid ${tab === t.id ? t.color : 'var(--border)'}`,
-              color: tab === t.id ? t.color : 'var(--text-muted)',
-              boxShadow: tab === t.id ? `0 4px 20px ${t.color}22` : 'none',
+              border: `1px solid ${tab === tabItem.id ? tabItem.color : 'var(--border)'}`,
+              color: tab === tabItem.id ? tabItem.color : 'var(--text-muted)',
+              boxShadow: tab === tabItem.id ? `0 4px 20px ${tabItem.color}22` : 'none',
             }}
           >
-            {t.label}
+            {tabItem.label}
             <span style={{
               fontFamily: 'var(--font-mono)', fontSize: 11,
-              background: tab === t.id ? t.color : 'var(--border)',
-              color: tab === t.id ? 'var(--void)' : 'var(--text-muted)',
+              background: tab === tabItem.id ? tabItem.color : 'var(--border)',
+              color: tab === tabItem.id ? 'var(--void)' : 'var(--text-muted)',
               borderRadius: 4, padding: '1px 6px',
             }}>
-              {t.badge}
+              {tabItem.badge}
             </span>
           </button>
         ))}
 
         {/* Countdown + week progress on the right */}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <CountdownTimer isWeekly={tab === 'weekly'} />
-          {tab === 'weekly' && <WeekProgress />}
+          <CountdownTimer isWeekly={tab === 'weekly'} t={t} />
+          {tab === 'weekly' && <WeekProgress t={t} />}
         </div>
       </div>
 
@@ -253,17 +248,17 @@ export default function Missions() {
       <div style={{ display: 'flex', gap: 16, marginBottom: 28 }}>
         {[
           {
-            label: tab === 'daily' ? 'MISIONES ACTIVAS' : 'DESAFÍOS ACTIVOS',
+            label: tab === 'daily' ? t('missions.active') : t('missions.activeChallenges'),
             value: missions.length - completedCount,
             color: tab === 'daily' ? 'var(--cyan)' : 'var(--gold)',
           },
           {
-            label: 'COMPLETADAS',
+            label: t('missions.completed'),
             value: `${completedCount} / ${missions.length}`,
             color: 'var(--green)',
           },
           {
-            label: 'XP DISPONIBLE',
+            label: t('missions.availableXP'),
             value: `${pendingXP.toLocaleString()} XP`,
             color: 'var(--violet)',
           },
@@ -297,10 +292,10 @@ export default function Missions() {
           <div style={{ fontSize: 22 }}>⚔️</div>
           <div>
             <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, color: 'var(--gold)', letterSpacing: '0.08em', marginBottom: 2 }}>
-              DESAFÍOS SEMANALES
+              {t('missions.weeklyChallenges')}
             </div>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)' }}>
-              Misiones de alto impacto. Tienes 7 días para completarlas — resetean cada lunes a medianoche.
+              {t('missions.weeklyDesc')}
             </div>
           </div>
         </div>
@@ -312,22 +307,30 @@ export default function Missions() {
         background: 'var(--panel)', border: '1px solid var(--border)',
         borderRadius: 12, width: 'fit-content',
       }}>
-        {FILTERS.map(f => (
-          <button
-            key={f}
-            onClick={() => setActiveFilter(f)}
-            style={{
-              padding: '8px 18px', borderRadius: 8,
-              fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, letterSpacing: '0.08em',
-              color: activeFilter === f ? 'white' : 'var(--text-muted)',
-              background: activeFilter === f ? FILTER_COLORS[f] : 'transparent',
-              border: 'none', cursor: 'pointer', transition: 'var(--transition)',
-              boxShadow: activeFilter === f ? `0 4px 14px ${FILTER_COLORS[f]}44` : 'none',
-            }}
-          >
-            {FILTER_LABELS[f]}
-          </button>
-        ))}
+        {FILTERS.map(f => {
+          const filterLabel = {
+            all:        t('missions.filterAll'),
+            health:     t('missions.filterHealth'),
+            money:      t('missions.filterMoney'),
+            discipline: t('missions.filterDiscipline'),
+          }[f];
+          return (
+            <button
+              key={f}
+              onClick={() => setActiveFilter(f)}
+              style={{
+                padding: '8px 18px', borderRadius: 8,
+                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, letterSpacing: '0.08em',
+                color: activeFilter === f ? 'white' : 'var(--text-muted)',
+                background: activeFilter === f ? FILTER_COLORS[f] : 'transparent',
+                border: 'none', cursor: 'pointer', transition: 'var(--transition)',
+                boxShadow: activeFilter === f ? `0 4px 14px ${FILTER_COLORS[f]}44` : 'none',
+              }}
+            >
+              {filterLabel}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Mission cards grid ── */}
@@ -348,7 +351,7 @@ export default function Missions() {
           color: 'var(--text-muted)', fontFamily: 'var(--font-ui)',
           fontSize: 16, letterSpacing: '0.1em',
         }}>
-          NO HAY MISIONES EN ESTA CATEGORÍA
+          {t('missions.noMissions')}
         </div>
       )}
 

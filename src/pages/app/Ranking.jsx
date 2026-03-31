@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { getRanking } from '../../lib/api/ranking';
 import PodiumCard from '../../components/game/PodiumCard';
 import ChangeIndicator from '../../components/game/ChangeIndicator';
@@ -17,6 +18,7 @@ function normalize(rows) {
 }
 
 export default function Ranking() {
+  const { t } = useLanguage();
   const [period,   setPeriod]   = useState('week');
   const [ranking,  setRanking]  = useState([]);
   const [loading,  setLoading]  = useState(true);
@@ -30,7 +32,7 @@ export default function Ranking() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>{t('common.loading')}</div>
     </div>
   );
 
@@ -56,7 +58,7 @@ export default function Ranking() {
           </div>
           <div>
             <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', color: 'var(--text-muted)', marginBottom: 2 }}>
-              TU POSICIÓN
+              {t('ranking.yourPosition')}
             </div>
             <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 16, color: 'var(--violet)', letterSpacing: '0.05em' }}>
               {me?.username}
@@ -65,15 +67,15 @@ export default function Ranking() {
         </div>
         <div style={{ display: 'flex', gap: 24 }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', marginBottom: 3 }}>NIVEL</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', marginBottom: 3 }}>{t('ranking.level')}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--cyan)' }}>{me?.level}</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', marginBottom: 3 }}>XP TOTAL</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', marginBottom: 3 }}>{t('ranking.totalXP')}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--violet)' }}>{((me?.xp ?? 0) / 1000).toFixed(1)}K</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', marginBottom: 3 }}>CAMBIO</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', marginBottom: 3 }}>{t('ranking.change')}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--green)' }}>
               {me?.change >= 0 ? `↑${me.change}` : `↓${Math.abs(me?.change ?? 0)}`}
             </div>
@@ -84,7 +86,7 @@ export default function Ranking() {
       {/* Period selector */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
         <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11, letterSpacing: '0.2em', color: 'var(--text-muted)' }}>
-          CLASIFICACIÓN GLOBAL
+          {t('ranking.globalRanking')}
         </div>
         <div style={{ display: 'flex', gap: 6, background: 'var(--panel)', border: '1px solid var(--border)', borderRadius: 8, padding: 4 }}>
           {['week', 'month', 'all'].map(p => (
@@ -99,7 +101,7 @@ export default function Ranking() {
                 border: 'none', cursor: 'pointer', transition: 'var(--transition)', textTransform: 'uppercase',
               }}
             >
-              {p === 'week' ? 'Semana' : p === 'month' ? 'Mes' : 'Total'}
+              {p === 'week' ? t('ranking.week') : p === 'month' ? t('ranking.month') : t('ranking.total')}
             </button>
           ))}
         </div>
@@ -120,7 +122,7 @@ export default function Ranking() {
         }} />
 
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.3em', color: 'var(--text-muted)', textAlign: 'center', marginBottom: 32 }}>
-          TOP JUGADORES
+          {t('ranking.topPlayers')}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 24, position: 'relative' }}>
@@ -137,12 +139,12 @@ export default function Ranking() {
           gap: 8, padding: '12px 24px', borderBottom: '1px solid var(--border)',
           fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.15em', color: 'var(--text-muted)',
         }}>
-          <span>POS</span>
-          <span>JUGADOR</span>
-          <span>TÍTULO</span>
-          <span style={{ textAlign: 'right' }}>NIVEL</span>
+          <span>{t('ranking.pos')}</span>
+          <span>{t('ranking.player')}</span>
+          <span>{t('ranking.title')}</span>
+          <span style={{ textAlign: 'right' }}>{t('ranking.level')}</span>
           <span style={{ textAlign: 'right' }}>XP</span>
-          <span style={{ textAlign: 'center' }}>CAMBIO</span>
+          <span style={{ textAlign: 'center' }}>{t('ranking.change')}</span>
         </div>
 
         {rest.map((user, i) => {
@@ -179,7 +181,7 @@ export default function Ranking() {
                     {user.username}
                     {user.isMe && (
                       <span style={{ marginLeft: 8, fontFamily: 'var(--font-ui)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--violet)', background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.4)', borderRadius: 3, padding: '1px 6px' }}>
-                        TÚ
+                        {t('ranking.you')}
                       </span>
                     )}
                   </div>

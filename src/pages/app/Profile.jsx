@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { getMyProfile, getRewardsCatalog, getWeeklyXP, uploadAvatar } from '../../lib/api/profile';
 import { getMyRank } from '../../lib/api/ranking';
 import { supabase } from '../../lib/supabase';
@@ -102,6 +103,7 @@ function BadgeCard({ badge }) {
 }
 
 export default function Profile() {
+  const { t, lang } = useLanguage();
   const [activeTab,    setActiveTab]    = useState('badges');
   const [profile,      setProfile]      = useState(null);
   const [badges,       setBadges]       = useState([]);
@@ -145,11 +147,12 @@ export default function Profile() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>CARGANDO...</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.2em' }}>{t('common.loading')}</div>
     </div>
   );
 
   const xpPercent = (profile.xp / profile.xp_next) * 100;
+  const dateLocale = lang === 'es' ? 'es-ES' : 'en-US';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -248,23 +251,23 @@ export default function Profile() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 56, color: 'var(--text)', lineHeight: 1, textShadow: '0 0 30px rgba(124,92,255,0.4)' }}>{profile.level}</span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, letterSpacing: '0.15em', color: 'var(--text-muted)' }}>NIVEL</span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13, letterSpacing: '0.15em', color: 'var(--text-muted)' }}>{t('profile.level')}</span>
               </div>
               <div style={{ width: 1, height: 48, background: 'var(--border)' }} />
               <div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>XP TOTAL</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{t('common.totalXP')}</div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--violet)' }}>{profile.total_xp.toLocaleString()}</div>
               </div>
               <div style={{ width: 1, height: 48, background: 'var(--border)' }} />
               <div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>RACHA</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--gold)' }}>🔥 {profile.streak} días</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{t('common.streak')}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: 'var(--gold)' }}>🔥 {profile.streak} {t('profile.days')}</div>
               </div>
             </div>
 
             <div style={{ maxWidth: 480 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--violet)' }}>Nivel {profile.level} → {profile.level + 1}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--violet)' }}>{t('common.level')} {profile.level} → {profile.level + 1}</span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{profile.xp.toLocaleString()} / {profile.xp_next.toLocaleString()} XP</span>
               </div>
               <div style={{ height: 10, background: 'rgba(255,255,255,0.05)', borderRadius: 5, overflow: 'hidden', border: '1px solid var(--border)' }}>
@@ -276,9 +279,9 @@ export default function Profile() {
           </div>
 
           <div style={{ textAlign: 'right', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
-            JUGADOR DESDE<br />
+            {t('profile.playerSince')}<br />
             <span style={{ color: 'var(--text-secondary)' }}>
-              {new Date(profile.created_at).toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }).toUpperCase()}
+              {new Date(profile.created_at).toLocaleDateString(dateLocale, { month: 'short', year: 'numeric' }).toUpperCase()}
             </span>
           </div>
         </div>
@@ -288,17 +291,17 @@ export default function Profile() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
 
         <div className="card">
-          <div className="section-label">ATRIBUTOS</div>
+          <div className="section-label">{t('profile.attributes')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <ProfileStat label="SALUD"      value={profile.stat_health}     color="var(--green)"  icon={Shield} />
-            <ProfileStat label="DINERO"     value={profile.stat_money}      color="var(--gold)"   icon={DollarSign} />
-            <ProfileStat label="DISCIPLINA" value={profile.stat_discipline} color="var(--violet)" icon={Zap} />
+            <ProfileStat label={t('common.health')}     value={profile.stat_health}     color="var(--green)"  icon={Shield} />
+            <ProfileStat label={t('common.money')}      value={profile.stat_money}      color="var(--gold)"   icon={DollarSign} />
+            <ProfileStat label={t('common.discipline')} value={profile.stat_discipline} color="var(--violet)" icon={Zap} />
           </div>
         </div>
 
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div className="section-label" style={{ marginBottom: 0 }}>INSIGNIAS</div>
+            <div className="section-label" style={{ marginBottom: 0 }}>{t('profile.badges')}</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>
               {badges.filter(b => b.unlocked).length}/{badges.length}
             </div>
@@ -318,7 +321,7 @@ export default function Profile() {
                   cursor: 'pointer', transition: 'var(--transition)', textTransform: 'uppercase',
                 }}
               >
-                {tab === 'badges' ? 'Insignias' : 'Estadísticas'}
+                {tab === 'badges' ? t('profile.badges') : t('profile.stats')}
               </button>
             ))}
           </div>
@@ -332,10 +335,10 @@ export default function Profile() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { label: 'Misiones Completadas',   value: statsData.missionsCompleted,                        suffix: '' },
-                { label: 'Días de Racha Máxima',   value: profile.longest_streak ?? 0,                       suffix: ' días' },
-                { label: 'XP Ganado Esta Semana',  value: statsData.weeklyXP.toLocaleString(),               suffix: ' XP' },
-                { label: 'Posición en Ranking',    value: statsData.rankPosition > 0 ? statsData.rankPosition : '—', suffix: statsData.rankPosition > 0 ? '°' : '' },
+                { label: t('profile.missionsCompleted'), value: statsData.missionsCompleted,                        suffix: '' },
+                { label: t('profile.maxStreak'),         value: profile.longest_streak ?? 0,                       suffix: ` ${t('profile.days')}` },
+                { label: t('profile.weeklyXP'),          value: statsData.weeklyXP.toLocaleString(),               suffix: ' XP' },
+                { label: t('profile.rankPosition'),      value: statsData.rankPosition > 0 ? statsData.rankPosition : '—', suffix: statsData.rankPosition > 0 ? '°' : '' },
               ].map(stat => (
                 <div
                   key={stat.label}

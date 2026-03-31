@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { getShopRotation, purchaseShopItem } from '../../lib/api/shop';
 import { getMyProfile } from '../../lib/api/profile';
 
 // ─── Rarity config ────────────────────────────────────────────
-const RARITY = {
-  common:    { color: '#8B9AB3', glow: 'rgba(139,154,179,0.35)', label: 'COMÚN' },
-  rare:      { color: '#33D1FF', glow: 'rgba(51,209,255,0.45)',  label: 'RARA'  },
-  epic:      { color: '#7C5CFF', glow: 'rgba(124,92,255,0.5)',   label: 'ÉPICA' },
-  legendary: { color: '#F5C451', glow: 'rgba(245,196,81,0.55)',  label: 'LEGENDARIA' },
+const RARITY_BASE = {
+  common:    { color: '#8B9AB3', glow: 'rgba(139,154,179,0.35)' },
+  rare:      { color: '#33D1FF', glow: 'rgba(51,209,255,0.45)'  },
+  epic:      { color: '#7C5CFF', glow: 'rgba(124,92,255,0.5)'   },
+  legendary: { color: '#F5C451', glow: 'rgba(245,196,81,0.55)'  },
 };
 
 // ─── Countdown to UTC midnight ────────────────────────────────
@@ -29,7 +30,7 @@ function formatCountdown(ms) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sc).padStart(2, '0')}`;
 }
 
-function RotationTimer() {
+function RotationTimer({ t }) {
   const [display, setDisplay] = useState('');
   useEffect(() => {
     const tick = () => setDisplay(formatCountdown(getMsUntilUtcMidnight()));
@@ -50,7 +51,7 @@ function RotationTimer() {
         fontFamily: 'var(--font-mono)', fontSize: 11,
         color: 'var(--text-muted)', letterSpacing: '0.1em',
       }}>
-        NUEVA ROTACIÓN EN&nbsp;
+        {t('shop.newRotation')}&nbsp;
       </span>
       <span style={{
         fontFamily: 'var(--font-mono)', fontSize: 14,
@@ -65,7 +66,7 @@ function RotationTimer() {
 // ─── CSS-based item visual preview ───────────────────────────
 function ItemPreview({ item, size = 'normal' }) {
   const { item_type, config, rarity } = item;
-  const r = RARITY[rarity] || RARITY.common;
+  const r = RARITY_BASE[rarity] || RARITY_BASE.common;
   const isLarge = size === 'large';
   const h = isLarge ? 180 : 120;
 
@@ -242,17 +243,9 @@ function ItemPreview({ item, size = 'normal' }) {
   return <div style={{ ...containerStyle, fontSize: 32 }}>🎁</div>;
 }
 
-// ─── Type label ───────────────────────────────────────────────
-const TYPE_LABELS = {
-  animated_frame: 'MARCO ANIMADO',
-  emote:          'EMOTE',
-  nameplate:      'CHAPA',
-  profile_banner: 'BANNER DE PERFIL',
-};
-
 // ─── Shop item card ───────────────────────────────────────────
-function ShopCard({ item, onPurchase, purchasing, featured = false }) {
-  const r = RARITY[item.rarity] || RARITY.common;
+function ShopCard({ item, onPurchase, purchasing, featured = false, t }) {
+  const r = { ...RARITY_BASE[item.rarity] || RARITY_BASE.common, label: t(`shop.rarities.${item.rarity}`) };
   const [hovered, setHovered] = useState(false);
   const [justBought, setJustBought] = useState(false);
 
@@ -302,7 +295,7 @@ function ShopCard({ item, onPurchase, purchasing, featured = false }) {
           fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 9,
           letterSpacing: '0.2em', padding: '3px 10px', borderRadius: 3,
         }}>
-          ⭐ DESTACADO
+          {t('shop.featured')}
         </div>
       )}
 
@@ -316,7 +309,7 @@ function ShopCard({ item, onPurchase, purchasing, featured = false }) {
           fontFamily: 'var(--font-mono)', fontSize: 9,
           letterSpacing: '0.15em', padding: '3px 10px', borderRadius: 3,
         }}>
-          ✓ ADQUIRIDO
+          {t('shop.acquired')}
         </div>
       )}
 
@@ -333,7 +326,7 @@ function ShopCard({ item, onPurchase, purchasing, featured = false }) {
             fontFamily: 'var(--font-mono)', fontSize: 9,
             color: 'var(--text-muted)', letterSpacing: '0.12em',
           }}>
-            {TYPE_LABELS[item.item_type] || item.item_type.toUpperCase()}
+            {t(`shop.typeLabels.${item.item_type}`) || item.item_type.toUpperCase()}
           </span>
           <span style={{
             fontFamily: 'var(--font-mono)', fontSize: 9,
@@ -407,7 +400,7 @@ function ShopCard({ item, onPurchase, purchasing, featured = false }) {
                 boxShadow: hovered ? `0 4px 16px ${r.glow}` : 'none',
               }}
             >
-              {justBought ? '✓ COMPRADO' : purchasing ? '...' : 'COMPRAR'}
+              {justBought ? t('shop.bought') : purchasing ? '...' : t('shop.buy')}
             </button>
           )}
         </div>
@@ -418,6 +411,7 @@ function ShopCard({ item, onPurchase, purchasing, featured = false }) {
 
 // ─── Main Shop page ───────────────────────────────────────────
 export default function Shop() {
+  const { t } = useLanguage();
   const [items, setItems]         = useState([]);
   const [coins, setCoins]         = useState(0);
   const [loading, setLoading]     = useState(true);
@@ -447,13 +441,13 @@ export default function Shop() {
     setPurchasing(false);
 
     if (error) {
-      const hint = error.hint || error.message || 'Error desconocido';
+      const hint = error.hint || error.message || '';
       showToast(
         hint === 'INSUFFICIENT_COINS' || hint.includes('coins')
-          ? 'Monedas insuficientes.'
+          ? t('shop.insufficientCoins')
           : hint.includes('already own')
-            ? 'Ya tienes este ítem.'
-            : 'Error al comprar.',
+            ? t('shop.alreadyOwned')
+            : t('shop.purchaseError'),
         'error'
       );
       return false;
@@ -464,7 +458,7 @@ export default function Shop() {
       it.shop_item_id === itemId ? { ...it, owned: true } : it
     ));
     setCoins(data.coins_remaining);
-    showToast(`"${data.item_name}" adquirido. −${data.coins_spent.toLocaleString()} 🪙`);
+    showToast(`"${data.item_name}" ${t('shop.acquired')} −${data.coins_spent.toLocaleString()} 🪙`);
     return true;
   }, []);
 
@@ -479,7 +473,7 @@ export default function Shop() {
         fontFamily: 'var(--font-mono)', fontSize: 12,
         color: 'var(--text-muted)', letterSpacing: '0.2em',
       }}>
-        CARGANDO TIENDA...
+        {t('shop.loading')}
       </div>
     </div>
   );
@@ -517,13 +511,13 @@ export default function Shop() {
             fontFamily: 'var(--font-mono)', fontSize: 10,
             color: 'var(--text-muted)', letterSpacing: '0.22em', marginBottom: 6,
           }}>
-            // MERCADO NOCTURNO
+            {t('shop.nightMarket')}
           </div>
           <h1 style={{
             fontFamily: 'var(--font-display)', fontSize: 38,
             color: 'var(--text)', letterSpacing: '0.08em', lineHeight: 1,
           }}>
-            TIENDA DIARIA
+            {t('shop.dailyStore')}
           </h1>
         </div>
 
@@ -533,7 +527,7 @@ export default function Shop() {
             background: 'var(--panel)', border: '1px solid var(--border)',
             borderRadius: 10, padding: '10px 18px',
           }}>
-            <RotationTimer />
+            <RotationTimer t={t} />
           </div>
 
           {/* Coin balance */}
@@ -550,7 +544,7 @@ export default function Shop() {
                 fontFamily: 'var(--font-mono)', fontSize: 9,
                 color: 'rgba(245,196,81,0.6)', letterSpacing: '0.2em', marginBottom: 2,
               }}>
-                MONEDAS
+                {t('shop.coins')}
               </div>
               <div style={{
                 fontFamily: 'var(--font-display)', fontSize: 26,
@@ -575,8 +569,7 @@ export default function Shop() {
           fontFamily: 'var(--font-body)', fontSize: 13,
           color: 'var(--text-muted)', lineHeight: 1.5,
         }}>
-          Completa misiones para ganar monedas. Estos ítems son exclusivos de la tienda — no se
-          obtienen por XP. La selección rota cada día a medianoche (UTC).
+          {t('shop.infoText')}
         </p>
       </div>
 
@@ -587,7 +580,7 @@ export default function Shop() {
           fontFamily: 'var(--font-ui)', fontSize: 16,
           color: 'var(--text-muted)', letterSpacing: '0.1em',
         }}>
-          LA TIENDA ESTÁ CARGANDO SU INVENTARIO...
+          {t('shop.empty')}
         </div>
       )}
 
@@ -614,6 +607,7 @@ export default function Shop() {
                   item={item}
                   onPurchase={handlePurchase}
                   purchasing={purchasing}
+                  t={t}
                 />
               ))}
             </div>
@@ -626,6 +620,7 @@ export default function Shop() {
               onPurchase={handlePurchase}
               purchasing={purchasing}
               featured
+              t={t}
             />
           )}
         </div>
