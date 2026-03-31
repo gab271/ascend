@@ -575,67 +575,101 @@ export default function Landing() {
 
               {langOpen && (
                 <div style={{
-                  position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                  background: 'rgba(13,15,26,0.96)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(124,92,255,0.2)',
-                  borderRadius: 10,
+                  position: 'absolute', top: 'calc(100% + 12px)', right: 0,
+                  background: '#1c1f30',
+                  border: '1px solid rgba(124,92,255,0.4)',
+                  borderRadius: 12,
                   overflow: 'hidden',
-                  boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,92,255,0.06)',
-                  minWidth: 110,
+                  boxShadow: '0 20px 60px rgba(0,0,0,0.75), 0 0 30px rgba(124,92,255,0.12)',
+                  minWidth: 168,
                   animation: 'lang-drop 0.18s cubic-bezier(0.4,0,0.2,1)',
                 }}>
-                  {/* Glowing top edge */}
+                  {/* Violet top glow bar */}
                   <div style={{
-                    height: 1,
-                    background: 'linear-gradient(90deg, transparent, rgba(124,92,255,0.6), rgba(51,209,255,0.4), transparent)',
+                    height: 2,
+                    background: 'linear-gradient(90deg, #7C5CFF, #33D1FF)',
                   }} />
 
-                  {[
-                    { code: 'en', flag: '🇬🇧', label: 'English' },
-                    { code: 'es', flag: '🇪🇸', label: 'Español' },
-                  ].map(({ code, flag, label }) => (
-                    <button
-                      key={code}
-                      onClick={() => { setLang(code); setLangOpen(false); }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 10,
-                        width: '100%', padding: '10px 14px',
-                        background: lang === code
-                          ? 'linear-gradient(90deg, rgba(124,92,255,0.12), rgba(51,209,255,0.06))'
-                          : 'transparent',
-                        border: 'none',
-                        borderLeft: `2px solid ${lang === code ? 'rgba(124,92,255,0.7)' : 'transparent'}`,
-                        cursor: 'pointer',
-                        transition: 'background 0.15s',
-                        textAlign: 'left',
-                      }}
-                      onMouseEnter={e => {
-                        if (lang !== code) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                      }}
-                      onMouseLeave={e => {
-                        if (lang !== code) e.currentTarget.style.background = 'transparent';
-                      }}
-                    >
-                      <span style={{ fontSize: 14, lineHeight: 1 }}>{flag}</span>
-                      <span style={{
-                        fontFamily: 'var(--font-ui)', fontSize: 12, fontWeight: 600,
-                        letterSpacing: '0.03em',
-                        color: lang === code ? '#fff' : 'rgba(160,174,203,0.75)',
-                      }}>
-                        {label}
-                      </span>
-                      {lang === code && (
-                        <span style={{
-                          marginLeft: 'auto',
-                          width: 5, height: 5, borderRadius: '50%',
-                          background: 'var(--violet)',
-                          boxShadow: '0 0 6px rgba(124,92,255,0.8)',
-                          flexShrink: 0,
-                        }} />
-                      )}
-                    </button>
-                  ))}
+                  <div style={{ padding: '6px' }}>
+                    {[
+                      { code: 'en', badge: 'EN', label: 'English',  sub: 'English' },
+                      { code: 'es', badge: 'ES', label: 'Español',  sub: 'Spanish' },
+                    ].map(({ code, badge, label }) => {
+                      const active = lang === code;
+                      return (
+                        <button
+                          key={code}
+                          onClick={() => { setLang(code); setLangOpen(false); }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 10,
+                            width: '100%', padding: '9px 10px',
+                            borderRadius: 8,
+                            background: active
+                              ? 'linear-gradient(135deg, rgba(124,92,255,0.22), rgba(51,209,255,0.1))'
+                              : 'transparent',
+                            border: active
+                              ? '1px solid rgba(124,92,255,0.35)'
+                              : '1px solid transparent',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s',
+                            textAlign: 'left',
+                          }}
+                          onMouseEnter={e => {
+                            if (!active) {
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                            }
+                          }}
+                          onMouseLeave={e => {
+                            if (!active) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.borderColor = 'transparent';
+                            }
+                          }}
+                        >
+                          {/* Country code badge */}
+                          <div style={{
+                            width: 32, height: 22,
+                            borderRadius: 5,
+                            background: active
+                              ? 'linear-gradient(135deg, #7C5CFF, #33D1FF)'
+                              : 'rgba(255,255,255,0.08)',
+                            border: active ? 'none' : '1px solid rgba(255,255,255,0.12)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                            transition: 'all 0.15s',
+                          }}>
+                            <span style={{
+                              fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 800,
+                              letterSpacing: '0.06em',
+                              color: active ? '#fff' : 'rgba(200,210,230,0.7)',
+                            }}>
+                              {badge}
+                            </span>
+                          </div>
+
+                          {/* Label */}
+                          <span style={{
+                            fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: active ? 700 : 500,
+                            letterSpacing: '0.01em',
+                            color: active ? '#F5F7FB' : 'rgba(200,210,230,0.7)',
+                            transition: 'color 0.15s',
+                          }}>
+                            {label}
+                          </span>
+
+                          {/* Active dot */}
+                          {active && (
+                            <svg style={{ marginLeft: 'auto', flexShrink: 0 }} width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <circle cx="7" cy="7" r="6" stroke="rgba(124,92,255,0.4)" strokeWidth="1"/>
+                              <circle cx="7" cy="7" r="3" fill="#7C5CFF"/>
+                              <circle cx="7" cy="7" r="3" fill="#7C5CFF" style={{ filter: 'blur(3px)' }}/>
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -766,45 +800,53 @@ export default function Landing() {
             </a>
           ))}
           {/* Mobile lang options — always expanded in drawer */}
-          <div style={{
-            display: 'flex', gap: 8, marginTop: 16, marginBottom: 4,
-          }}>
+          <div style={{ display: 'flex', gap: 8, marginTop: 16, marginBottom: 4 }}>
             {[
-              { code: 'en', flag: '🇬🇧', label: 'English' },
-              { code: 'es', flag: '🇪🇸', label: 'Español' },
-            ].map(({ code, flag, label }) => (
-              <button
-                key={code}
-                onClick={() => setLang(code)}
-                style={{
-                  flex: 1, display: 'flex', alignItems: 'center', gap: 8,
-                  padding: '10px 14px', borderRadius: 8,
-                  background: lang === code
-                    ? 'linear-gradient(135deg, rgba(124,92,255,0.18), rgba(51,209,255,0.08))'
-                    : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${lang === code ? 'rgba(124,92,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                  cursor: 'pointer', transition: 'all 0.18s',
-                }}
-              >
-                <span style={{ fontSize: 16, lineHeight: 1 }}>{flag}</span>
-                <span style={{
-                  fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600,
-                  color: lang === code ? '#fff' : 'rgba(160,174,203,0.6)',
-                  letterSpacing: '0.02em',
-                }}>
-                  {label}
-                </span>
-                {lang === code && (
+              { code: 'en', badge: 'EN', label: 'English' },
+              { code: 'es', badge: 'ES', label: 'Español' },
+            ].map(({ code, badge, label }) => {
+              const active = lang === code;
+              return (
+                <button
+                  key={code}
+                  onClick={() => setLang(code)}
+                  style={{
+                    flex: 1, display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '11px 14px', borderRadius: 10,
+                    background: active
+                      ? 'linear-gradient(135deg, rgba(124,92,255,0.22), rgba(51,209,255,0.1))'
+                      : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${active ? 'rgba(124,92,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                    cursor: 'pointer', transition: 'all 0.18s',
+                    boxShadow: active ? '0 0 16px rgba(124,92,255,0.15)' : 'none',
+                  }}
+                >
+                  <div style={{
+                    width: 34, height: 22, borderRadius: 5, flexShrink: 0,
+                    background: active ? 'linear-gradient(135deg, #7C5CFF, #33D1FF)' : 'rgba(255,255,255,0.08)',
+                    border: active ? 'none' : '1px solid rgba(255,255,255,0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 800,
+                      letterSpacing: '0.06em',
+                      color: active ? '#fff' : 'rgba(200,210,230,0.7)',
+                    }}>{badge}</span>
+                  </div>
                   <span style={{
-                    marginLeft: 'auto',
-                    width: 5, height: 5, borderRadius: '50%',
-                    background: 'var(--violet)',
-                    boxShadow: '0 0 6px rgba(124,92,255,0.8)',
-                    flexShrink: 0,
-                  }} />
-                )}
-              </button>
-            ))}
+                    fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: active ? 700 : 500,
+                    color: active ? '#F5F7FB' : 'rgba(200,210,230,0.65)',
+                    letterSpacing: '0.01em',
+                  }}>{label}</span>
+                  {active && (
+                    <svg style={{ marginLeft: 'auto', flexShrink: 0 }} width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="6" stroke="rgba(124,92,255,0.4)" strokeWidth="1"/>
+                      <circle cx="7" cy="7" r="3" fill="#7C5CFF"/>
+                    </svg>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
