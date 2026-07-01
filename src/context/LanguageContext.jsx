@@ -1,11 +1,11 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useState } from 'react';
 import en from '../i18n/en';
 import es from '../i18n/es';
 
 const TRANSLATIONS = { en, es };
 const STORAGE_KEY = 'ascend_lang';
 
-const LanguageContext = createContext(null);
+export const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState(
@@ -17,8 +17,6 @@ export function LanguageProvider({ children }) {
     setLangState(l);
   };
 
-  // t(key) — dot-path lookup, e.g. t('dashboard.loading')
-  // Returns the value or the key itself as fallback
   function t(key) {
     const keys = key.split('.');
     let val = TRANSLATIONS[lang];
@@ -34,10 +32,4 @@ export function LanguageProvider({ children }) {
       {children}
     </LanguageContext.Provider>
   );
-}
-
-export function useLanguage() {
-  const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error('useLanguage must be used inside LanguageProvider');
-  return ctx;
 }

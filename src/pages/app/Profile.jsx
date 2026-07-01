@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
-import { getMyProfile, getRewardsCatalog, getWeeklyXP, uploadAvatar } from '../../lib/api/profile';
+import { useLanguage } from '../../hooks/useLanguage';
+import { getMyProfileFull, getRewardsCatalog, getWeeklyXP, uploadAvatar } from '../../lib/api/profile';
 import { getMyRank } from '../../lib/api/ranking';
 import { supabase } from '../../lib/supabase';
 import { RARITY_CONFIG } from '../../config/rarities';
@@ -115,7 +115,7 @@ export default function Profile() {
 
   useEffect(() => {
     Promise.all([
-      getMyProfile(),
+      getMyProfileFull(),
       getRewardsCatalog(),
       getWeeklyXP(),
       getMyRank(),

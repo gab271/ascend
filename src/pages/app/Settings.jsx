@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { User, Lock, Bell, AlertTriangle, Eye, EyeOff, Check, Shield, Zap, Crown, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
 import { signOut } from '../../lib/api/auth';
 import { supabase } from '../../lib/supabase';
 import Toggle from '../../components/ui/Toggle';

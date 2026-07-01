@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../hooks/useLanguage';
 import { signOut } from '../lib/api/auth';
 import {
   ArrowRight, Zap, TrendingUp, Trophy,
@@ -394,7 +394,7 @@ export default function Landing() {
   const handleSignOut = async () => {
     setDropdownOpen(false);
     await signOut();
-    navigate('/');
+    window.location.href = '/';
   };
 
   useEffect(() => {

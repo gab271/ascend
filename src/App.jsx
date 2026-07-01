@@ -3,6 +3,8 @@ import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import AuthGuard from './guards/AuthGuard';
 import GuestGuard from './guards/GuestGuard';
+import OnboardingGuard from './guards/OnboardingGuard';
+import Onboarding from './pages/app/Onboarding';
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -55,8 +57,11 @@ export default function App() {
         {/* Password reset — must remain accessible without a session (token is in URL) */}
         <Route path="/auth/reset-password" element={<ResetPassword />} />
 
-        {/* App pages — require an active session */}
-        <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
+        {/* Onboarding — requires session, but not yet onboarded */}
+        <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
+
+        {/* App pages — require an active session + completed onboarding */}
+        <Route element={<AuthGuard><OnboardingGuard><AppLayout /></OnboardingGuard></AuthGuard>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/missions"  element={<Missions />} />
           <Route path="/shop"      element={<Shop />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 import { getMyProfile, getRewardsCatalog, setActiveCosmetic } from '../../lib/api/profile';
 import { getMyShopItems, setActiveShopItem } from '../../lib/api/shop';
 import RewardCard from '../../components/game/RewardCard';

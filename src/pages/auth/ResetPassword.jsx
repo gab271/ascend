@@ -4,7 +4,7 @@ import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, ShieldAlert } 
 import AuthLayout, { AuthInput, AuthButton } from '../../components/layout/auth/AuthLayout';
 import { updatePassword } from '../../lib/api/auth';
 import { supabase } from '../../lib/supabase';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 
 function getStrength(pw) {
   if (!pw) return 0;

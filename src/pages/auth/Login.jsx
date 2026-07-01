@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 import AuthLayout, { AuthInput, AuthButton } from '../../components/layout/auth/AuthLayout';
 import { signIn } from '../../lib/api/auth';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 
 export default function Login() {
   const [form, setForm]         = useState({ email: '', password: '' });

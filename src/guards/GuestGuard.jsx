@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 // Protects auth routes. Redirects to /dashboard if the user is already logged in.
 export default function GuestGuard({ children }) {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 import { getShopRotation, purchaseShopItem } from '../../lib/api/shop';
 import { getMyProfile } from '../../lib/api/profile';
 

@@ -1,32 +1,51 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
-const AuthContext = createContext(null);
+// Exported so useAuth (hooks/useAuth.js) can access it without
+// re-importing the whole module. Context objects are not React
+// components, so this export does not trigger the Fast Refresh
+// "incompatible exports" warning.
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(undefined); // undefined = loading
+  const [session, setSession] = useState(undefined); // undefined = still loading
+  const [profile, setProfile] = useState(undefined); // undefined = still loading
+
+  const loadProfile = useCallback(async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, username, onboarding_completed')
+      .single();
+    setProfile(data ?? null);
+  }, []);
 
   useEffect(() => {
-    // Carga la sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
+      if (session) await loadProfile();
+      else setProfile(null);
     });
 
-    // Escucha cambios (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
+      if (session) await loadProfile();
+      else setProfile(null);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [loadProfile]);
+
+  const loading = session === undefined || profile === undefined;
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, loading: session === undefined }}>
+    <AuthContext.Provider value={{
+      session,
+      user:           session?.user ?? null,
+      profile,
+      loading,
+      refreshProfile: loadProfile,
+    }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import AuthLayout, { AuthInput, AuthButton } from '../../components/layout/auth/AuthLayout';
 import { signUp } from '../../lib/api/auth';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 
 function getStrength(pw) {
   if (!pw) return 0;

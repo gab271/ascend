@@ -1,8 +1,48 @@
 import { supabase } from '../supabase';
 
-// ─── Fetch own full profile ───────────────────────────────────
-// Returns the authenticated user's profile with active cosmetics joined.
+// ─── Fetch own profile (core fields only) ────────────────────
+// Used by Dashboard, Sidebar, and any page that doesn't need
+// shop-item cosmetics. Does NOT join shop_items so it works even
+// if migrations 00009/00012 haven't been applied yet.
 export async function getMyProfile() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(`
+      id,
+      username,
+      avatar_url,
+      total_xp,
+      level,
+      xp,
+      xp_next,
+      streak,
+      longest_streak,
+      last_active_date,
+      stat_health,
+      stat_money,
+      stat_discipline,
+      coins,
+      created_at,
+      active_title:titles!active_title_id (
+        id, name, rarity
+      ),
+      active_frame:cosmetics!active_frame_id (
+        id, name, rarity, config
+      ),
+      active_background:cosmetics!active_background_id (
+        id, name, rarity, config
+      )
+    `)
+    .single();
+
+  return { data, error };
+}
+
+// ─── Fetch own profile (full — includes shop item cosmetics) ──
+// Used only by the Profile page, which renders equipped shop items.
+// Requires migrations 00009 (shop_items table) and 00012
+// (active_shop_*_id columns on profiles) to be applied.
+export async function getMyProfileFull() {
   const { data, error } = await supabase
     .from('profiles')
     .select(`

@@ -1,21 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Settings } from 'lucide-react';
 import {
   getDailyMissions,
   getWeeklyMissions,
   completeMission as completeMissionAPI,
   completeWeeklyMission as completeWeeklyMissionAPI,
+  getMissionPreferences,
+  updateMissionPreferences,
 } from '../../lib/api/missions';
 import MissionCard from '../../components/game/MissionCard';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 
 // ─── Attribute filter config ──────────────────────────────────
-const FILTERS = ['all', 'health', 'money', 'discipline'];
+const FILTERS = ['all', 'health', 'money', 'discipline', 'social', 'mind', 'creativity'];
 
 const FILTER_COLORS = {
   all:        'var(--text-secondary)',
   health:     'var(--green)',
   money:      'var(--gold)',
   discipline: 'var(--violet)',
+  social:     'var(--cyan)',
+  mind:       '#A78BFA',
+  creativity: '#FF8C42',
 };
 
 // ─── Countdown helpers ────────────────────────────────────────
@@ -142,6 +148,190 @@ function WeekProgress({ t }) {
   );
 }
 
+// ─── Mission preferences modal ────────────────────────────────
+
+const CATEGORY_CONFIG = [
+  { id: 'health',     icon: '⚡', color: '#33E6A1', labelKey: 'missions.prefHealth',     descKey: 'missions.prefHealthDesc'     },
+  { id: 'money',      icon: '💰', color: '#F5C451', labelKey: 'missions.prefMoney',      descKey: 'missions.prefMoneyDesc'      },
+  { id: 'discipline', icon: '🎯', color: '#7C5CFF', labelKey: 'missions.prefDiscipline', descKey: 'missions.prefDisciplineDesc' },
+  { id: 'social',     icon: '🤝', color: '#33D1FF', labelKey: 'missions.prefSocial',     descKey: 'missions.prefSocialDesc'     },
+  { id: 'mind',       icon: '🧠', color: '#A78BFA', labelKey: 'missions.prefMind',       descKey: 'missions.prefMindDesc'       },
+  { id: 'creativity', icon: '🎨', color: '#FF8C42', labelKey: 'missions.prefCreativity', descKey: 'missions.prefCreativityDesc' },
+];
+
+function MissionPreferencesModal({ initial, onSave, onClose, t }) {
+  const [selected, setSelected] = useState([...initial]);
+  const [saving,   setSaving]   = useState(false);
+  const [saved,    setSaved]    = useState(false);
+  const [error,    setError]    = useState('');
+
+  function toggle(id) {
+    setSelected(prev => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) {
+          setError(t('missions.prefAtLeastOne'));
+          return prev;
+        }
+        return prev.filter(c => c !== id);
+      }
+      setError('');
+      return [...prev, id];
+    });
+    setSaved(false);
+  }
+
+  async function handleSave() {
+    if (selected.length === 0) { setError(t('missions.prefAtLeastOne')); return; }
+    setSaving(true);
+    const err = await onSave(selected);
+    setSaving(false);
+    if (err) {
+      setError(err.message || 'Error saving preferences.');
+    } else {
+      setSaved(true);
+      setTimeout(onClose, 900);
+    }
+  }
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(10,11,16,0.85)',
+        backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '0 16px',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'var(--panel)',
+          border: '1px solid var(--border)',
+          borderRadius: 16,
+          padding: '28px 28px 24px',
+          width: '100%', maxWidth: 480,
+          boxShadow: '0 24px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(124,92,255,0.1)',
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--text)', letterSpacing: '0.05em', marginBottom: 6 }}>
+              {t('missions.prefTitle')}
+            </div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.55, maxWidth: 360 }}>
+              {t('missions.prefSubtitle')}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px 8px', fontSize: 20, lineHeight: 1 }}
+          >×</button>
+        </div>
+
+        {/* Category cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+          {CATEGORY_CONFIG.map(cat => {
+            const active = selected.includes(cat.id);
+            const isLast = selected.length === 1 && active;
+            return (
+              <div
+                key={cat.id}
+                onClick={() => toggle(cat.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 16,
+                  padding: '14px 18px',
+                  background: active
+                    ? `linear-gradient(135deg, ${cat.color}18, ${cat.color}08)`
+                    : 'rgba(19,23,34,0.6)',
+                  border: `1px solid ${active ? cat.color + '55' : 'var(--border)'}`,
+                  borderRadius: 12,
+                  cursor: isLast ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  opacity: isLast ? 0.6 : 1,
+                }}
+              >
+                <div style={{ fontSize: 22, width: 32, textAlign: 'center', flexShrink: 0 }}>{cat.icon}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
+                    letterSpacing: '0.1em', color: active ? cat.color : 'var(--text)',
+                    transition: 'color 0.2s', marginBottom: 2,
+                  }}>
+                    {t(cat.labelKey)}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)' }}>
+                    {t(cat.descKey)}
+                  </div>
+                </div>
+                {/* Colour-matched toggle */}
+                <div style={{
+                  width: 44, height: 24, borderRadius: 12, flexShrink: 0,
+                  background: active ? cat.color : 'rgba(26,32,53,0.8)',
+                  border: `1px solid ${active ? cat.color : 'var(--border)'}`,
+                  position: 'relative', transition: 'all 0.2s',
+                  boxShadow: active ? `0 0 12px ${cat.color}55` : 'none',
+                }}>
+                  <div style={{
+                    position: 'absolute', top: 3,
+                    left: active ? 21 : 3,
+                    width: 16, height: 16, borderRadius: '50%',
+                    background: active ? '#fff' : '#3D4559',
+                    transition: 'left 0.18s cubic-bezier(0.4,0,0.2,1)',
+                    boxShadow: active ? `0 0 6px ${cat.color}88` : 'none',
+                  }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* "Takes effect tomorrow" notice */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 14px', borderRadius: 8, marginBottom: 16,
+          background: 'rgba(124,92,255,0.07)',
+          border: '1px solid rgba(124,92,255,0.15)',
+        }}>
+          <div style={{ fontSize: 14 }}>📅</div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+            {t('missions.prefTomorrow')}
+          </div>
+        </div>
+
+        {error && (
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#FF4D6A', marginBottom: 12, letterSpacing: '0.05em' }}>
+            ⚠ {error}
+          </div>
+        )}
+
+        <button
+          onClick={handleSave}
+          disabled={saving || saved}
+          style={{
+            width: '100%', padding: '14px',
+            background: saved
+              ? 'rgba(51,230,161,0.15)'
+              : 'linear-gradient(135deg, var(--violet), #5a3fd4)',
+            border: `1px solid ${saved ? 'var(--green)' : 'var(--violet)'}`,
+            borderRadius: 10,
+            fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 13,
+            letterSpacing: '0.12em', color: saved ? 'var(--green)' : 'white',
+            cursor: saving || saved ? 'default' : 'pointer',
+            transition: 'all 0.2s',
+            boxShadow: saved ? '0 0 16px rgba(51,230,161,0.2)' : '0 4px 20px rgba(124,92,255,0.3)',
+          }}
+        >
+          {saved ? t('missions.prefSaved') : saving ? t('missions.prefSaving') : t('missions.prefSave')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 // ─── Main component ───────────────────────────────────────────
 
 export default function Missions() {
@@ -151,6 +341,8 @@ export default function Missions() {
   const [weekly,       setWeekly]       = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading,      setLoading]      = useState(true);
+  const [showPrefs,    setShowPrefs]    = useState(false);
+  const [preferences,  setPreferences]  = useState(['health', 'money', 'discipline']);
 
   // Normalise API rows → flat mission objects with completed flag
   const normalise = rows =>
@@ -161,9 +353,11 @@ export default function Missions() {
     Promise.all([
       getDailyMissions(),
       getWeeklyMissions(),
-    ]).then(([{ data: d }, { data: w }]) => {
+      getMissionPreferences(),
+    ]).then(([{ data: d }, { data: w }, { data: prefs }]) => {
       setDaily(normalise(d));
       setWeekly(normalise(w));
+      if (prefs) setPreferences(prefs);
       setLoading(false);
     });
   }, []);
@@ -183,6 +377,12 @@ export default function Missions() {
       setter(prev => prev.map(m => m.id === id ? { ...m, completed: false } : m));
     }
   }, [tab]);
+
+  const handleSavePreferences = useCallback(async (cats) => {
+    const { error } = await updateMissionPreferences(cats);
+    if (!error) setPreferences(cats);
+    return error;
+  }, []);
 
   const missions = tab === 'daily' ? daily : weekly;
 
@@ -301,36 +501,59 @@ export default function Missions() {
         </div>
       )}
 
-      {/* ── Attribute filter tabs ── */}
-      <div style={{
-        display: 'flex', gap: 8, marginBottom: 24, padding: '6px',
-        background: 'var(--panel)', border: '1px solid var(--border)',
-        borderRadius: 12, width: 'fit-content',
-      }}>
-        {FILTERS.map(f => {
-          const filterLabel = {
-            all:        t('missions.filterAll'),
-            health:     t('missions.filterHealth'),
-            money:      t('missions.filterMoney'),
-            discipline: t('missions.filterDiscipline'),
-          }[f];
-          return (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              style={{
-                padding: '8px 18px', borderRadius: 8,
-                fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, letterSpacing: '0.08em',
-                color: activeFilter === f ? 'white' : 'var(--text-muted)',
-                background: activeFilter === f ? FILTER_COLORS[f] : 'transparent',
-                border: 'none', cursor: 'pointer', transition: 'var(--transition)',
-                boxShadow: activeFilter === f ? `0 4px 14px ${FILTER_COLORS[f]}44` : 'none',
-              }}
-            >
-              {filterLabel}
-            </button>
-          );
-        })}
+      {/* ── Attribute filter tabs + configure button ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{
+          display: 'flex', gap: 8, padding: '6px',
+          background: 'var(--panel)', border: '1px solid var(--border)',
+          borderRadius: 12, overflowX: 'auto', flexShrink: 0,
+        }}>
+          {FILTERS.map(f => {
+            const filterLabel = {
+              all:        t('missions.filterAll'),
+              health:     t('missions.filterHealth'),
+              money:      t('missions.filterMoney'),
+              discipline: t('missions.filterDiscipline'),
+              social:     t('missions.filterSocial'),
+              mind:       t('missions.filterMind'),
+              creativity: t('missions.filterCreativity'),
+            }[f];
+            return (
+              <button
+                key={f}
+                onClick={() => setActiveFilter(f)}
+                style={{
+                  padding: '8px 18px', borderRadius: 8,
+                  fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, letterSpacing: '0.08em',
+                  color: activeFilter === f ? 'white' : 'var(--text-muted)',
+                  background: activeFilter === f ? FILTER_COLORS[f] : 'transparent',
+                  border: 'none', cursor: 'pointer', transition: 'var(--transition)',
+                  boxShadow: activeFilter === f ? `0 4px 14px ${FILTER_COLORS[f]}44` : 'none',
+                }}
+              >
+                {filterLabel}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Category preferences button */}
+        <button
+          onClick={() => setShowPrefs(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '8px 14px', borderRadius: 10,
+            background: 'var(--panel)', border: '1px solid var(--border)',
+            color: 'var(--text-muted)', cursor: 'pointer',
+            fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 11,
+            letterSpacing: '0.1em', transition: 'var(--transition)',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--violet)'; e.currentTarget.style.color = 'var(--violet)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+        >
+          <Settings size={13} />
+          {t('missions.configureCategories')}
+        </button>
       </div>
 
       {/* ── Mission cards grid ── */}
@@ -353,6 +576,15 @@ export default function Missions() {
         }}>
           {t('missions.noMissions')}
         </div>
+      )}
+
+      {showPrefs && (
+        <MissionPreferencesModal
+          initial={preferences}
+          onSave={handleSavePreferences}
+          onClose={() => setShowPrefs(false)}
+          t={t}
+        />
       )}
 
     </div>

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 // Protects app routes. Redirects to /login if there is no active session.
 export default function AuthGuard({ children }) {

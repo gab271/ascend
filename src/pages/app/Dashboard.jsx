@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Shield, DollarSign, Zap, ChevronRight, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 import { getMyProfile, getWeeklyXP } from '../../lib/api/profile';
 import { getDailyMissions, completeMission as completeMissionAPI } from '../../lib/api/missions';
 import { getRanking } from '../../lib/api/ranking';
@@ -178,6 +178,14 @@ function normalizeRanking(rows) {
   }));
 }
 
+// Resolves with fallback after ms milliseconds if promise hangs
+function withTimeout(promise, fallback, ms = 8000) {
+  return Promise.race([
+    promise,
+    new Promise(resolve => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────
 export default function Dashboard() {
   const { t } = useLanguage();
@@ -186,6 +194,7 @@ export default function Dashboard() {
   const [missions, setMissions] = useState([]);
   const [rankData, setRankData] = useState([]);
   const [loading,  setLoading]  = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   const heroEntered  = useEntry(60);
   const attrsEntered = useEntry(220);
@@ -193,23 +202,35 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function load() {
-      const [
-        { data: profileRaw },
-        { data: weekRaw },
-        { data: missionsRaw },
-        { data: rankRaw },
-      ] = await Promise.all([
-        getMyProfile(),
-        getWeeklyXP(),
-        getDailyMissions(),
-        getRanking({ limit: 4 }),
-      ]);
+      try {
+        // Profile is critical — load first, fail fast if broken
+        const { data: profileRaw, error: profileErr } = await getMyProfile();
+        if (profileErr) {
+          setLoadError(profileErr.message ?? JSON.stringify(profileErr));
+          return;
+        }
+        setProfile(normalizeProfile(profileRaw));
 
-      setProfile(normalizeProfile(profileRaw));
-      setWeeklyXP(weekRaw ?? [0, 0, 0, 0, 0, 0, 0]);
-      setMissions(normalizeMissions(missionsRaw));
-      setRankData(normalizeRanking(rankRaw));
-      setLoading(false);
+        // Secondary calls — each has an 8s timeout so one hanging DB
+        // function (e.g. ensure_daily_missions) can't freeze the whole page
+        const [
+          { data: weekRaw },
+          { data: missionsRaw },
+          { data: rankRaw },
+        ] = await Promise.all([
+          withTimeout(getWeeklyXP(),       { data: null }),
+          withTimeout(getDailyMissions(),  { data: null }),
+          withTimeout(getRanking({ limit: 4 }), { data: null }),
+        ]);
+
+        setWeeklyXP(weekRaw ?? [0, 0, 0, 0, 0, 0, 0]);
+        setMissions(normalizeMissions(missionsRaw));
+        setRankData(normalizeRanking(rankRaw));
+      } catch (err) {
+        setLoadError(err?.message ?? 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);
@@ -244,6 +265,27 @@ export default function Dashboard() {
           }}>
             {t('dashboard.loadingSystem')}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError || !profile) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--red)', letterSpacing: '0.18em' }}>
+            ERROR — PROFILE NOT FOUND
+          </div>
+          {loadError && (
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)',
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 6, padding: '8px 14px', maxWidth: 500, wordBreak: 'break-all',
+            }}>
+              {loadError}
+            </div>
+          )}
         </div>
       </div>
     );

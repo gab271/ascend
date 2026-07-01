@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage } from '../../hooks/useLanguage';
 import { getRanking } from '../../lib/api/ranking';
 import PodiumCard from '../../components/game/PodiumCard';
 import ChangeIndicator from '../../components/game/ChangeIndicator';

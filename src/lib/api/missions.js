@@ -88,6 +88,36 @@ export async function completeWeeklyMission(missionId) {
   return { data, error };
 }
 
+// ─── Complete onboarding ──────────────────────────────────────
+// Called once from the Onboarding page. Saves category preferences,
+// re-assigns today's missions with those preferences, and marks
+// the user as onboarded — all in one atomic RPC call.
+export async function completeOnboarding(categories) {
+  const { error } = await supabase.rpc('complete_onboarding', {
+    p_categories: categories,
+  });
+  return { error };
+}
+
+// ─── Mission preferences ──────────────────────────────────────
+// Reads the user's preferred mission categories from their profile.
+export async function getMissionPreferences() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('mission_categories')
+    .single();
+  return { data: data?.mission_categories ?? ['health', 'money', 'discipline'], error };
+}
+
+// Saves the user's preferred mission categories.
+// categories: attribute_type[] — e.g. ['health', 'discipline']
+export async function updateMissionPreferences(categories) {
+  const { error } = await supabase.rpc('update_mission_preferences', {
+    p_categories: categories,
+  });
+  return { error };
+}
+
 // ─── Full mission catalog ─────────────────────────────────────
 // Used on the /missions page to show all available missions.
 export async function getMissionsCatalog() {
