@@ -28,6 +28,10 @@ const Profile        = lazy(() => import('./pages/app/Profile'));
 const Ranking        = lazy(() => import('./pages/app/Ranking'));
 const Rewards        = lazy(() => import('./pages/app/Rewards'));
 const Settings       = lazy(() => import('./pages/app/Settings'));
+const LegalNotice    = lazy(() => import('./pages/legal/Notice'));
+const Terms          = lazy(() => import('./pages/legal/Terms'));
+const Privacy        = lazy(() => import('./pages/legal/Privacy'));
+const CookiePolicy   = lazy(() => import('./pages/legal/Cookies'));
 
 // Film grain SVG data URI — very subtle texture overlay
 const GRAIN_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E";
@@ -69,6 +73,13 @@ export default function App() {
 
         {/* Password reset — must remain accessible without a session (token is in URL) */}
         <Route path="/auth/reset-password" element={<ResetPassword />} />
+
+        {/* Legal — public, no session required. Must stay reachable when
+            signed out, since that is when people usually read them. */}
+        <Route path="/legal/notice"  element={<LegalNotice />} />
+        <Route path="/legal/terms"   element={<Terms />} />
+        <Route path="/legal/privacy" element={<Privacy />} />
+        <Route path="/legal/cookies" element={<CookiePolicy />} />
 
         {/* Onboarding — requires session, but not yet onboarded */}
         <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />

@@ -1870,39 +1870,53 @@ export default function Landing() {
               }}>
                 {t('landing.footer.tagline')}
               </p>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {[[translations.landing.footer.pillars[0], '#33E6A1'], [translations.landing.footer.pillars[1], '#F5C451'], [translations.landing.footer.pillars[2], '#7C5CFF']].map(([label, color]) => (
-                  <span key={label} style={{
-                    fontFamily: 'var(--font-mono)', fontSize: 9,
-                    color, padding: '3px 8px', letterSpacing: '0.15em',
-                    background: `${color}08`, border: `1px solid ${color}18`, borderRadius: 2,
-                  }}>{label}</span>
-                ))}
-              </div>
             </div>
 
-            {/* Nav cols */}
+            {/* Nav cols. `hrefs` maps each label to a real destination —
+                previously every link was href="#". */}
             {[
-              { title: t('landing.footer.colProduct'), links: translations.landing.footer.colProductLinks },
-              { title: t('landing.footer.colAccount'), links: translations.landing.footer.colAccountLinks },
-              { title: t('landing.footer.colLegal'), links: translations.landing.footer.colLegalLinks },
-            ].map(({ title, links }) => (
+              {
+                title: t('landing.footer.colProduct'),
+                links: translations.landing.footer.colProductLinks,
+                hrefs: ['#how', '#ranking', '#missions', '#rewards'],
+              },
+              {
+                title: t('landing.footer.colAccount'),
+                links: translations.landing.footer.colAccountLinks,
+                hrefs: ['/register', '/login', '/profile', '/settings'],
+              },
+              {
+                title: t('landing.footer.colLegal'),
+                links: translations.landing.footer.colLegalLinks,
+                hrefs: ['/legal/notice', '/legal/terms', '/legal/privacy', '/legal/cookies'],
+              },
+            ].map(({ title, links, hrefs }) => (
               <div key={title}>
                 <div style={{
                   fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 10,
                   color: 'rgba(245,247,251,0.5)', letterSpacing: '0.2em',
                   textTransform: 'uppercase', marginBottom: 16,
                 }}>{title}</div>
-                {links.map(link => (
-                  <a key={link} href="#" style={{
+                {links.map((link, i) => {
+                  const href = hrefs?.[i] ?? '#';
+                  const style = {
                     display: 'block', fontFamily: 'var(--font-body)', fontSize: 13,
                     color: 'rgba(160,174,203,0.4)', textDecoration: 'none',
                     marginBottom: 10, transition: 'color 0.18s', lineHeight: 1.4,
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.color = 'rgba(160,174,203,0.85)'}
-                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(160,174,203,0.4)'}
-                  >{link}</a>
-                ))}
+                  };
+                  const onEnter = e => e.currentTarget.style.color = 'rgba(160,174,203,0.85)';
+                  const onLeave = e => e.currentTarget.style.color = 'rgba(160,174,203,0.4)';
+
+                  // In-page anchors stay <a>; route changes use <Link> so they
+                  // don't trigger a full page reload.
+                  return href.startsWith('#') ? (
+                    <a key={link} href={href} style={style}
+                       onMouseEnter={onEnter} onMouseLeave={onLeave}>{link}</a>
+                  ) : (
+                    <Link key={link} to={href} style={style}
+                          onMouseEnter={onEnter} onMouseLeave={onLeave}>{link}</Link>
+                  );
+                })}
               </div>
             ))}
           </div>
