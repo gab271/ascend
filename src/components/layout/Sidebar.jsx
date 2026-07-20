@@ -29,7 +29,9 @@ function Avatar({ username, size = 40 }) {
   );
 }
 
-export default function Sidebar() {
+// `open` only has an effect below 768px, where CSS turns this into an
+// off-canvas drawer. On desktop it is always a fixed rail.
+export default function Sidebar({ open = false, onClose }) {
   const { user } = useAuth();
   const { t, translations } = useLanguage();
   const navigate = useNavigate();
@@ -67,19 +69,27 @@ export default function Sidebar() {
   const tickerFn = translations.ticker;
 
   return (
-    <aside style={{
-      width: 'var(--sidebar-width)',
-      height: '100vh',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      background: 'var(--panel)',
-      borderRight: '1px solid var(--border)',
-      display: 'flex',
-      flexDirection: 'column',
-      zIndex: 100,
-      overflow: 'hidden',
-    }}>
+    <aside
+      className={`app-sidebar${open ? ' is-open' : ''}`}
+      onClick={(e) => {
+        // Tapping a link inside the drawer should close it. Route changes also
+        // close it in AppLayout; this covers same-route taps too.
+        if (onClose && e.target.closest('a')) onClose();
+      }}
+      style={{
+        width: 'var(--sidebar-width)',
+        height: '100vh',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        background: 'var(--panel)',
+        borderRight: '1px solid var(--border)',
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 100,
+        overflow: 'hidden',
+      }}
+    >
 
       {/* Logo */}
       <div style={{

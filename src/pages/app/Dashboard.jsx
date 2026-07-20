@@ -331,7 +331,7 @@ export default function Dashboard() {
 
         {/* ═══ ROW 1: Hero card ═══════════════════════════════ */}
         <div
-          className="hud-frame"
+          className="hud-frame grid-hero"
           style={{
             background: 'linear-gradient(135deg, var(--panel) 0%, #100D1C 50%, #0D1425 100%)',
             border: '1px solid rgba(124,92,255,0.2)',
@@ -339,10 +339,6 @@ export default function Dashboard() {
             padding: '28px 36px',
             overflow: 'hidden',
             position: 'relative',
-            display: 'grid',
-            gridTemplateColumns: 'auto 1fr auto',
-            gap: 40,
-            alignItems: 'center',
             ...entryStyle(heroEntered),
           }}
         >
@@ -499,10 +495,7 @@ export default function Dashboard() {
         </div>
 
         {/* ═══ ROW 3: Missions + Sidebar ══════════════════════ */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20,
-          ...entryStyle(botEntered),
-        }}>
+        <div className="grid-main-side" style={{ ...entryStyle(botEntered) }}>
 
           {/* ─ Daily missions ─ */}
           <div

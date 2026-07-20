@@ -706,7 +706,7 @@ export default function Settings() {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '210px 1fr', gap: 24, alignItems: 'start', maxWidth: 880 }}>
+    <div className="grid-settings">
 
       {/* ── Left tab nav ── */}
       <div style={{

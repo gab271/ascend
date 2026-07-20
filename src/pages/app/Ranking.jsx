@@ -134,17 +134,16 @@ export default function Ranking() {
 
       {/* ─── REST OF RANKING ─── */}
       <div style={{ background: 'var(--panel)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
-        <div style={{
-          display: 'grid', gridTemplateColumns: '60px 1fr 120px 120px 80px 60px',
-          gap: 8, padding: '12px 24px', borderBottom: '1px solid var(--border)',
+        <div className="rank-row" style={{
+          padding: '12px 24px', borderBottom: '1px solid var(--border)',
           fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 10, letterSpacing: '0.15em', color: 'var(--text-muted)',
         }}>
           <span>{t('ranking.pos')}</span>
           <span>{t('ranking.player')}</span>
-          <span>{t('ranking.title')}</span>
+          <span className="rank-hide-sm">{t('ranking.title')}</span>
           <span style={{ textAlign: 'right' }}>{t('ranking.level')}</span>
           <span style={{ textAlign: 'right' }}>XP</span>
-          <span style={{ textAlign: 'center' }}>{t('ranking.change')}</span>
+          <span className="rank-hide-sm" style={{ textAlign: 'center' }}>{t('ranking.change')}</span>
         </div>
 
         {rest.map((user, i) => {
@@ -152,9 +151,9 @@ export default function Ranking() {
           return (
             <div
               key={user.id}
+              className="rank-row"
               style={{
-                display: 'grid', gridTemplateColumns: '60px 1fr 120px 120px 80px 60px',
-                gap: 8, padding: '14px 24px', borderBottom: '1px solid var(--border)',
+                padding: '14px 24px', borderBottom: '1px solid var(--border)',
                 alignItems: 'center',
                 background: user.isMe ? 'var(--violet-dim)' : 'transparent',
                 transition: 'background 0.2s ease',
@@ -188,7 +187,7 @@ export default function Ranking() {
                 </div>
               </div>
 
-              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text-secondary)' }}>
+              <div className="rank-hide-sm" style={{ fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text-secondary)' }}>
                 {user.title}
               </div>
 
@@ -200,7 +199,7 @@ export default function Ranking() {
                 {(user.xp / 1000).toFixed(1)}K
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div className="rank-hide-sm" style={{ display: 'flex', justifyContent: 'center' }}>
                 <ChangeIndicator change={user.change} />
               </div>
             </div>

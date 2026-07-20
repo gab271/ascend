@@ -1,24 +1,33 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import AuthGuard from './guards/AuthGuard';
 import GuestGuard from './guards/GuestGuard';
 import OnboardingGuard from './guards/OnboardingGuard';
-import Onboarding from './pages/app/Onboarding';
-import Landing from './pages/Landing';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword';
-import Dashboard from './pages/app/Dashboard';
-import Missions from './pages/app/Missions';
-import Shop from './pages/app/Shop';
-import Profile from './pages/app/Profile';
-import Ranking from './pages/app/Ranking';
-import Rewards from './pages/app/Rewards';
-import Settings from './pages/app/Settings';
 import AppLayout from './components/layout/AppLayout';
 import ErrorBoundary from './components/ErrorBoundary';
+import LoadingScreen from './components/LoadingScreen';
+
+// Route-level code splitting.
+//
+// Everything used to ship in one ~658 kB chunk, so a first-time visitor on
+// mobile data downloaded the entire app — Shop, Settings, Landing videos and
+// all — just to see the login screen. Each route is now its own chunk, fetched
+// on navigation.
+const Landing        = lazy(() => import('./pages/Landing'));
+const Login          = lazy(() => import('./pages/auth/Login'));
+const Register       = lazy(() => import('./pages/auth/Register'));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
+const ResetPassword  = lazy(() => import('./pages/auth/ResetPassword'));
+const Onboarding     = lazy(() => import('./pages/app/Onboarding'));
+const Dashboard      = lazy(() => import('./pages/app/Dashboard'));
+const Missions       = lazy(() => import('./pages/app/Missions'));
+const Shop           = lazy(() => import('./pages/app/Shop'));
+const Profile        = lazy(() => import('./pages/app/Profile'));
+const Ranking        = lazy(() => import('./pages/app/Ranking'));
+const Rewards        = lazy(() => import('./pages/app/Rewards'));
+const Settings       = lazy(() => import('./pages/app/Settings'));
 
 // Film grain SVG data URI — very subtle texture overlay
 const GRAIN_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E";
@@ -48,6 +57,7 @@ export default function App() {
 
       {/* Any render crash below shows the actual error instead of a blank page */}
       <ErrorBoundary>
+      <Suspense fallback={<LoadingScreen />}>
       <Routes>
         {/* Landing page — full screen, no sidebar */}
         <Route path="/" element={<Landing />} />
@@ -77,6 +87,7 @@ export default function App() {
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
       </ErrorBoundary>
     </AuthProvider>
     </LanguageProvider>

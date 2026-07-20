@@ -293,7 +293,7 @@ export default function Profile() {
       </div>
 
       {/* ─── STATS ─── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
+      <div className="grid-side-main">
 
         <div className="card">
           <div className="section-label">{t('profile.attributes')}</div>
