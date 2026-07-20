@@ -513,6 +513,21 @@ Other users' profiles are **never** directly selectable — the leaderboard goes
 `SECURITY DEFINER` function returning only safe columns. Otherwise "show the ladder"
 quietly becomes "let anyone dump every user row."
 
+> ⚠️ **When you add a table, you must revoke `anon` yourself.**
+> Supabase's default privileges grant `ALL` on new public tables to `anon` and
+> `authenticated`. A one-off `revoke all on all tables` only covers tables that
+> exist when it runs — every table created afterwards is born readable.
+> Migration 011 revokes the *default privileges* so this stops happening, and
+> asserts the invariant at the end. It caught `attributes` and
+> `user_attribute_xp`, which migration 010 created with an anon grant. RLS still
+> blocked the rows, but the design wants two independent layers, not one.
+>
+> After any migration that adds a table, run:
+> ```sql
+> select table_name from information_schema.role_table_grants
+> where table_schema = 'public' and grantee = 'anon';   -- must be empty
+> ```
+
 **`SECURITY DEFINER` hygiene.** Every such function gets `SET search_path = ''` and
 fully-qualified names (`public.ledger_events`). Without this a user can create objects
 in their own schema and hijack the function's elevated privileges. This is the standard

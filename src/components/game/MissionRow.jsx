@@ -1,18 +1,15 @@
 import { CheckCircle2, Circle } from 'lucide-react';
 import { RARITY_CONFIG } from '../../config/rarities';
-
-const ATTR_COLOR = {
-  health:     'var(--green)',
-  money:      'var(--gold)',
-  discipline: 'var(--violet)',
-};
-const ATTR_LABEL = { health: 'SALUD', money: 'DINERO', discipline: 'DISCIPLINA' };
+import { getAttr } from '../../config/attributes';
 
 // Compact mission row — used in Dashboard's daily missions list
 export default function MissionRow({ mission, onComplete }) {
   const rarityColor = RARITY_CONFIG[mission.rarity]?.color ?? 'var(--text-muted)';
-  const attrColor = ATTR_COLOR[mission.attribute];
-  const attrLabel = ATTR_LABEL[mission.attribute];
+  // Colours and labels come from the shared attribute config, which covers all
+  // six life areas and falls back safely for any added later.
+  const attr = getAttr(mission.attribute);
+  const attrColor = attr.color;
+  const attrLabel = attr.label;
 
   return (
     <div

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, DollarSign, Zap, ChevronRight, Crown } from 'lucide-react';
+import { ChevronRight, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { getMyProfile, getWeeklyXP } from '../../lib/api/profile';
@@ -47,7 +47,9 @@ function Eyebrow({ children, color = 'var(--text-muted)' }) {
 }
 
 // ─── Angular Stat Card ────────────────────────────────────────
-function StatCard({ label, value, max, color, icon: Icon, change }) {
+// `emoji` comes from public.attributes, so a new life area added to the
+// database renders here with no change to this file.
+function StatCard({ label, value, max, color, emoji, change }) {
   const animated = useCountUp(value, 1200, 400);
   const [barWidth, setBarWidth] = useState(0);
 
@@ -99,7 +101,7 @@ function StatCard({ label, value, max, color, icon: Icon, change }) {
           background: `${color}18`, border: `1px solid ${color}44`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon size={18} color={color} />
+          <span style={{ fontSize: 18, lineHeight: 1 }}>{emoji}</span>
         </div>
         {change !== undefined && (
           <div style={{
@@ -151,11 +153,8 @@ function normalizeProfile(raw) {
     totalXP:     raw.total_xp ?? 0,
     streak:      raw.streak ?? 0,
     title:       raw.active_title?.name ?? '',
-    stats: {
-      health:     { value: raw.stat_health    ?? 0 },
-      money:      { value: raw.stat_money     ?? 0 },
-      discipline: { value: raw.stat_discipline ?? 0 },
-    },
+    // Whatever attributes the database defines, in its own order.
+    attributes:  raw.attributes ?? [],
   };
 }
 
@@ -292,6 +291,9 @@ export default function Dashboard() {
   }
 
   const completedCount = missions.filter(m => m.completed).length;
+  // Scale the attribute bars against the strongest one (floor of 100 so a brand
+  // new account doesn't render six full bars from a single mission).
+  const attrMax = Math.max(100, ...profile.attributes.map(a => a.xp));
   const topRankUsers   = rankData.slice(0, 4);
   const hour           = new Date().getHours();
   const greeting       = hour < 12 ? t('dashboard.greetingMorning') : hour < 18 ? t('dashboard.greetingAfternoon') : t('dashboard.greetingEvening');
@@ -474,10 +476,25 @@ export default function Dashboard() {
         {/* ═══ ROW 2: Attributes ══════════════════════════════ */}
         <div style={{ ...entryStyle(attrsEntered) }}>
           <Eyebrow>{t('dashboard.attributes')}</Eyebrow>
-          <div style={{ display: 'flex', gap: 16 }}>
-            <StatCard label={t('common.health')}     value={profile.stats.health.value}     max={100} color="var(--green)"  icon={Shield}     />
-            <StatCard label={t('common.money')}      value={profile.stats.money.value}      max={100} color="var(--gold)"   icon={DollarSign} />
-            <StatCard label={t('common.discipline')} value={profile.stats.discipline.value} max={100} color="var(--violet)" icon={Zap}        />
+          {/* One card per attribute the database defines. Six today; add a row
+              to public.attributes and a seventh appears with no code change.
+              Bars scale against the highest attribute so they stay meaningful
+              as XP grows, instead of pinning at a hardcoded max of 100. */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+            gap: 16,
+          }}>
+            {profile.attributes.map(a => (
+              <StatCard
+                key={a.code}
+                label={a.label}
+                value={a.xp}
+                max={attrMax}
+                color={a.color}
+                emoji={a.icon}
+              />
+            ))}
           </div>
         </div>
 

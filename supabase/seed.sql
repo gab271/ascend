@@ -337,3 +337,137 @@ on conflict (code) do update set
   item_type = excluded.item_type, name = excluded.name, description = excluded.description,
   rarity = excluded.rarity, config = excluded.config,
   acquisition = excluded.acquisition, unlock_achievement_id = excluded.unlock_achievement_id;
+
+-- ----------------------------------------------------------------------------
+-- Missions for Social / Mind / Creativity  (added with migration 010)
+--
+-- The first sample under each onboarding card is included verbatim, so what the
+-- card promises is a mission the user will actually be assigned.
+-- ----------------------------------------------------------------------------
+insert into public.missions (code, name, description, cadence, attribute, rarity, xp_reward, coins_reward, icon, target_value, target_unit) values
+  -- ── Social ──────────────────────────────────────────────────
+  ('call_loved_one',  '{"en": "Call Someone You Care About", "es": "Llama a Alguien Querido"}',
+                      '{"en": "Call a friend or family member, not a text.", "es": "Llama a un amigo o familiar, nada de mensajes."}',
+                      'daily', 'social', 'common', 50, 12, '📞', 1, 'call'),
+  ('new_contact',     '{"en": "Make a New Contact", "es": "Haz un Nuevo Contacto"}',
+                      '{"en": "Start a conversation with someone new.", "es": "Inicia una conversacion con alguien nuevo."}',
+                      'daily', 'social', 'rare', 90, 24, '🤝', 1, 'person'),
+  ('quality_time',    '{"en": "Quality Time", "es": "Tiempo de Calidad"}',
+                      '{"en": "One hour with someone, phones away.", "es": "Una hora con alguien, sin moviles."}',
+                      'daily', 'social', 'rare', 85, 20, '☕', 1, 'h'),
+  ('give_compliment', '{"en": "Genuine Compliment", "es": "Cumplido Sincero"}',
+                      '{"en": "Tell someone something you appreciate about them.", "es": "Dile a alguien algo que aprecias de esa persona."}',
+                      'daily', 'social', 'common', 35, 8, '💬', 1, 'person'),
+  ('reconnect',       '{"en": "Reconnect", "es": "Reconecta"}',
+                      '{"en": "Message someone you have lost touch with.", "es": "Escribe a alguien con quien perdiste el contacto."}',
+                      'daily', 'social', 'rare', 80, 20, '✉️', 1, 'person'),
+  ('help_someone',    '{"en": "Help Someone", "es": "Ayuda a Alguien"}',
+                      '{"en": "Help someone expecting nothing back.", "es": "Ayuda a alguien sin esperar nada a cambio."}',
+                      'daily', 'social', 'epic', 120, 34, '🫶', 1, 'act'),
+  ('family_check',    '{"en": "Check On Family", "es": "Cuida de los Tuyos"}',
+                      '{"en": "Ask a family member how they really are.", "es": "Pregunta a un familiar como esta de verdad."}',
+                      'daily', 'social', 'common', 45, 10, '👨‍👩‍👧', 1, 'check'),
+
+  -- ── Mind ────────────────────────────────────────────────────
+  ('read_30_mind',    '{"en": "Read for 30 Minutes", "es": "Lee 30 Minutos"}',
+                      '{"en": "Read anything that teaches you something.", "es": "Lee algo que te ensene algo nuevo."}',
+                      'daily', 'mind', 'common', 55, 12, '📚', 30, 'min'),
+  ('online_lesson',   '{"en": "Complete an Online Lesson", "es": "Completa una Leccion Online"}',
+                      '{"en": "Finish one lesson or module of a course.", "es": "Termina una leccion o modulo de un curso."}',
+                      'daily', 'mind', 'rare', 95, 25, '🎓', 1, 'lesson'),
+  ('practice_language','{"en": "Practice a Language", "es": "Practica un Idioma"}',
+                      '{"en": "15 minutes of language practice.", "es": "15 minutos de practica de idioma."}',
+                      'daily', 'mind', 'common', 50, 12, '🗣️', 15, 'min'),
+  ('educational_pod', '{"en": "Learn While You Move", "es": "Aprende en Movimiento"}',
+                      '{"en": "Listen to an educational podcast episode.", "es": "Escucha un episodio de podcast educativo."}',
+                      'daily', 'mind', 'common', 40, 10, '🎧', 1, 'episode'),
+  ('summarise_learn', '{"en": "Write What You Learned", "es": "Escribe lo Aprendido"}',
+                      '{"en": "Summarise today''s learning in your own words.", "es": "Resume lo aprendido hoy con tus palabras."}',
+                      'daily', 'mind', 'rare', 75, 18, '📝', 1, 'note'),
+  ('brain_game',      '{"en": "Train Your Brain", "es": "Entrena tu Cerebro"}',
+                      '{"en": "Solve a puzzle, chess problem or brain game.", "es": "Resuelve un puzzle, problema de ajedrez o juego mental."}',
+                      'daily', 'mind', 'common', 35, 8, '🧩', 1, 'puzzle'),
+  ('deep_documentary','{"en": "Watch Something Real", "es": "Mira Algo Real"}',
+                      '{"en": "Watch a documentary or a technical talk.", "es": "Mira un documental o una charla tecnica."}',
+                      'daily', 'mind', 'common', 45, 10, '🎬', 1, 'video'),
+
+  -- ── Creativity ──────────────────────────────────────────────
+  ('project_1h',      '{"en": "Work on Your Project 1h", "es": "Trabaja en tu Proyecto 1h"}',
+                      '{"en": "One focused hour on something you are building.", "es": "Una hora enfocada en algo que estas construyendo."}',
+                      'daily', 'creativity', 'rare', 100, 26, '🛠️', 1, 'h'),
+  ('share_creation',  '{"en": "Share Something You Made", "es": "Comparte Algo que Hiciste"}',
+                      '{"en": "Put something you created out in public.", "es": "Publica algo que hayas creado."}',
+                      'daily', 'creativity', 'epic', 130, 38, '📤', 1, 'post'),
+  ('sketch',          '{"en": "Sketch Something", "es": "Dibuja Algo"}',
+                      '{"en": "Draw for 15 minutes — quality irrelevant.", "es": "Dibuja 15 minutos, la calidad da igual."}',
+                      'daily', 'creativity', 'common', 40, 10, '✏️', 15, 'min'),
+  ('write_creative',  '{"en": "Write Freely", "es": "Escribe Libremente"}',
+                      '{"en": "20 minutes of creative writing.", "es": "20 minutos de escritura creativa."}',
+                      'daily', 'creativity', 'common', 50, 12, '🖋️', 20, 'min'),
+  ('make_music',      '{"en": "Make Music", "es": "Haz Musica"}',
+                      '{"en": "Play or produce music for 20 minutes.", "es": "Toca o produce musica durante 20 minutos."}',
+                      'daily', 'creativity', 'rare', 80, 20, '🎵', 20, 'min'),
+  ('intentional_photo','{"en": "One Good Photo", "es": "Una Buena Foto"}',
+                      '{"en": "Take one photo you actually composed.", "es": "Haz una foto que hayas compuesto de verdad."}',
+                      'daily', 'creativity', 'common', 35, 8, '📸', 1, 'photo'),
+  ('brainstorm_10',   '{"en": "Ten New Ideas", "es": "Diez Ideas Nuevas"}',
+                      '{"en": "Write down 10 ideas. Bad ones count.", "es": "Escribe 10 ideas. Las malas tambien cuentan."}',
+                      'daily', 'creativity', 'rare', 70, 18, '💡', 10, 'ideas'),
+
+  -- ── Weekly ──────────────────────────────────────────────────
+  ('week_meetup',     '{"en": "See a Friend", "es": "Ve a un Amigo"}',
+                      '{"en": "Meet someone in person this week.", "es": "Queda con alguien en persona esta semana."}',
+                      'weekly', 'social', 'rare', 430, 130, '🍻', 1, 'meetup'),
+  ('week_deep_convo', '{"en": "One Real Conversation", "es": "Una Conversacion Real"}',
+                      '{"en": "Have one conversation that actually matters.", "es": "Ten una conversacion que de verdad importe."}',
+                      'weekly', 'social', 'epic', 520, 160, '🗨️', 1, 'conversation'),
+  ('week_no_ghost',   '{"en": "Inbox Zero, Human Edition", "es": "Responde a Todos"}',
+                      '{"en": "Reply to everyone you have left hanging.", "es": "Responde a todos los que dejaste en visto."}',
+                      'weekly', 'social', 'rare', 400, 120, '📬', 1, 'week'),
+
+  ('week_course',     '{"en": "Finish a Module", "es": "Termina un Modulo"}',
+                      '{"en": "Complete a full course module this week.", "es": "Completa un modulo entero de un curso."}',
+                      'weekly', 'mind', 'epic', 540, 165, '🎓', 1, 'module'),
+  ('week_150_pages',  '{"en": "150 Pages", "es": "150 Paginas"}',
+                      '{"en": "Read 150 pages this week.", "es": "Lee 150 paginas esta semana."}',
+                      'weekly', 'mind', 'rare', 450, 140, '📖', 150, 'pages'),
+  ('week_teach',      '{"en": "Teach What You Learned", "es": "Ensena lo Aprendido"}',
+                      '{"en": "Explain something you learned to someone else.", "es": "Explica a alguien algo que hayas aprendido."}',
+                      'weekly', 'mind', 'legendary', 820, 250, '🧑‍🏫', 1, 'lesson'),
+
+  ('week_ship',       '{"en": "Ship Something", "es": "Publica Algo"}',
+                      '{"en": "Release something publicly, however small.", "es": "Publica algo, por pequeno que sea."}',
+                      'weekly', 'creativity', 'legendary', 850, 260, '🚀', 1, 'release'),
+  ('week_craft_10h',  '{"en": "10 Hours on Your Craft", "es": "10 Horas en tu Arte"}',
+                      '{"en": "Ten hours of creative work this week.", "es": "Diez horas de trabajo creativo esta semana."}',
+                      'weekly', 'creativity', 'epic', 560, 170, '⏳', 10, 'h'),
+  ('week_new_medium', '{"en": "Try a New Medium", "es": "Prueba un Medio Nuevo"}',
+                      '{"en": "Create in a format you have never tried.", "es": "Crea en un formato que nunca hayas probado."}',
+                      'weekly', 'creativity', 'rare', 440, 135, '🎨', 1, 'attempt')
+on conflict (code) do update set
+  name = excluded.name, description = excluded.description, cadence = excluded.cadence,
+  attribute = excluded.attribute, rarity = excluded.rarity, xp_reward = excluded.xp_reward,
+  coins_reward = excluded.coins_reward, icon = excluded.icon,
+  target_value = excluded.target_value, target_unit = excluded.target_unit;
+
+-- ----------------------------------------------------------------------------
+-- Achievements for the new attributes. Same criteria evaluator, no code change
+-- — which is the point of storing criteria as jsonb.
+-- ----------------------------------------------------------------------------
+insert into public.achievements (code, name, description, rarity, icon, xp_reward, coins_reward, criteria) values
+  ('connector',
+   '{"en": "Connector", "es": "Conector"}',
+   '{"en": "Earn 5000 XP in Social.", "es": "Gana 5000 XP en Social."}',
+   'epic', '🤝', 600, 250, '{"type": "attribute_xp", "attribute": "social", "value": 5000}'),
+  ('scholar',
+   '{"en": "Scholar", "es": "Erudito"}',
+   '{"en": "Earn 5000 XP in Mind.", "es": "Gana 5000 XP en Mente."}',
+   'epic', '🧠', 600, 250, '{"type": "attribute_xp", "attribute": "mind", "value": 5000}'),
+  ('creator',
+   '{"en": "Creator", "es": "Creador"}',
+   '{"en": "Earn 5000 XP in Creativity.", "es": "Gana 5000 XP en Creatividad."}',
+   'epic', '🎨', 600, 250, '{"type": "attribute_xp", "attribute": "creativity", "value": 5000}')
+on conflict (code) do update set
+  name = excluded.name, description = excluded.description, rarity = excluded.rarity,
+  icon = excluded.icon, xp_reward = excluded.xp_reward,
+  coins_reward = excluded.coins_reward, criteria = excluded.criteria;

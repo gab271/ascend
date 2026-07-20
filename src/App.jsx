@@ -18,6 +18,7 @@ import Ranking from './pages/app/Ranking';
 import Rewards from './pages/app/Rewards';
 import Settings from './pages/app/Settings';
 import AppLayout from './components/layout/AppLayout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Film grain SVG data URI — very subtle texture overlay
 const GRAIN_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E";
@@ -45,6 +46,8 @@ export default function App() {
         }}
       />
 
+      {/* Any render crash below shows the actual error instead of a blank page */}
+      <ErrorBoundary>
       <Routes>
         {/* Landing page — full screen, no sidebar */}
         <Route path="/" element={<Landing />} />
@@ -74,6 +77,7 @@ export default function App() {
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </ErrorBoundary>
     </AuthProvider>
     </LanguageProvider>
     </BrowserRouter>

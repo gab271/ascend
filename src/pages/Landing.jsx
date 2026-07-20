@@ -363,7 +363,6 @@ export default function Landing() {
   const [hovNav, setHovNav] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [langOpen,     setLangOpen]     = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
   const [heroEmail, setHeroEmail] = useState('');
   const dropdownRef = useRef(null);
   const langRef     = useRef(null);
@@ -914,28 +913,15 @@ export default function Landing() {
           src="/heroAscend.mp4"
         />
 
-        {/* Video overlay — parallax matching gif, fades in once ready */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          onCanPlay={() => setVideoReady(true)}
-          style={{
-            position: 'absolute', left: 0, right: 0,
-            top: '-12%', width: '100%', height: '124%',
-            objectFit: 'cover', zIndex: 1,
-            transform: `translateY(${scrollY * 0.32}px)`,
-            willChange: 'transform',
-            opacity: videoReady ? 1 : 0,
-            transition: 'opacity 0.6s ease',
-          }}
-        >
-          <source
-            src="https://d8j0nticm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07IWA1P/hf_20260306_074215_04640ca7-042c-45d6-bb56-58b1e8a42489.mp4"
-            type="video/mp4"
-          />
-        </video>
+        {/* A second video used to be layered here, served from an external
+            CloudFront URL. That distribution is gone (ERR_NAME_NOT_RESOLVED),
+            so onCanPlay never fired and it sat at opacity 0 — invisible, but
+            throwing a console error and a failed request on every page load.
+            Removed. /heroAscend.mp4 above is the hero background.
+
+            If you want the overlay back, put the file in public/ and reference
+            it locally like the other five videos — don't depend on someone
+            else's CDN staying up. */}
 
         {/* Top gradient for nav readability */}
         <div style={{

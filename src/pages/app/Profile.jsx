@@ -4,9 +4,9 @@ import { getMyProfileFull, getRewardsCatalog, getWeeklyXP, uploadAvatar } from '
 import { getMyRank } from '../../lib/api/ranking';
 import { supabase } from '../../lib/supabase';
 import { RARITY_CONFIG } from '../../config/rarities';
-import { Shield, DollarSign, Zap, Edit3, Lock, Loader2 } from 'lucide-react';
+import { Edit3, Lock, Loader2 } from 'lucide-react';
 
-function ProfileStat({ label, value, max = 100, color, icon: Icon }) {
+function ProfileStat({ label, value, max = 100, color, emoji }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -16,7 +16,7 @@ function ProfileStat({ label, value, max = 100, color, icon: Icon }) {
             background: `${color}1A`, border: `1px solid ${color}44`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Icon size={14} color={color} />
+            <span style={{ fontSize: 14, lineHeight: 1 }}>{emoji}</span>
           </div>
           <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 12, letterSpacing: '0.15em', color: 'var(--text-secondary)' }}>
             {label}
@@ -298,9 +298,17 @@ export default function Profile() {
         <div className="card">
           <div className="section-label">{t('profile.attributes')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <ProfileStat label={t('common.health')}     value={profile.stat_health}     color="var(--green)"  icon={Shield} />
-            <ProfileStat label={t('common.money')}      value={profile.stat_money}      color="var(--gold)"   icon={DollarSign} />
-            <ProfileStat label={t('common.discipline')} value={profile.stat_discipline} color="var(--violet)" icon={Zap} />
+            {/* Driven by public.attributes — six today, more whenever you add
+                a row. No change needed here. */}
+            {(profile.attributes ?? []).map(a => (
+              <ProfileStat
+                key={a.code}
+                label={a.label}
+                value={a.xp}
+                color={a.color}
+                emoji={a.icon}
+              />
+            ))}
           </div>
         </div>
 

@@ -38,9 +38,19 @@ function shapeProfile(raw) {
     xp_next:         raw.xp_next ?? 100,
     streak:          raw.streak ?? 0,
     longest_streak:  raw.longest_streak ?? 0,
-    stat_health:     raw.stat_health ?? 0,
-    stat_money:      raw.stat_money ?? 0,
-    stat_discipline: raw.stat_discipline ?? 0,
+    is_private:      raw.is_private ?? false,
+
+    // Attributes are DATA now, not three fixed columns. The array arrives
+    // ordered by sort_order and already carries its own label, colour and
+    // icon — so adding a seventh life area to the `attributes` table makes a
+    // seventh card appear with no frontend change at all.
+    attributes: (raw.attributes ?? []).map(a => ({
+      code:  a.code,
+      label: loc(a.label),
+      color: a.color,
+      icon:  a.icon,
+      xp:    Number(a.xp ?? 0),
+    })),
 
     // New in v2 — the soloq tier and banked streak freezes.
     tier: raw.tier ? { ...raw.tier, name: loc(raw.tier.name) } : null,

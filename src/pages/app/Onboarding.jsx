@@ -181,10 +181,24 @@ export default function Onboarding() {
   async function handleStart() {
     if (selected.length === 0) { setError(t('onboarding.selectAtLeastOne')); return; }
     setSaving(true);
-    const { error: rpcError } = await completeOnboarding(selected);
-    if (rpcError) { setError(rpcError.message); setSaving(false); return; }
-    await refreshProfile();
-    navigate('/dashboard', { replace: true });
+    setError('');
+
+    // try/finally: without it, any throw leaves `saving` true and the button
+    // spins forever with nothing in the console.
+    try {
+      const { error: rpcError } = await completeOnboarding(selected);
+      if (rpcError) {
+        setError(rpcError.message ?? 'Could not save your categories.');
+        return;
+      }
+      await refreshProfile();
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      console.error('[ASCEND] onboarding failed:', err);
+      setError(err?.message ?? 'Unexpected error. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   const canStart = selected.length > 0 && !saving;

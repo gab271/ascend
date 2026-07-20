@@ -1,12 +1,14 @@
 import { CheckCircle2, Zap, Calendar } from 'lucide-react';
 import { RARITY_CONFIG } from '../../config/rarities';
-import { ATTR_CONFIG } from '../../config/attributes';
+import { getAttr } from '../../config/attributes';
 
 // Full mission card — used in the Missions catalog page.
 // isWeekly: renders a gold "SEMANAL" badge and Calendar icon on the XP line.
 export default function MissionCard({ mission, onComplete, isWeekly = false }) {
   const rarity = RARITY_CONFIG[mission.rarity];
-  const attr = ATTR_CONFIG[mission.attribute];
+  // getAttr never returns undefined — a category added to the database but not
+  // to the local config still renders instead of crashing the card.
+  const attr = getAttr(mission.attribute);
   const isLegendary = mission.rarity === 'legendary';
 
   return (
