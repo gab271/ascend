@@ -1,132 +1,166 @@
 import { supabase } from '../supabase';
+import { loc, unwrap } from './_shared';
 
-// Returns Monday (ISO week start) for the given date as YYYY-MM-DD
-function getWeekStart(date = new Date()) {
-  const d = new Date(date);
-  const day = d.getDay(); // 0=Sun, 1=Mon…
-  const diff = day === 0 ? -6 : 1 - day;
-  d.setDate(d.getDate() + diff);
-  return d.toISOString().split('T')[0];
+// ─── NOTE ON DATES ────────────────────────────────────────────
+// This file used to contain a getWeekStart() helper that computed the ISO week
+// in BROWSER-local time and sent it to a UTC database — users near midnight got
+// the wrong week. It is gone on purpose.
+//
+// The client must never compute a date. It has no authority over what "today"
+// means for a given user; only the server knows their timezone and day cutoff.
+// Every date now comes from the database.
+
+// Shapes a server mission into what the UI components expect.
+//
+// `id` is the ASSIGNMENT id, not the mission id. That is deliberate: from the
+// UI's point of view a row *is* one assignment, and complete_mission() takes an
+// assignment id — so MissionRow's onComplete(mission.id) stays correct.
+function shapeMission(m) {
+  return {
+    id:            m.assignment_id,
+    assignment_id: m.assignment_id,
+    code:          m.code,
+    name:          loc(m.name),
+    description:   loc(m.description),
+    xp:            m.xp,
+    coins_reward:  m.coins,
+    attribute:     m.attribute,
+    rarity:        m.rarity,
+    icon:          m.icon,
+    target_value:  m.target_value,
+    target_unit:   m.target_unit,
+    completed:     m.completed,
+    completed_at:  m.completed_at,
+  };
+}
+
+// Wraps a mission in the { id, completed, mission } row shape the pages
+// already normalize against.
+function shapeRow(m) {
+  const mission = shapeMission(m);
+  return {
+    id:           mission.id,
+    completed:    mission.completed,
+    completed_at: mission.completed_at,
+    xp_awarded:   mission.completed ? mission.xp : null,
+    mission,
+  };
+}
+
+// One RPC returns dailies AND weeklies, along with the server-derived
+// local_date and week_start. Cached briefly so a page rendering both lists
+// doesn't fetch twice.
+let _cache = null;
+async function fetchAll({ force = false } = {}) {
+  if (_cache && !force) return _cache;
+
+  const [{ error: eDaily }, { error: eWeekly }] = await Promise.all([
+    supabase.rpc('ensure_daily_missions'),
+    supabase.rpc('ensure_weekly_missions'),
+  ]);
+  if (eDaily || eWeekly) return { data: null, error: eDaily ?? eWeekly };
+
+  const { data, error } = await supabase.rpc('get_missions');
+  _cache = { data, error };
+  // Short-lived: just long enough to dedupe one page load.
+  setTimeout(() => { _cache = null; }, 1000);
+  return _cache;
 }
 
 // ─── Daily missions ───────────────────────────────────────────
-// Lazily assigns missions for today if not yet done (idempotent RPC),
-// then fetches the full list with mission details joined.
 export async function getDailyMissions() {
-  const { error: assignError } = await supabase.rpc('ensure_daily_missions');
-  if (assignError) return { data: null, error: assignError };
-
-  const today = new Date().toISOString().split('T')[0];
-
-  const { data, error } = await supabase
-    .from('user_daily_missions')
-    .select(`
-      id,
-      completed,
-      completed_at,
-      xp_awarded,
-      assigned_date,
-      mission:missions (
-        id, name, description, xp, coins_reward, attribute, rarity, icon
-      )
-    `)
-    .eq('assigned_date', today)
-    .order('id');
-
-  return { data, error };
-}
-
-// ─── Complete a daily mission ─────────────────────────────────
-// Calls the complete_mission() SECURITY DEFINER RPC.
-// Returns { data, error } where data is:
-//   {
-//     success, xp_awarded, streak_bonus, new_total_xp,
-//     new_level, new_xp, new_xp_next, leveled_up, new_streak,
-//     new_badges: [], new_titles: [], new_cosmetics: []
-//   }
-export async function completeMission(missionId) {
-  const { data, error } = await supabase.rpc('complete_mission', {
-    p_mission_id: missionId,
-  });
-  return { data, error };
+  const { data, error } = await fetchAll();
+  if (error) return { data: null, error };
+  return { data: (data?.daily ?? []).map(shapeRow), error: null };
 }
 
 // ─── Weekly missions ──────────────────────────────────────────
-// Lazily assigns weekly missions for the current week (idempotent),
-// then fetches them with mission details joined.
 export async function getWeeklyMissions() {
-  const { error: assignError } = await supabase.rpc('ensure_weekly_missions');
-  if (assignError) return { data: null, error: assignError };
-
-  const weekStart = getWeekStart();
-
-  const { data, error } = await supabase
-    .from('user_weekly_missions')
-    .select(`
-      id,
-      completed,
-      completed_at,
-      xp_awarded,
-      week_start,
-      mission:missions (
-        id, name, description, xp, coins_reward, attribute, rarity, icon
-      )
-    `)
-    .eq('week_start', weekStart)
-    .order('id');
-
-  return { data, error };
+  const { data, error } = await fetchAll();
+  if (error) return { data: null, error };
+  return { data: (data?.weekly ?? []).map(shapeRow), error: null };
 }
 
-// ─── Complete a weekly mission ────────────────────────────────
-// Calls the complete_weekly_mission() SECURITY DEFINER RPC.
-// Returns the same shape as completeMission.
-export async function completeWeeklyMission(missionId) {
-  const { data, error } = await supabase.rpc('complete_weekly_mission', {
-    p_mission_id: missionId,
+// ─── Complete a mission ───────────────────────────────────────
+// Daily and weekly now share one function — the assignment already knows its
+// cadence, so there is nothing for the client to pick.
+//
+// Returns { data, error } where data is:
+//   { success, xp_awarded, coins_awarded, streak_bonus, total_xp, coins,
+//     level, xp_into_level, xp_next, leveled_up, streak, new_achievements[] }
+export async function completeMission(assignmentId) {
+  const { data, error } = await supabase.rpc('complete_mission', {
+    p_assignment_id: assignmentId,
   });
-  return { data, error };
+  _cache = null;
+  return unwrap(data, error);
 }
 
-// ─── Complete onboarding ──────────────────────────────────────
-// Called once from the Onboarding page. Saves category preferences,
-// re-assigns today's missions with those preferences, and marks
-// the user as onboarded — all in one atomic RPC call.
+// Kept as an alias so existing imports keep working.
+export const completeWeeklyMission = completeMission;
+
+// ─── Undo a completion ────────────────────────────────────────
+// Writes compensating ledger rows; never deletes history.
+export async function uncompleteMission(assignmentId) {
+  const { data, error } = await supabase.rpc('uncomplete_mission', {
+    p_assignment_id: assignmentId,
+  });
+  _cache = null;
+  return unwrap(data, error);
+}
+
+// ─── Onboarding ───────────────────────────────────────────────
 export async function completeOnboarding(categories) {
-  const { error } = await supabase.rpc('complete_onboarding', {
+  const { data, error } = await supabase.rpc('complete_onboarding', {
     p_categories: categories,
   });
-  return { error };
+  _cache = null;
+  const res = unwrap(data, error);
+  return { error: res.error };
 }
 
 // ─── Mission preferences ──────────────────────────────────────
-// Reads the user's preferred mission categories from their profile.
 export async function getMissionPreferences() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('mission_categories')
-    .single();
-  return { data: data?.mission_categories ?? ['health', 'money', 'discipline'], error };
+  const { data, error } = await supabase.rpc('get_my_profile');
+  if (error) return { data: ['health', 'money', 'discipline'], error };
+  return { data: data?.mission_categories ?? ['health', 'money', 'discipline'], error: null };
 }
 
-// Saves the user's preferred mission categories.
-// categories: attribute_type[] — e.g. ['health', 'discipline']
 export async function updateMissionPreferences(categories) {
-  const { error } = await supabase.rpc('update_mission_preferences', {
+  const { data, error } = await supabase.rpc('update_mission_preferences', {
     p_categories: categories,
   });
-  return { error };
+  _cache = null;
+  const res = unwrap(data, error);
+  return { error: res.error };
 }
 
 // ─── Full mission catalog ─────────────────────────────────────
-// Used on the /missions page to show all available missions.
+// Used on /missions to show everything available. Reads the table directly —
+// the catalog is world-readable to signed-in users.
 export async function getMissionsCatalog() {
   const { data, error } = await supabase
     .from('missions')
-    .select('id, name, description, xp, attribute, rarity, icon')
+    .select('id, code, name, description, xp_reward, coins_reward, attribute, rarity, icon, cadence')
     .eq('is_active', true)
     .order('rarity')
-    .order('xp', { ascending: false });
+    .order('xp_reward', { ascending: false });
 
-  return { data, error };
+  if (error) return { data: null, error };
+
+  return {
+    data: (data ?? []).map(m => ({
+      id:          m.id,
+      code:        m.code,
+      name:        loc(m.name),
+      description: loc(m.description),
+      xp:          m.xp_reward,
+      coins_reward: m.coins_reward,
+      attribute:   m.attribute,
+      rarity:      m.rarity,
+      icon:        m.icon,
+      cadence:     m.cadence,
+    })),
+    error: null,
+  };
 }

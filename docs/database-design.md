@@ -660,11 +660,15 @@ Defaults I chose that are worth a second look — all cheap to change now, expen
 
 ---
 
-## 8. Frontend delta (not yet applied)
+## 8. Frontend delta — APPLIED
 
-The schema is deliberately **not** a drop-in match for the old API layer — v1's
-contract had duplicated tables and a client-side timezone bug. `src/lib/api/*`
-must be rewired before the app runs. The mapping:
+`src/lib/api/*` has been rewired to the new RPCs. Every exported function name
+was kept identical and the return shapes adapted, so the page components needed
+almost no changes. Translation objects (`{"en": …, "es": …}`) are unwrapped in
+the API layer by `_shared.js`, reading the same `localStorage` key
+`LanguageContext` writes.
+
+The mapping that was applied:
 
 | Old call | New call | Note |
 |---|---|---|

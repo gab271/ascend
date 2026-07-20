@@ -12,11 +12,19 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(undefined); // undefined = still loading
 
   const loadProfile = useCallback(async () => {
+    // v2 stores onboarding as a nullable timestamp (onboarded_at) rather than a
+    // boolean, so the moment it happened is recorded too. Mapped back to the
+    // boolean OnboardingGuard expects.
     const { data } = await supabase
       .from('profiles')
-      .select('id, username, onboarding_completed')
+      .select('id, username, onboarded_at')
       .single();
-    setProfile(data ?? null);
+
+    setProfile(
+      data
+        ? { ...data, onboarding_completed: data.onboarded_at != null }
+        : null
+    );
   }, []);
 
   useEffect(() => {

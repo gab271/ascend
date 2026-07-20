@@ -119,7 +119,12 @@ export default function Profile() {
       getRewardsCatalog(),
       getWeeklyXP(),
       getMyRank(),
-      supabase.from('user_daily_missions').select('id', { count: 'exact', head: true }).eq('completed', true),
+      // Daily and weekly assignments live in one table now; RLS scopes this to
+      // the current user, so no user_id filter is needed.
+      supabase
+        .from('mission_assignments')
+        .select('id', { count: 'exact', head: true })
+        .not('completed_at', 'is', null),
     ]).then(([{ data: p }, { data: r }, { data: weekXP }, { data: myRank }, { count: mCount }]) => {
       if (p) {
         setProfile(p);

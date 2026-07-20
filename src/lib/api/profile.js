@@ -1,132 +1,120 @@
 import { supabase } from '../supabase';
+import { loc, unwrap } from './_shared';
 
-// ─── Fetch own profile (core fields only) ────────────────────
-// Used by Dashboard, Sidebar, and any page that doesn't need
-// shop-item cosmetics. Does NOT join shop_items so it works even
-// if migrations 00009/00012 haven't been applied yet.
+// ─── Equipped-item mapping ────────────────────────────────────
+// The database now has ONE items table and a user_equipped(user_id, slot) row
+// per slot, replacing v1's separate titles/cosmetics/shop_items tables and the
+// seven active_*_id columns on profiles.
+//
+// The pages still read active_title / active_frame / active_shop_emote, so this
+// maps the new `equipped` object back onto those names. Keeps the UI working
+// without a rewrite of every component.
+function shapeEquipped(slotItem) {
+  if (!slotItem) return null;
+  return {
+    id:        slotItem.item_id,
+    code:      slotItem.code,
+    name:      loc(slotItem.name),
+    rarity:    slotItem.rarity,
+    config:    slotItem.config ?? {},
+    item_type: slotItem.item_type,
+  };
+}
+
+function shapeProfile(raw) {
+  if (!raw) return null;
+  const eq = raw.equipped ?? {};
+
+  return {
+    id:         raw.id,
+    username:   raw.username,
+    avatar_url: raw.avatar_url,
+    created_at: raw.created_at,
+
+    total_xp:        raw.total_xp ?? 0,
+    coins:           raw.coins ?? 0,
+    level:           raw.level ?? 1,
+    xp:              raw.xp ?? 0,
+    xp_next:         raw.xp_next ?? 100,
+    streak:          raw.streak ?? 0,
+    longest_streak:  raw.longest_streak ?? 0,
+    stat_health:     raw.stat_health ?? 0,
+    stat_money:      raw.stat_money ?? 0,
+    stat_discipline: raw.stat_discipline ?? 0,
+
+    // New in v2 — the soloq tier and banked streak freezes.
+    tier: raw.tier ? { ...raw.tier, name: loc(raw.tier.name) } : null,
+    freezes_banked: raw.freezes_banked ?? 0,
+
+    timezone:           raw.timezone,
+    day_cutoff_hour:    raw.day_cutoff_hour,
+    mission_categories: raw.mission_categories ?? ['health', 'money', 'discipline'],
+    onboarded:          raw.onboarded ?? false,
+
+    // Legacy-compatible equipped slots
+    active_title:      shapeEquipped(eq.title),
+    active_frame:      shapeEquipped(eq.frame),
+    active_background: shapeEquipped(eq.background),
+    active_shop_frame:     shapeEquipped(eq.frame),
+    active_shop_emote:     shapeEquipped(eq.emote),
+    active_shop_nameplate: shapeEquipped(eq.nameplate),
+    active_shop_banner:    shapeEquipped(eq.banner),
+
+    equipped: eq,
+  };
+}
+
+// ─── Fetch own profile ────────────────────────────────────────
+// One RPC replaces v1's profiles select with seven nested joins.
 export async function getMyProfile() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(`
-      id,
-      username,
-      avatar_url,
-      total_xp,
-      level,
-      xp,
-      xp_next,
-      streak,
-      longest_streak,
-      last_active_date,
-      stat_health,
-      stat_money,
-      stat_discipline,
-      coins,
-      created_at,
-      active_title:titles!active_title_id (
-        id, name, rarity
-      ),
-      active_frame:cosmetics!active_frame_id (
-        id, name, rarity, config
-      ),
-      active_background:cosmetics!active_background_id (
-        id, name, rarity, config
-      )
-    `)
-    .single();
-
-  return { data, error };
+  const { data, error } = await supabase.rpc('get_my_profile');
+  if (error) return { data: null, error };
+  return { data: shapeProfile(data), error: null };
 }
 
-// ─── Fetch own profile (full — includes shop item cosmetics) ──
-// Used only by the Profile page, which renders equipped shop items.
-// Requires migrations 00009 (shop_items table) and 00012
-// (active_shop_*_id columns on profiles) to be applied.
-export async function getMyProfileFull() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(`
-      id,
-      username,
-      avatar_url,
-      total_xp,
-      level,
-      xp,
-      xp_next,
-      streak,
-      longest_streak,
-      last_active_date,
-      stat_health,
-      stat_money,
-      stat_discipline,
-      coins,
-      created_at,
-      active_title:titles!active_title_id (
-        id, name, rarity
-      ),
-      active_frame:cosmetics!active_frame_id (
-        id, name, rarity, config
-      ),
-      active_background:cosmetics!active_background_id (
-        id, name, rarity, config
-      ),
-      active_shop_frame:shop_items!active_shop_frame_id (
-        id, name, rarity, config, item_type
-      ),
-      active_shop_emote:shop_items!active_shop_emote_id (
-        id, name, rarity, config, item_type
-      ),
-      active_shop_nameplate:shop_items!active_shop_nameplate_id (
-        id, name, rarity, config, item_type
-      ),
-      active_shop_banner:shop_items!active_shop_banner_id (
-        id, name, rarity, config, item_type
-      )
-    `)
-    .single();
+// v1 had a separate "full" variant because shop-item joins could fail if
+// migrations weren't applied. One RPC returns everything now, so they're the
+// same call — kept as an alias so Profile.jsx keeps working.
+export const getMyProfileFull = getMyProfile;
 
-  return { data, error };
-}
-
-// ─── Weekly XP chart data ────────────────────────────────────
-// Returns [{day: '2026-03-24', xp_earned: 320}, ...]
-// Fills missing days with 0 so the chart always shows 7 bars.
+// ─── Weekly XP chart ──────────────────────────────────────────
+// Returns exactly 7 numbers, Monday..Sunday.
+//
+// v1 built the week client-side with new Date() and toISOString() — browser
+// local time against a UTC database. The server derives it now, from the user's
+// stored timezone and day cutoff.
 export async function getWeeklyXP() {
   const { data, error } = await supabase.rpc('get_weekly_xp');
   if (error) return { data: null, error };
-
-  // Build a full 7-day array starting from Monday
-  const today  = new Date();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-
-  const byDay = Object.fromEntries((data || []).map(r => [r.day, r.xp_earned]));
-
-  const week = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    const key = d.toISOString().split('T')[0];
-    return byDay[key] ?? 0;
-  });
-
-  return { data: week, error: null };
+  const week = (data ?? []).map(r => r.xp_earned ?? 0);
+  while (week.length < 7) week.push(0);
+  return { data: week.slice(0, 7), error: null };
 }
 
-// ─── Update username ─────────────────────────────────────────
-// Goes through the update_username() SECURITY DEFINER RPC.
+// ─── Update username ──────────────────────────────────────────
 export async function updateUsername(username) {
-  const { error } = await supabase.rpc('update_username', {
+  const { data, error } = await supabase.rpc('update_username', {
     p_username: username,
   });
-  return { error };
+  return { error: unwrap(data, error).error };
 }
 
-// ─── Upload avatar and update profile ────────────────────────
+// ─── Update timezone / day cutoff ─────────────────────────────
+// New in v2. Past days keep the dates they were earned on — changing this
+// affects future entries only.
+export async function updateTimezone(timezone, cutoffHour = null) {
+  const { data, error } = await supabase.rpc('update_timezone', {
+    p_timezone:    timezone,
+    p_cutoff_hour: cutoffHour,
+  });
+  return { error: unwrap(data, error).error };
+}
+
+// ─── Upload avatar ────────────────────────────────────────────
 export async function uploadAvatar(file) {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) return { error: userError ?? new Error('No autenticado') };
 
-  // Validate file type and size client-side
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
   if (!allowedTypes.includes(file.type)) {
     return { error: { message: 'Solo se permiten imágenes JPG, PNG o WebP.' } };
@@ -136,6 +124,7 @@ export async function uploadAvatar(file) {
   }
 
   const ext  = file.name.split('.').pop().toLowerCase();
+  // Path must start with the user's id — the storage RLS policy checks it.
   const path = `${user.id}/avatar.${ext}`;
 
   const { error: uploadError } = await supabase.storage
@@ -148,58 +137,89 @@ export async function uploadAvatar(file) {
     .from('avatars')
     .getPublicUrl(path);
 
-  // Validate + store via SECURITY DEFINER RPC
-  const { error: updateError } = await supabase.rpc('update_avatar_url', {
+  // Cache-bust so the <img> refreshes after an overwrite.
+  const busted = `${publicUrl}?v=${Date.now()}`;
+
+  const { data, error: rpcError } = await supabase.rpc('update_avatar_url', {
     p_avatar_url: publicUrl,
   });
+  const res = unwrap(data, rpcError);
 
-  return { data: publicUrl, error: updateError };
+  return { data: busted, error: res.error };
 }
 
-// ─── Equip a cosmetic item ────────────────────────────────────
-// type: 'title' | 'frame' | 'background'
-export async function setActiveCosmetic(type, itemId) {
-  const { error } = await supabase.rpc('set_active_cosmetic', {
-    p_type:    type,
-    p_item_id: itemId,
-  });
-  return { error };
+// ─── Equip a cosmetic ─────────────────────────────────────────
+// The slot is inferred from the item, so the `type` argument v1 passed is no
+// longer needed. Kept in the signature for call-site compatibility.
+export async function setActiveCosmetic(_type, itemId) {
+  const { data, error } = await supabase.rpc('equip_item', { p_item_id: itemId });
+  return { error: unwrap(data, error).error };
 }
 
-// ─── Rewards catalog ─────────────────────────────────────────
-// Fetches everything the user owns and the full catalog in parallel,
-// then merges them (unlocked flag).
+export async function unequipSlot(slot) {
+  const { data, error } = await supabase.rpc('unequip_slot', { p_slot: slot });
+  return { error: unwrap(data, error).error };
+}
+
+// ─── Rewards catalog ──────────────────────────────────────────
+// One RPC replaces v1's six parallel queries.
+// Returned in the { badges, titles, frames, backgrounds } shape Rewards.jsx
+// already renders — "badges" are achievements.
 export async function getRewardsCatalog() {
-  const [
-    { data: allBadges,     error: e1 },
-    { data: allTitles,     error: e2 },
-    { data: allCosmetics,  error: e3 },
-    { data: ownedBadges,   error: e4 },
-    { data: ownedTitles,   error: e5 },
-    { data: ownedCosm,     error: e6 },
-  ] = await Promise.all([
-    supabase.from('badges').select('*').order('xp_required'),
-    supabase.from('titles').select('*').order('xp_required'),
-    supabase.from('cosmetics').select('*').order('xp_required'),
-    supabase.from('user_badges').select('badge_id'),
-    supabase.from('user_titles').select('title_id'),
-    supabase.from('user_cosmetics').select('cosmetic_id'),
-  ]);
-
-  const error = e1 || e2 || e3 || e4 || e5 || e6;
+  const { data, error } = await supabase.rpc('get_rewards_catalog');
   if (error) return { data: null, error };
 
-  const ownedBadgeIds  = new Set((ownedBadges  || []).map(r => r.badge_id));
-  const ownedTitleIds  = new Set((ownedTitles  || []).map(r => r.title_id));
-  const ownedCosmetIds = new Set((ownedCosm    || []).map(r => r.cosmetic_id));
+  const items = data?.items ?? [];
+  const achievements = data?.achievements ?? [];
+
+  const shapeItem = (i) => ({
+    id:          i.item_id,
+    code:        i.code,
+    name:        loc(i.name),
+    description: loc(i.description),
+    rarity:      i.rarity,
+    config:      i.config ?? {},
+    item_type:   i.item_type,
+    acquisition: i.acquisition,
+    price:       i.price_coins,
+    unlock_level: i.unlock_level,
+    unlocked:    i.owned,
+    equipped:    i.equipped,
+    // Cosmetics have no emoji of their own; fall back to a slot glyph so
+    // RewardCard always renders something.
+    icon: ({ title: '🏷️', frame: '🖼️', background: '🌌',
+             banner: '🎌', nameplate: '📛', emote: '😀' })[i.item_type] ?? '✨',
+  });
+
+  const byType = (t) => items.filter(i => i.item_type === t).map(shapeItem);
 
   return {
     data: {
-      badges:      (allBadges    || []).map(b => ({ ...b, unlocked: ownedBadgeIds.has(b.id) })),
-      titles:      (allTitles    || []).map(t => ({ ...t, unlocked: ownedTitleIds.has(t.id) })),
-      frames:      (allCosmetics || []).filter(c => c.type === 'frame').map(c => ({ ...c, unlocked: ownedCosmetIds.has(c.id) })),
-      backgrounds: (allCosmetics || []).filter(c => c.type === 'background').map(c => ({ ...c, unlocked: ownedCosmetIds.has(c.id) })),
+      badges: achievements.map(a => ({
+        id:          a.code,
+        code:        a.code,
+        name:        loc(a.name),
+        description: loc(a.description),
+        rarity:      a.rarity,
+        icon:        a.icon,
+        xp_required: a.xp_reward,
+        unlocked:    a.unlocked,
+        unlocked_at: a.unlocked_at,
+      })),
+      titles:      byType('title'),
+      frames:      byType('frame'),
+      backgrounds: byType('background'),
+      banners:     byType('banner'),
+      nameplates:  byType('nameplate'),
+      emotes:      byType('emote'),
     },
     error: null,
   };
+}
+
+// ─── Account deletion ─────────────────────────────────────────
+// Soft delete: recoverable for 30 days, then hard-deleted for GDPR.
+export async function requestAccountDeletion() {
+  const { data, error } = await supabase.rpc('request_account_deletion');
+  return unwrap(data, error);
 }

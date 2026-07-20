@@ -18,13 +18,12 @@ function ShopItemCard({ item, isEquipped, onEquip, t }) {
   const cfg   = item.config || {};
   const [loading, setLoading] = useState(false);
 
+  // Slot names come straight from the `slots` table now:
+  // title | frame | background | banner | nameplate | emote
   const preview = item.item_type === 'emote'
     ? cfg.emoji || '✨'
-    : item.item_type === 'nameplate'
-      ? '🏷️'
-      : item.item_type === 'profile_banner'
-        ? '🖼️'
-        : '🔮';
+    : ({ nameplate: '📛', banner: '🎌', frame: '🖼️', background: '🌌', title: '🏷️' })[item.item_type]
+      ?? '🔮';
 
   const handleEquip = async () => {
     setLoading(true);
@@ -110,8 +109,9 @@ export default function Rewards() {
   const [totalXP,        setTotalXP]        = useState(0);
   const [loading,        setLoading]        = useState(true);
   const [activeIds,      setActiveIds]      = useState({ title: null, frame: null, background: null });
+  // Keyed by slot code so activeShopIds[item.item_type] resolves directly.
   const [activeShopIds,  setActiveShopIds]  = useState({
-    animated_frame: null, emote: null, nameplate: null, profile_banner: null,
+    frame: null, emote: null, nameplate: null, banner: null,
   });
 
   useEffect(() => {
@@ -127,10 +127,10 @@ export default function Rewards() {
             background: p.active_background?.id ?? null,
           });
           setActiveShopIds({
-            animated_frame: p.active_shop_frame?.id     ?? null,
-            emote:          p.active_shop_emote?.id     ?? null,
-            nameplate:      p.active_shop_nameplate?.id ?? null,
-            profile_banner: p.active_shop_banner?.id    ?? null,
+            frame:     p.active_shop_frame?.id     ?? null,
+            emote:     p.active_shop_emote?.id     ?? null,
+            nameplate: p.active_shop_nameplate?.id ?? null,
+            banner:    p.active_shop_banner?.id    ?? null,
           });
         }
         setLoading(false);

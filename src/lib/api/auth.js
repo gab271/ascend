@@ -12,11 +12,22 @@ export async function signUp({ email, password, username }) {
     };
   }
 
+  // Capture the browser's IANA timezone at signup. The handle_new_user trigger
+  // reads it into profiles.timezone, which is what every "what day is it for
+  // this user" calculation depends on. Falls back to Europe/Madrid server-side
+  // if it is missing or not a real zone.
+  let timezone;
+  try {
+    timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    timezone = undefined;
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email:    email.trim().toLowerCase(),
     password,
     options: {
-      data:             { username: clean },
+      data:             { username: clean, timezone },
       emailRedirectTo:  `${window.location.origin}/auth/callback`,
     },
   });

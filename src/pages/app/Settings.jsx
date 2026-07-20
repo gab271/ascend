@@ -185,11 +185,12 @@ function TabCuenta({ user, t }) {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('profiles').select('username, is_private').eq('id', user.id).single()
-      .then(({ data }) => {
-        if (data?.username)  setUsername(data.username);
-        if (data?.is_private != null) setIsPrivate(data.is_private);
-      });
+    // get_my_profile() already returns both fields — no extra query needed, and
+    // it goes through the RPC rather than reading the table directly.
+    supabase.rpc('get_my_profile').then(({ data }) => {
+      if (data?.username) setUsername(data.username);
+      if (data?.is_private != null) setIsPrivate(data.is_private);
+    });
   }, [user]);
 
   const handlePrivacyToggle = async (newValue) => {
