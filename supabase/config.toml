@@ -1,0 +1,14 @@
+# Supabase CLI configuration.
+#
+# `supabase link --project-ref <ref>` fills in project_id. Only `db push` and
+# `migration new` are used in this project — neither needs Docker.
+#
+# Do NOT run `supabase start` or `supabase db diff`; those spin up a local
+# stack and do require Docker.
+
+project_id = ""
+
+[db]
+# Match your Supabase project's Postgres major version
+# (Dashboard -> Settings -> Infrastructure).
+major_version = 17

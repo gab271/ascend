@@ -1,0 +1,94 @@
+# ============================================================================
+# Ascend — automated database backup
+# ============================================================================
+# Why this exists: the Supabase free plan keeps 7 days of backups, has no PITR,
+# and pauses projects after ~7 days of inactivity. This workflow is the real
+# safety net.
+#
+# It also doubles as a keep-alive — a daily connection stops the project from
+# idling into a paused state.
+#
+# SETUP (one time):
+#   1. Supabase Dashboard -> Settings -> Database -> Connection string (URI)
+#   2. GitHub repo -> Settings -> Secrets and variables -> Actions -> New secret
+#        Name:  SUPABASE_DB_URL
+#        Value: postgresql://postgres.xxxx:PASSWORD@aws-0-eu-west-3.pooler.supabase.com:5432/postgres
+#   3. Commit this file. Run it once manually to confirm it works.
+#
+# RESTORE:
+#   Download the artifact, then:
+#     gunzip backup-YYYY-MM-DD.sql.gz
+#     psql "$TARGET_DB_URL" -f backup-YYYY-MM-DD.sql
+#   Restore into STAGING first. A backup you have never restored is a
+#   hypothesis, not a backup.
+# ============================================================================
+
+name: Database backup
+
+on:
+  schedule:
+    - cron: '0 3 * * *'      # 03:00 UTC daily
+  workflow_dispatch:          # run manually before any schema change
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-common
+          # Use the PGDG repo so pg_dump matches the server major version.
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Dump database
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DB_URL:-}" ]; then
+            echo "::error::SUPABASE_DB_URL secret is not set."
+            exit 1
+          fi
+          STAMP="$(date -u +%F)"
+
+          # Full logical dump: schema + data, restorable into an empty project.
+          pg_dump "$DB_URL" \
+            --no-owner --no-privileges \
+            --clean --if-exists \
+            --schema=public \
+            --file="ascend-full-${STAMP}.sql"
+
+          # Schema-only dump too: tiny, diffable, and makes accidental schema
+          # changes visible in the artifact history.
+          pg_dump "$DB_URL" \
+            --no-owner --no-privileges \
+            --schema-only --schema=public \
+            --file="ascend-schema-${STAMP}.sql"
+
+          gzip "ascend-full-${STAMP}.sql"
+          ls -lh ascend-*
+
+      - name: Verify dump is not empty
+        run: |
+          set -euo pipefail
+          # A 'successful' pg_dump of a broken connection can still produce a
+          # near-empty file. Fail loudly rather than banking a useless backup.
+          if [ "$(stat -c%s ascend-full-*.sql.gz)" -lt 1024 ]; then
+            echo "::error::Backup is suspiciously small — treating as failed."
+            exit 1
+          fi
+          grep -q 'CREATE TABLE' ascend-schema-*.sql \
+            || { echo "::error::Schema dump contains no tables."; exit 1; }
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ascend-backup-${{ github.run_id }}
+          path: |
+            ascend-full-*.sql.gz
+            ascend-schema-*.sql
+          retention-days: 90     # vs Supabase free tier's 7
